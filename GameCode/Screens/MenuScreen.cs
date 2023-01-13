@@ -12,6 +12,7 @@ public class MenuScreen : GameScreen
 {
     Button playButton;
     Button demoButton;
+    Button orthButton;
 
     OrthographicCamera camera;
     MainGame game => Game as MainGame;
@@ -53,14 +54,34 @@ public class MenuScreen : GameScreen
             TextOffset = new Point(16, 6),
         };
 
+        orthButton = new Button(Game as MainGame)
+        {
+            Color = Color.Purple,
+            HighlightColor = Color.Blue,
+            TextColor = Color.Red,
+            HighlightTextColor = Color.Blue,
+            Filled = false,
+            Font = font,
+            Text = "Orth",
+            TextScale = 1f,
+            Rect = new Rectangle(Game.GraphicsDevice.Viewport.Width / 2 - 50, 196, 100, 40),
+            TextOffset = new Point(16, 6),
+        };
+
         playButton.OnClick += PlayButton_OnClick;
         demoButton.OnClick += DemoButton_OnClick;
-
+        orthButton.OnClick += OrthButton_OnClick;
+            
 
         fpsCounter = new FPSCounter(game)
         {
             Font = font,
         };
+    }
+
+    private void OrthButton_OnClick(object sender, ClickEventArgs e)
+    {
+        ScreenManager.LoadScreen(new OrthScreen(game), new FadeTransition(GraphicsDevice, Color.Black, 2f));
     }
 
     private void DemoButton_OnClick(object sender, ClickEventArgs e)
@@ -78,6 +99,7 @@ public class MenuScreen : GameScreen
     {        
         playButton.Update(gameTime.GetElapsedSeconds());
         demoButton.Update(gameTime.GetElapsedSeconds());
+        orthButton.Update(gameTime.GetElapsedSeconds());
         fpsCounter.Tick(gameTime);
     }
 
@@ -87,6 +109,7 @@ public class MenuScreen : GameScreen
         game.SpriteBatch.Begin();
         playButton.Draw(game.SpriteBatch);
         demoButton.Draw(game.SpriteBatch);
+        orthButton.Draw(game.SpriteBatch);
         game.SpriteBatch.DrawCircle(new CircleF(game.MouseState.Position, 4f), 10, Color.Green);
 
         fpsCounter.Draw(game.SpriteBatch);
