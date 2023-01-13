@@ -63,6 +63,6 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Engine\Engine.projitems*{004dd712-bb0e-4996-bce0-ec45d9326887}*SharedItemsImports = 5
 		Engine\Engine.projitems*{5b45e328-6f5b-44e5-a44e-8cc78f86bd40}*SharedItemsImports = 5
-		Engine\MonoGameExtended.projitems*{a0cdbd0e-3a41-42b7-9425-a838bc2c7383}*SharedItemsImports = 13
+		Engine\Engine.projitems*{a0cdbd0e-3a41-42b7-9425-a838bc2c7383}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

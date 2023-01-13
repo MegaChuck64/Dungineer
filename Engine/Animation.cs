@@ -1,11 +1,13 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GameCode;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using System.Collections.Generic;
 
-namespace GameCode.Entities;
 
-public class Animation : Engine.Entity
+namespace Engine;
+
+public class Animation : Entity
 {
     public List<Texture2D> Frames { get; set; }
 
@@ -20,9 +22,9 @@ public class Animation : Engine.Entity
     public bool FacingLeft { get; set; }
 
 
-    private float animTimer = 0f;    
+    private float animTimer = 0f;
 
-    public Animation(MainGame game, string spriteName, int frameCount) : base(game)
+    public Animation(BaseGame game, string spriteName, int frameCount) : base(game)
     {
         Transform = new Transform2();
         Frames = new List<Texture2D>();
@@ -38,13 +40,13 @@ public class Animation : Engine.Entity
 
         animTimer += dt;
 
-        if (animTimer > 1f/FPS)
+        if (animTimer > 1f / FPS)
         {
             animTimer = 0f;
             CurrentFrame++;
             if (CurrentFrame > Frames.Count - 1)
-            { 
-                CurrentFrame = 0; 
+            {
+                CurrentFrame = 0;
             }
         }
 
@@ -64,10 +66,10 @@ public class Animation : Engine.Entity
            null,
            Color.White,
            0f,
-           FacingLeft ? new Vector2(Frames[CurrentFrame].Width * Transform.Scale.X/2, 0) : Vector2.Zero,
+           FacingLeft ? new Vector2(Frames[CurrentFrame].Width * Transform.Scale.X / 2, 0) : Vector2.Zero,
            FacingLeft ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
            0f);
     }
 
-    
+
 }

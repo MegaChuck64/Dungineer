@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Content;
 using MonoGame.Extended.Screens;
 using MonoGame.Extended.Screens.Transitions;
 using GameCode.Screens;
-using MonoGame.Extended.Entities;
 
 namespace GameCode;
 

@@ -1,37 +1,31 @@
 ﻿using Engine;
 using GameCode.Entities;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Screens;
 using MonoGame.Extended.Screens.Transitions;
 using MonoGame.Extended.ViewportAdapters;
 
 namespace GameCode.Screens;
-public class CrawlScreen : GameScreen
+public class CrawlScreen : BaseScreen
 {
     MainGame game => Game as MainGame;
 
-    SpriteFont font;
-    OrthographicCamera camera;
-    EntityManager entityManager;
     FPSCounter fpsCounter;
     Button backButton;
     Map map;
-    public CrawlScreen(MainGame game) : base(game)
+    public CrawlScreen(MainGame game) : base(game, "consolas_22")
     {
 
-        entityManager = new EntityManager();
     }
 
     public override void LoadContent()
     {
         base.LoadContent();
-        font = Game.Content.Load<SpriteFont>(@"Fonts\consolas_22");
-
+       
         fpsCounter = new FPSCounter(game)
         {
-            Font = font,
+            Font = Font,
         };
 
         backButton = new Button(game)
@@ -41,7 +35,7 @@ public class CrawlScreen : GameScreen
             TextColor = Color.Green,
             HighlightTextColor = Color.Blue,
             Filled = false,
-            Font = font,
+            Font = Font,
             Text = "Back",
             TextScale = 1f,
             Rect = new Rectangle(10, 10, 100, 40),
@@ -52,9 +46,9 @@ public class CrawlScreen : GameScreen
 
        
         var viewportAdapter = new BoxingViewportAdapter(Game.Window, GraphicsDevice, game.Width, game.Height);
-        camera = new OrthographicCamera(viewportAdapter);
+        
         map = new Map(game);
-        entityManager.AddEntity(map);
+        EntityManager.AddEntity(map);
         //eventHistory = new EventHistory(game);
         //entityManager.AddEntity(eventHistory);
     }
@@ -66,7 +60,8 @@ public class CrawlScreen : GameScreen
 
     public override void Update(GameTime gameTime)
     {
-        entityManager.Update(gameTime);
+        base.Update(gameTime);
+
         backButton.Update(gameTime.GetElapsedSeconds());
         fpsCounter.Tick(gameTime);
 
@@ -74,14 +69,7 @@ public class CrawlScreen : GameScreen
 
     public override void Draw(GameTime gameTime)
     {
-        var transformMatrix = camera.GetViewMatrix();
-        game.SpriteBatch.Begin(transformMatrix: transformMatrix);
-
-        entityManager.Draw((Game as MainGame).SpriteBatch);
-        
-        game.SpriteBatch.End();
-
-
+        base.Draw(gameTime);
 
         //UI        
         game.SpriteBatch.Begin();

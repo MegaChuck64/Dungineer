@@ -3,14 +3,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GameCode.Entities;
 
-public class WeatherSystem
+public class WeatherSystem : Entity
 {
 
     public enum WeatherState
@@ -27,7 +23,7 @@ public class WeatherSystem
     private FastRandom random = new();
     private float groundY;
     private MainGame game;
-    public WeatherSystem(MainGame game, WeatherState currentState, float groundY, EntityManager entityManager)
+    public WeatherSystem(MainGame game, WeatherState currentState, float groundY, EntityManager entityManager) : base(game)
     {
         State = currentState;
         this.game = game;
@@ -36,7 +32,7 @@ public class WeatherSystem
     }
 
 
-    public void Update(float dt)
+    public override void Update(float dt)
     {
         switch (State)
         {
@@ -53,10 +49,9 @@ public class WeatherSystem
                 UpdateSnowing(dt);
                 break;
             default:
-                throw new NotImplementedException();                
+                throw new NotImplementedException();
         }
     }
-
 
     private void UpdateSunny(float dt)
     {
@@ -119,7 +114,7 @@ public class WeatherSystem
 
 
 
-    public void Draw(SpriteBatch sb)
+    public override void Draw(SpriteBatch sb)
     {
         switch (State)
         {
@@ -159,7 +154,5 @@ public class WeatherSystem
     {
 
     }
-
-
 
 }

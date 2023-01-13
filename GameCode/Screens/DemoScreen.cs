@@ -6,55 +6,75 @@ using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using MonoGame.Extended.Screens;
 using MonoGame.Extended.Screens.Transitions;
-using MonoGame.Extended.ViewportAdapters;
 
 namespace GameCode.Screens;
 
-public class DemoScreen : GameScreen
+public class DemoScreen : BaseScreen
 {
     MainGame game => Game as MainGame;
-
-
-    SpriteFont font;
-    OrthographicCamera camera;
-    EntityManager entityManager;
+    
     FPSCounter fpsCounter;
-    Texture2D ground;
     Button backButton;
     WeatherSystem weatherSystem;
     Player player;    
 
-    public DemoScreen(MainGame game) : base(game)
+    public DemoScreen(MainGame game) : base(game, "consolas_22")
     {
-        var viewportAdapter = new BoxingViewportAdapter(Game.Window, GraphicsDevice, game.Width, game.Height);
-        camera = new OrthographicCamera(viewportAdapter);
-        entityManager = new EntityManager();
+
     }
 
     public override void LoadContent()
     {
         base.LoadContent();
-        font = Game.Content.Load<SpriteFont>(@"Fonts\consolas_22");
-        ground = Game.Content.Load<Texture2D>(@"Sprites\ground");
+
+        var groundTexture = Game.Content.Load<Texture2D>(@"Sprites\ground");
         var treeTexture = Game.Content.Load<Texture2D>(@"Sprites\tree");
         var playerTexture = Game.Content.Load<Texture2D>(@"Sprites\player");
 
 
-        entityManager.AddEntity(
-            new Tree(
+        EntityManager.AddEntity(
+            new Sprite(
                 game,
                 treeTexture,
-                new Vector2(100, game.Height - ground.Height - treeTexture.Height + 10)));
-        weatherSystem = new WeatherSystem(game, WeatherSystem.WeatherState.Snowing, game.Height - ground.Height, entityManager);
+                new Vector2(100, game.Height - groundTexture.Height - treeTexture.Height + 10)));
 
-        player = new Player(
-            game,
-            new Vector2(game.Width/2 - playerTexture.Width/2, game.Height - ground.Height - playerTexture.Height + 16f));
-        //entityManager.AddEntity(player);
+        EntityManager.AddEntity(
+            new Sprite(
+                game,
+                groundTexture,
+                new Vector2(-groundTexture.Width, game.Height - groundTexture.Height)));
+        
+        EntityManager.AddEntity(
+            new Sprite(
+                game,
+                groundTexture,
+                  new Vector2(0, game.Height - groundTexture.Height)));
+
+        EntityManager.AddEntity(
+            new Sprite(
+                game,
+                groundTexture,
+                  new Vector2(groundTexture.Width, game.Height - groundTexture.Height)));
+
+        weatherSystem = 
+            new WeatherSystem(
+                game, 
+                WeatherSystem.WeatherState.Snowing, 
+                game.Height - groundTexture.Height, 
+                EntityManager);
+
+        player = 
+            new Player(
+                game,
+                new Vector2(
+                    game.Width/2 - playerTexture.Width/2, 
+                    game.Height - groundTexture.Height - playerTexture.Height + 16f));
+
+        EntityManager.AddEntity(player);
 
         fpsCounter = new FPSCounter(game)
         {
-            Font = font,
+            Font = Font,
         };
 
         backButton = new Button(game)
@@ -64,7 +84,7 @@ public class DemoScreen : GameScreen
             TextColor = Color.Green,
             HighlightTextColor = Color.Blue,
             Filled = false,
-            Font = font,
+            Font = Font,
             Text = "Back",
             TextScale = 1f,
             Rect = new Rectangle(10, 10, 100, 40),
@@ -85,7 +105,7 @@ public class DemoScreen : GameScreen
     public override void Update(GameTime gameTime)
     {
         player.Update(gameTime.GetElapsedSeconds());
-        entityManager.Update(gameTime);
+        
         weatherSystem.Update(gameTime.GetElapsedSeconds());
         backButton.Update(gameTime.GetElapsedSeconds());
         fpsCounter.Tick(gameTime);
@@ -100,33 +120,24 @@ public class DemoScreen : GameScreen
         }
 
 
-        camera.Position = new Vector2(player.Transform.Position.X - game.Width / 2, camera.Position.Y);
+        Camera.Position = new Vector2(player.Transform.Position.X - game.Width / 2, Camera.Position.Y);
 
-        if (camera.Position.X > game.Width)
-            camera.Position = new Vector2(game.Width, camera.Position.Y);
+        if (Camera.Position.X > game.Width)
+            Camera.Position = new Vector2(game.Width, Camera.Position.Y);
 
-        if (camera.Position.X < -game.Width)
-            camera.Position = new Vector2(-game.Width, camera.Position.Y);
+        if (Camera.Position.X < -game.Width)
+            Camera.Position = new Vector2(-game.Width, Camera.Position.Y);
         
     }
 
     public override void Draw(GameTime gameTime)
     {
-        var transformMatrix = camera.GetViewMatrix();
-        game.SpriteBatch.Begin(transformMatrix: transformMatrix);
 
-        // game.SpriteBatch.Begin();
 
-        //ground on top of other entities
-        game.SpriteBatch.Draw(ground, new Vector2(-ground.Width, game.Height - ground.Height), Color.White);
-        game.SpriteBatch.Draw(ground, new Vector2(0, game.Height - ground.Height), Color.White);
-        game.SpriteBatch.Draw(ground, new Vector2(ground.Width, game.Height - ground.Height), Color.White);
 
-        entityManager.Draw((Game as MainGame).SpriteBatch);
-        player.Draw(game.SpriteBatch);
+        //player.Draw(game.SpriteBatch);
 
-        game.SpriteBatch.End();
-
+        base.Draw(gameTime);
 
 
         //UI        
@@ -138,6 +149,8 @@ public class DemoScreen : GameScreen
 
         //mouse pointer on top of everything
         game.SpriteBatch.DrawCircle(new CircleF(game.MouseState.Position, 4f), 10, Color.Green);
+
+
 
         game.SpriteBatch.End();
     }
