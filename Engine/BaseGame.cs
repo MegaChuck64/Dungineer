@@ -1,11 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using MonoGame.Extended;
-using MonoGame.Extended.Entities;
 using MonoGame.Extended.Input;
-using MonoGame.Extended.Sprites;
 
 namespace Engine
 {
@@ -15,7 +11,6 @@ namespace Engine
         public SpriteBatch SpriteBatch { get; set; }
         public KeyboardStateExtended KeyState { get; private set; }
         public MouseStateExtended MouseState { get; private set; }
-
         public Color BackgroundColor { get; set; } = Color.Black;
         public int Width { get; private set; }
         public int Height { get; private set; }
