@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework;
 using MonoGame.Extended;
 using MonoGame.Extended.Screens;
 using MonoGame.Extended.Screens.Transitions;
-using MonoGame.Extended.ViewportAdapters;
 
 namespace GameCode.Screens;
 public class CrawlScreen : BaseScreen
@@ -44,9 +43,6 @@ public class CrawlScreen : BaseScreen
 
         backButton.OnClick += BackButton_OnClick;
 
-       
-        var viewportAdapter = new BoxingViewportAdapter(Game.Window, GraphicsDevice, game.Width, game.Height);
-        
         map = new Map(game);
         EntityManager.AddEntity(map);
         //eventHistory = new EventHistory(game);

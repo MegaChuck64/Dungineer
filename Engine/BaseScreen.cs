@@ -38,7 +38,9 @@ public class BaseScreen : GameScreen
     public override void Draw(GameTime gameTime)
     {
         var transformMatrix = Camera.GetViewMatrix();
-        BGame.SpriteBatch.Begin(transformMatrix: transformMatrix);
+        BGame.SpriteBatch.Begin(
+            transformMatrix: transformMatrix, 
+            samplerState: SamplerState.PointWrap);
 
         EntityManager.Draw((Game as MainGame).SpriteBatch);
 

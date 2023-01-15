@@ -5384,6 +5384,18 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/Horse03.PNG
 
+#begin Sprites/hud-tileset.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/hud-tileset.png
+
 #begin Sprites/HumanArcher.PNG
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -10975,6 +10987,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Sprites/TurtleYellow.PNG
+
+#begin Sprites/ui_box_select.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Sprites/ui_box_select.png
 
 #begin Sprites/Unique1.PNG
 /importer:TextureImporter
