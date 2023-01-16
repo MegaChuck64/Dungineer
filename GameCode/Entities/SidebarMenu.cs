@@ -129,8 +129,8 @@ public class MenuItem : Entity
             new Rectangle(
                 (Position - new Vector2(2f, 2f)).ToPoint(), 
                 (textSize + new Vector2(4f, 4f)).ToPoint()),
-            bgTempColor);
+            bgTempColor, 0.75f);
 
-        sb.DrawString(Font, Text, pos, Color);
+        sb.DrawString(Font, Text, pos, Color,0f, Vector2.Zero, 1f, SpriteEffects.None, 0.76f);
     }
 }

@@ -10,6 +10,7 @@ public class Sprite : Entity
 {
     public Transform2 Transform { get; set; }
     public Texture2D Texture { get; set; }
+    public float SortLayer { get; set; } = 0f;
     public Sprite(BaseGame game, Texture2D texture, Vector2 pos) : base(game)
     {
         Texture = texture;
@@ -30,7 +31,12 @@ public class Sprite : Entity
                 (int)Transform.Position.Y,
                 (int)Transform.Scale.X * Texture.Width,
                 (int)Transform.Scale.Y * Texture.Height),
-            Color.White);
+            null,
+            Color.White,
+            0f,
+            Vector2.Zero,           
+            SpriteEffects.None,
+            SortLayer);
     }
 
     public static Texture2D TextureFromSpriteAtlas(

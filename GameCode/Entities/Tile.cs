@@ -14,6 +14,7 @@ public class Tile : Sprite
     {
         TileType = tileType;
         HasCollider = hasCollider;
+        SortLayer = 0f;
     }
 
 
@@ -34,5 +35,6 @@ public class TileObject : Tile
     public TileObject(BaseGame game, string name, TileType tileType, Texture2D texture, Vector2 pos, bool hasCollider = false) : base(game, tileType, texture, pos, hasCollider)
     {
         Name = name;
+        SortLayer = 0.5f;
     }
 }

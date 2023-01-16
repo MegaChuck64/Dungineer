@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
-using MonoGame.Extended.Input;
 
 namespace GameCode.Entities;
 
@@ -16,6 +15,7 @@ public class TileSelector : Sprite
     {
         Map = map;
         Camera = camera;
+        SortLayer = 0.25f;
     }
 
     public override void Update(float dt)
@@ -32,8 +32,6 @@ public class TileSelector : Sprite
             Transform.Position = Map.MapToWorldPosition((x, y));
         }
     }
-
-
 
     public override void Draw(SpriteBatch sb)
     {

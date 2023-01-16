@@ -3,14 +3,13 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using System.Collections.Generic;
-using System.Data;
 
 namespace GameCode.Entities;
 
 public class TileMap : Entity
 {
     public Tile[,] Tiles { get; set; }
-    public Tile[,] TileObjects { get; set; }
+    public TileObject[,] TileObjects { get; set; }
     public Dictionary<TileType, Texture2D> TileTextures { get; set; }
     public int Width { get; private set; }
     public int Height { get; private set; }
@@ -39,6 +38,19 @@ public class TileMap : Entity
 
         return tile;
     }
+
+    public TileObject TryGetTileObject(int x, int y )
+    {
+        TileObject tile = null;
+
+        if (x >= 0 && x < Width &&
+            y >= 0 && y < Height)
+        {
+            tile = TileObjects[x, y];
+        }
+
+        return tile;
+    }
     public TileMap(BaseGame game, OrthographicCamera camera) : base(game)
     {
         Camera = camera;
@@ -49,7 +61,7 @@ public class TileMap : Entity
         LoadTileTextures();
 
         Tiles = new Tile[Width, Height];
-        TileObjects = new Tile[Width, Height];
+        TileObjects = new TileObject[Width, Height];
         var flip = false;
 
         for (int x = 0; x < Width; x++)
@@ -68,12 +80,15 @@ public class TileMap : Entity
                 if (x == 10 && y == 10)
                 {
                     TileObjects[x, y] =
-                        new TileObject(
+                        new Character(
+                            Character.CharRace.Human,
+                            Character.CharClass.Fighter,
                             game,
-                            "Human Fighter",
+                            "Glenn",
                             TileType.HumanFighter,
                             TileTextures[TileType.HumanFighter],
-                            new Vector2(x * TileSize, y * TileSize));
+                            new Vector2(x * TileSize, y * TileSize),
+                            this);
                 }
                 else
                 {

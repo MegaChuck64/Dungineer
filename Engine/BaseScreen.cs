@@ -39,7 +39,8 @@ public class BaseScreen : GameScreen
         var transformMatrix = Camera.GetViewMatrix();
         BGame.SpriteBatch.Begin(
             transformMatrix: transformMatrix, 
-            samplerState: SamplerState.PointWrap);
+            samplerState: SamplerState.PointWrap,
+            sortMode: SpriteSortMode.FrontToBack);
 
         EntityManager.Draw((Game as BaseGame).SpriteBatch);
 

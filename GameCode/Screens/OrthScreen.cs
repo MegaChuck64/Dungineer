@@ -69,9 +69,16 @@ public class OrthScreen : BaseScreen
 
     private void HandleTileSelecting()
     {
+        var (selectX, selectY) = map.WorldToMapPosition(tileSelector.Transform.Position);
+
         if (BGame.MouseState.WasButtonJustDown(MouseButton.Left))
         {
             showTileInfo = true;
+            var fighter = map.TryGetTileObject(10, 10);
+            if (fighter is Character chr)
+            {
+                chr.SetTarget((selectX, selectY));
+            }
         }
         else if (BGame.MouseState.WasButtonJustDown(MouseButton.Right))
         {
@@ -85,7 +92,6 @@ public class OrthScreen : BaseScreen
         {
             tileInfoBox.AddItem($"Tile Info", Color.White, true);
             
-            var (selectX, selectY) = map.WorldToMapPosition(tileSelector.Transform.Position);
             
             var selectedObj = map.TileObjects[selectX, selectY];            
             var selectedTile = map.Tiles[selectX, selectY];
@@ -99,8 +105,14 @@ public class OrthScreen : BaseScreen
             if (selectedObj != null)
             {
                 tileInfoBox.AddItem("", Color.White);
-                tileInfoBox.AddItem($"Object", Color.White);
-                tileInfoBox.AddItem($"{(selectedObj as TileObject).Name}", Color.Yellow, true);
+                tileInfoBox.AddItem($"Object", Color.White, true);
+                tileInfoBox.AddItem($"{selectedObj.Name}", Color.Yellow);
+
+                if (selectedObj is Character chr)
+                {
+                    tileInfoBox.AddItem($"{chr.Race}", Color.Yellow);
+                    tileInfoBox.AddItem($"{chr.Class}", Color.Yellow);
+                }
             }
         }
     }
@@ -114,7 +126,9 @@ public class OrthScreen : BaseScreen
     {
         base.Draw(gameTime);
         
-        BGame.SpriteBatch.Begin(samplerState: SamplerState.PointWrap);
+        BGame.SpriteBatch.Begin(
+            samplerState: SamplerState.PointClamp,
+            sortMode: SpriteSortMode.FrontToBack);
 
 
         if (showTileInfo)
