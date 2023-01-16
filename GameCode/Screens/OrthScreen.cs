@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using MonoGame.Extended.Input;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace GameCode.Screens;
 
@@ -16,18 +15,10 @@ public class OrthScreen : BaseScreen
     TileMap map;
     Sprite tileSelector;
     SidebarMenu tileInfoBox;
-    bool showTileInfo = false;
-    
-    readonly float camSpeed = 64f;
-    //readonly Dictionary<string, (int x, int y, Sprite obj)> TileObjects = new();
+    bool showTileInfo = false;  
+    readonly float camSpeed = 128f;
 
     public OrthScreen(MainGame game) : base(game, "consolas_22") { }
-
-    //List<(string name, Sprite obj)> TileObjectsOnTile((int x, int y) tilePos) =>
-    //    TileObjects.Values
-    //    .Where(t => t.x == tilePos.x && t.y == tilePos.y)
-    //    .Select(v => (TileObjects.First(h => h.Value.obj == v.obj).Key, v.obj))
-    //    .ToList();
 
     public static List<string> PrintTileInfo(Tile tile)
     {
@@ -150,7 +141,7 @@ public class OrthScreen : BaseScreen
             nextPos.Y <= map.TileSize * map.Height - size.Height &&
             nextPos.Y >= 0f)
         {
-            Camera.Move(movement);
+            Camera.Move(movement * camSpeed * dt);
         }
     }
 
@@ -160,13 +151,15 @@ public class OrthScreen : BaseScreen
         base.Draw(gameTime);
         
         BGame.SpriteBatch.Begin(samplerState: SamplerState.PointWrap);
+
+
+        if (showTileInfo)
+            tileInfoBox.Draw(BGame.SpriteBatch);
+
         fpsCounter.Draw(BGame.SpriteBatch);
 
         //mouse pointer on top of everything
         BGame.SpriteBatch.DrawCircle(new CircleF(BGame.MouseState.Position, 4f), 10, Color.Yellow);
-
-        if (showTileInfo)
-            tileInfoBox.Draw(BGame.SpriteBatch);
 
         BGame.SpriteBatch.End();
     }
