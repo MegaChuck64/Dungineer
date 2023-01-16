@@ -27,3 +27,12 @@ public class Tile : Sprite
         base.Draw(sb);
     }
 }
+
+public class TileObject : Tile
+{
+    public string Name { get; set; }
+    public TileObject(BaseGame game, string name, TileType tileType, Texture2D texture, Vector2 pos, bool hasCollider = false) : base(game, tileType, texture, pos, hasCollider)
+    {
+        Name = name;
+    }
+}

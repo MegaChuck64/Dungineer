@@ -24,7 +24,7 @@ public class SidebarMenu : Entity
         Items = new List<MenuItem>();
     }  
 
-    public void AddItem(string text, Color color)
+    public void AddItem(string text, Color color, bool selectable = false)
     {
         Vector2 newPos;
         if (Items.Count > 0)
@@ -36,7 +36,12 @@ public class SidebarMenu : Entity
         {
             newPos = new Vector2(Bounds.X + 40, Bounds.Y + 40);
         }
-        var newItem = new MenuItem(Game, text, newPos, color, Font);
+
+        var newItem = new MenuItem(Game, text, newPos, color, Font)
+        {
+            IsSelectable = selectable
+        };
+
         Items.Add(newItem);
     }
 
@@ -52,17 +57,24 @@ public class SidebarMenu : Entity
                 {
                     Items[i].IsSelected = false;
                     selected = i + 1;
-                    if (selected >= Items.Count)
+                    
+                    if (selected >= Items.Count) selected = 0;
+
+                    while (!Items[selected].IsSelectable && Items.Any(t=>t.IsSelectable))
                     {
-                        selected = 0;                        
-                    }
-                    break;
+                        selected++;
+                        if (selected >= Items.Count)
+                        {
+                            selected = 0;
+                        }
+                    }                                       
                 }
             }
 
             if (selected >= 0)
             {
-                Items[selected].IsSelected = true;
+                if (Items[selected].IsSelectable)
+                    Items[selected].IsSelected = true;
             }
 
         }
@@ -86,6 +98,7 @@ public class MenuItem : Entity
     public Color BGColor { get; set; }
     public SpriteFont Font { get; set; }
     public bool IsHeader { get; set; }
+    public bool IsSelectable { get; set; }
     public bool IsSelected { get; set; }
     public MenuItem(BaseGame game, string text, Vector2 position, Color color, SpriteFont font, bool isHeader = false) : base(game)
     {

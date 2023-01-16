@@ -14,19 +14,20 @@ public class OrthScreen : BaseScreen
 {
     FPSCounter fpsCounter;
     TileMap map;
+    Sprite tileSelector;
     SidebarMenu tileInfoBox;
     bool showTileInfo = false;
     
     readonly float camSpeed = 64f;
-    readonly Dictionary<string, (int x, int y, Sprite obj)> TileObjects = new();
+    //readonly Dictionary<string, (int x, int y, Sprite obj)> TileObjects = new();
 
     public OrthScreen(MainGame game) : base(game, "consolas_22") { }
 
-    List<(string name, Sprite obj)> TileObjectsOnTile((int x, int y) tilePos) =>
-        TileObjects.Values
-        .Where(t => t.x == tilePos.x && t.y == tilePos.y)
-        .Select(v => (TileObjects.First(h => h.Value.obj == v.obj).Key, v.obj))
-        .ToList();
+    //List<(string name, Sprite obj)> TileObjectsOnTile((int x, int y) tilePos) =>
+    //    TileObjects.Values
+    //    .Where(t => t.x == tilePos.x && t.y == tilePos.y)
+    //    .Select(v => (TileObjects.First(h => h.Value.obj == v.obj).Key, v.obj))
+    //    .ToList();
 
     public static List<string> PrintTileInfo(Tile tile)
     {
@@ -46,23 +47,12 @@ public class OrthScreen : BaseScreen
         map = new TileMap(BGame, Camera);
         EntityManager.AddEntity(map);
 
-        //player
-        var player = 
-            new Sprite(
-                BGame, 
-                Sprite.TextureFromSpriteAtlas("HumanFighter", new Rectangle(11, 11, 32, 32), BGame.Content), 
-                map.MapToWorldPosition((10, 10)));
-        EntityManager.AddEntity(player);
-        TileObjects.Add("player", (10, 10, player));
-
-
-        var tileSelect = new Sprite(
+        tileSelector = new Sprite(
             BGame,
             Sprite.LoadTexture("ui_box_select", BGame.Content),
             new Vector2());
 
-        EntityManager.AddEntity(tileSelect);
-        TileObjects.Add("tileSelector", (10, 10, tileSelect));
+        EntityManager.AddEntity(tileSelector);
 
         tileInfoBox = new SidebarMenu(BGame, Font);
 
@@ -76,19 +66,19 @@ public class OrthScreen : BaseScreen
         tileInfoBox.Update(dt);
 
         HandleCameraMovement(dt);
-        HandlePlayerMovement();
         HandleSelectorMovement();
         HandleTileSelecting();
-
-
     }
 
 
 
     private void HandleSelectorMovement()
-    {        
-        AttempTileObjectMove(
-            map.WorldToMapPosition(BGame.MouseState.Position.ToVector2() + Camera.Position), "tileSelector");
+    {
+        var (x, y) = map.WorldToMapPosition(BGame.MouseState.Position.ToVector2() + Camera.Position);
+        if (map.TryGetTile(x, y) != null)
+        {
+            tileSelector.Transform.Position = map.MapToWorldPosition((x, y));
+        }
     }
 
     private void HandleTileSelecting()
@@ -107,46 +97,25 @@ public class OrthScreen : BaseScreen
 
         if (showTileInfo)
         {
-            tileInfoBox.AddItem($"Tile Info", Color.White);
+            tileInfoBox.AddItem($"Tile Info", Color.White, true);
+            
+            var (selectX, selectY) = map.WorldToMapPosition(tileSelector.Transform.Position);
+            
+            var selectedObj = map.TileObjects[selectX, selectY];            
+            var selectedTile = map.Tiles[selectX, selectY];
 
-            var (selectX, selectY, selectObj) = TileObjects["tileSelector"];
-            var selectedTileObjects = TileObjectsOnTile((selectX, selectY));
-            /*new List<(string name, Sprite obj)>();*/
-            var tileInfo = map.Tiles[selectX, selectY];
-            tileInfoBox.AddItem($"tile:   {tileInfo.TileType}", Color.Yellow);
-            tileInfoBox.AddItem($"solid:  {tileInfo.HasCollider}", Color.Yellow);
+            tileInfoBox.AddItem($"tile:   {selectedTile.TileType}", Color.Yellow);
+            tileInfoBox.AddItem($"solid:  {selectedTile.HasCollider}", Color.Yellow);
             tileInfoBox.AddItem($"pos:    {selectX}-{selectY}", Color.Yellow);
 
-            
-            tileInfoBox.AddItem($"Objects", Color.White);
 
-            foreach (var (name, obj) in selectedTileObjects
-                .Where(selected => selected.name != "tileSelector"))
+
+            if (selectedObj != null)
             {
-                tileInfoBox.AddItem($"name:   {name}", Color.Yellow);
+                tileInfoBox.AddItem("", Color.White);
+                tileInfoBox.AddItem($"Object", Color.White);
+                tileInfoBox.AddItem($"{(selectedObj as TileObject).Name}", Color.Yellow, true);
             }
-        }
-    }
-
-    private void HandlePlayerMovement()
-    {
-        var (playerX, playerY, _) = TileObjects["player"];
-
-        if (BGame.KeyState.WasKeyJustDown(Keys.Up))
-        {
-            AttempTileObjectMove((playerX, playerY - 1), "player");
-        }
-        if (BGame.KeyState.WasKeyJustDown(Keys.Down))
-        {
-            AttempTileObjectMove((playerX, playerY + 1), "player");
-        }
-        if (BGame.KeyState.WasKeyJustDown(Keys.Right))
-        {
-            AttempTileObjectMove((playerX + 1, playerY), "player");
-        }
-        if (BGame.KeyState.WasKeyJustDown(Keys.Left))
-        {
-            AttempTileObjectMove((playerX - 1, playerY), "player");
         }
     }
 
@@ -185,16 +154,6 @@ public class OrthScreen : BaseScreen
         }
     }
 
-    private void AttempTileObjectMove((int x, int y) newTilePos, string name)
-    {
-        if (TileObjects.ContainsKey(name) && 
-            newTilePos.x < map.Tiles.GetLength(0) && newTilePos.x >= 0 &&
-            newTilePos.y < map.Tiles.GetLength(1) && newTilePos.y >= 0)
-        {            
-            TileObjects[name].obj.Transform.Position = map.MapToWorldPosition(newTilePos);
-            TileObjects[name] = (newTilePos.x, newTilePos.y, TileObjects[name].obj);
-        }
-    }
 
     public override void Draw(GameTime gameTime)
     {
