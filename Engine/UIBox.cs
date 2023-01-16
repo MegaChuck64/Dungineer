@@ -26,7 +26,7 @@ public class UIBox : Entity
     {
         sb.Draw(Texture, Bounds, Tint);
 
-        sb.DrawString(Font, Data, Bounds.Location.ToVector2() + new Vector2(75, 100), Color.Yellow);
+        sb.DrawString(Font, Data, Bounds.Location.ToVector2() + new Vector2(200, 100), Color.Yellow);
     }
 
 }

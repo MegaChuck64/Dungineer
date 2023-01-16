@@ -1,5 +1,4 @@
-﻿using GameCode;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Entities;
@@ -42,7 +41,7 @@ public class BaseScreen : GameScreen
             transformMatrix: transformMatrix, 
             samplerState: SamplerState.PointWrap);
 
-        EntityManager.Draw((Game as MainGame).SpriteBatch);
+        EntityManager.Draw((Game as BaseGame).SpriteBatch);
 
         BGame.SpriteBatch.End();
 

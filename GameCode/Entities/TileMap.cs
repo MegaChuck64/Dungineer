@@ -1,18 +1,19 @@
 ﻿using Engine;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using System.Collections.Generic;
 
 namespace GameCode.Entities;
 
 public class TileMap : Entity
 {
-    public Dictionary<(int x, int y), Tile> Tiles { get; set; }
+    public Tile[,] Tiles { get; set; }
     public Dictionary<TileType, Texture2D> TileTextures { get; set; }
     public int Width { get; private set; }
     public int Height { get; private set; }
     public int TileSize { get; private set; }
-
+    public OrthographicCamera Camera { get; set; }
     public Vector2 MapToWorldPosition((int x, int y) tilePos) => 
         new (tilePos.x * TileSize, tilePos.y * TileSize);
 
@@ -21,15 +22,18 @@ public class TileMap : Entity
     public Rectangle TileWorldBounds((int x, int y) tilePos) =>
         new (MapToWorldPosition(tilePos).ToPoint(), new Point(TileSize, TileSize));
 
-    public TileMap(BaseGame game) : base(game)
+    public bool IsOnScreen((int x, int y) tilePos) => 
+        Camera.Contains(TileWorldBounds((tilePos.x, tilePos.y))) == ContainmentType.Contains;
+    public TileMap(BaseGame game, OrthographicCamera camera) : base(game)
     {
+        Camera = camera;
         Width = 64;
         Height = 64;
         TileSize = 32;
 
         LoadTileTextures();
 
-        Tiles = new Dictionary<(int x, int y), Tile>();
+        Tiles = new Tile[Width, Height];
         var flip = false;
 
         for (int x = 0; x < Width; x++)
@@ -37,13 +41,12 @@ public class TileMap : Entity
             for (int y = 0; y < Height; y++)
             {
                 var typ = flip ? TileType.Grass : TileType.None;
-                Tiles.Add(
-                    (x, y), 
+                Tiles[x, y] =  
                     new Tile(
                         game,
                         typ,
                         TileTextures[typ], 
-                        new Vector2(x * TileSize,y * TileSize)));
+                        new Vector2(x * TileSize,y * TileSize));
 
                 flip = !flip;
             }
@@ -70,18 +73,26 @@ public class TileMap : Entity
     
     public override void Update(float dt)
     {
-        foreach (var tile in Tiles)
+        for (int x = 0; x < Width; x++)
         {
-            tile.Value.Update(dt);
+            for (int y = 0; y < Height; y++)
+            {
+                Tiles[x,y].Update(dt);
+            }
         }
     }
     public override void Draw(SpriteBatch sb)
     {
-        foreach (var tile in Tiles)
+        for (int x = 0; x < Width; x++)
         {
-            tile.Value.Draw(sb);
+            for (int y = 0; y < Height; y++)
+            {
+                if (IsOnScreen((x,y)))
+                    Tiles[x,y].Draw(sb);
+
+            }
         }
-    }
+    }    
 }
 
 public enum TileType

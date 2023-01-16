@@ -4,39 +4,49 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
+using MonoGame.Extended.Input;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace GameCode.Screens;
 
 public class OrthScreen : BaseScreen
 {
     FPSCounter fpsCounter;
-
     TileMap map;
-    float camSpeed = 64f;
-    Dictionary<string, (int x, int y, Sprite obj)> TileObjects = new();
+    SidebarMenu tileInfoBox;
     bool showTileInfo = false;
-    UIBox tileInfoBox;
+    
+    readonly float camSpeed = 64f;
+    readonly Dictionary<string, (int x, int y, Sprite obj)> TileObjects = new();
+
+    public OrthScreen(MainGame game) : base(game, "consolas_22") { }
+
     List<(string name, Sprite obj)> TileObjectsOnTile((int x, int y) tilePos) =>
         TileObjects.Values
         .Where(t => t.x == tilePos.x && t.y == tilePos.y)
         .Select(v => (TileObjects.First(h => h.Value.obj == v.obj).Key, v.obj))
         .ToList();
 
-    public OrthScreen(MainGame game) : base(game, "consolas_22")
+    public static List<string> PrintTileInfo(Tile tile)
     {
-        
+        var messages = new List<string>
+        {
+            $"tile   {tile.TileType}",
+            $"solid  {tile.HasCollider}"
+        };
+
+        return messages;
     }
     public override void LoadContent()
     {
         base.LoadContent();
         
         fpsCounter = new FPSCounter(BGame as MainGame) { Font = Font };
-        map = new TileMap(BGame);
+        map = new TileMap(BGame, Camera);
         EntityManager.AddEntity(map);
 
+        //player
         var player = 
             new Sprite(
                 BGame, 
@@ -45,19 +55,16 @@ public class OrthScreen : BaseScreen
         EntityManager.AddEntity(player);
         TileObjects.Add("player", (10, 10, player));
 
+
         var tileSelect = new Sprite(
             BGame,
             Sprite.LoadTexture("ui_box_select", BGame.Content),
             new Vector2());
 
         EntityManager.AddEntity(tileSelect);
-        TileObjects.Add("tileSelect", (10, 10, tileSelect));
+        TileObjects.Add("tileSelector", (10, 10, tileSelect));
 
-        tileInfoBox = new UIBox(
-            BGame, 
-            Sprite.LoadTexture("hud-tileset", BGame.Content), 
-            new Rectangle(new Point(BGame.Width/2 - 200, BGame.Height/2 - 250), new Point(400, 500)),
-            Font);
+        tileInfoBox = new SidebarMenu(BGame, Font);
 
     }
     public override void Update(GameTime gameTime)
@@ -66,47 +73,61 @@ public class OrthScreen : BaseScreen
         fpsCounter.Tick(gameTime);
 
         var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;    
-        
-        HandleCameraMovement(dt);
-        HandlePlayerMovement();
-        HandleTileSelect();
-
         tileInfoBox.Update(dt);
 
-        var (selectX, selectY, selectObj) = TileObjects["tileSelect"];
-        var selectedTileObjects = TileObjectsOnTile((selectX, selectY));
-        var tileInfo = map.Tiles[(selectX, selectY)];
-        var tileInfoBuilder = new StringBuilder();
-        tileInfoBuilder.AppendLine($"tile   {tileInfo.TileType}");
-        tileInfoBuilder.AppendLine($"solid  {tileInfo.HasCollider}");
-        tileInfoBuilder.AppendLine($"pos    {selectX}-{selectY}");
-        tileInfoBuilder.AppendLine();
+        HandleCameraMovement(dt);
+        HandlePlayerMovement();
+        HandleSelectorMovement();
+        HandleTileSelecting();
 
-        if (selectedTileObjects.Count > 1)
-            tileInfoBuilder.AppendLine("______objs______");
-        else
-            tileInfoBuilder.AppendLine("________________");
 
-        tileInfoBuilder.AppendLine();
+    }
 
-        foreach (var selected in selectedTileObjects)
+
+
+    private void HandleSelectorMovement()
+    {        
+        AttempTileObjectMove(
+            map.WorldToMapPosition(BGame.MouseState.Position.ToVector2() + Camera.Position), "tileSelector");
+    }
+
+    private void HandleTileSelecting()
+    {
+        if (BGame.MouseState.WasButtonJustDown(MouseButton.Left))
         {
-            if (selected.name != "tileSelect")
+            showTileInfo = true;
+        }
+        else if (BGame.MouseState.WasButtonJustDown(MouseButton.Right))
+        {
+            showTileInfo = false;
+        }
+        else return;
+
+        tileInfoBox.Items.Clear();
+
+        if (showTileInfo)
+        {
+            tileInfoBox.AddItem($"Tile Info", Color.White);
+
+            var (selectX, selectY, selectObj) = TileObjects["tileSelector"];
+            var selectedTileObjects = TileObjectsOnTile((selectX, selectY));
+            /*new List<(string name, Sprite obj)>();*/
+            var tileInfo = map.Tiles[selectX, selectY];
+            tileInfoBox.AddItem($"tile:   {tileInfo.TileType}", Color.Yellow);
+            tileInfoBox.AddItem($"solid:  {tileInfo.HasCollider}", Color.Yellow);
+            tileInfoBox.AddItem($"pos:    {selectX}-{selectY}", Color.Yellow);
+
+            
+            tileInfoBox.AddItem($"Objects", Color.White);
+
+            foreach (var (name, obj) in selectedTileObjects
+                .Where(selected => selected.name != "tileSelector"))
             {
-                tileInfoBuilder.AppendLine($"name   {selected.name}");
+                tileInfoBox.AddItem($"name:   {name}", Color.Yellow);
             }
         }
-
-        
-        tileInfoBox.Data = tileInfoBuilder.ToString();
-
-        showTileInfo = BGame.MouseState.IsButtonDown(MonoGame.Extended.Input.MouseButton.Left);
     }
 
-    private void HandleTileSelect()
-    {        
-        AttempTileObjectMove(map.WorldToMapPosition(BGame.MouseState.Position.ToVector2() + Camera.Position), "tileSelect");
-    }
     private void HandlePlayerMovement()
     {
         var (playerX, playerY, _) = TileObjects["player"];
@@ -166,7 +187,9 @@ public class OrthScreen : BaseScreen
 
     private void AttempTileObjectMove((int x, int y) newTilePos, string name)
     {
-        if (TileObjects.ContainsKey(name) && map.Tiles.ContainsKey(newTilePos))
+        if (TileObjects.ContainsKey(name) && 
+            newTilePos.x < map.Tiles.GetLength(0) && newTilePos.x >= 0 &&
+            newTilePos.y < map.Tiles.GetLength(1) && newTilePos.y >= 0)
         {            
             TileObjects[name].obj.Transform.Position = map.MapToWorldPosition(newTilePos);
             TileObjects[name] = (newTilePos.x, newTilePos.y, TileObjects[name].obj);
