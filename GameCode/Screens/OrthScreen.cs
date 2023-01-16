@@ -110,8 +110,11 @@ public class OrthScreen : BaseScreen
 
                 if (selectedObj is Character chr)
                 {
-                    tileInfoBox.AddItem($"{chr.Race}", Color.Yellow);
-                    tileInfoBox.AddItem($"{chr.Class}", Color.Yellow);
+                    tileInfoBox.AddItem($"{chr.Race} {chr.Class}", Color.Yellow);                    
+                    tileInfoBox.AddItem($" HP: {chr.Health}/{chr.MaxHealth}", Color.Yellow);
+                    tileInfoBox.AddItem($"STM: {chr.Stamina}/{chr.MaxStamina}", Color.Yellow);
+                    tileInfoBox.AddItem($"STR: {chr.Strength}", Color.Yellow);
+                    tileInfoBox.AddItem($"SPD: {chr.Speed}", Color.Yellow);
                 }
             }
         }
