@@ -16,8 +16,7 @@ public class OrthScreen : BaseScreen
     Sprite tileSelector;
     SidebarMenu tileInfoBox;
     bool showTileInfo = false;  
-    readonly float camSpeed = 128f;
-
+    
     public OrthScreen(MainGame game) : base(game, "consolas_22") { }
 
     public static List<string> PrintTileInfo(Tile tile)
@@ -45,18 +44,22 @@ public class OrthScreen : BaseScreen
 
         EntityManager.AddEntity(tileSelector);
 
+        var camController = new CameraController(BGame, Camera, map);
+        EntityManager.AddEntity(camController);
+
         tileInfoBox = new SidebarMenu(BGame, Font);
 
     }
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
+        
         fpsCounter.Tick(gameTime);
 
         var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;    
+
         tileInfoBox.Update(dt);
 
-        HandleCameraMovement(dt);
         HandleSelectorMovement();
         HandleTileSelecting();
     }
@@ -110,40 +113,9 @@ public class OrthScreen : BaseScreen
         }
     }
 
-    private void HandleCameraMovement(float dt)
-    {
-        if (BGame.KeyState.IsKeyDown(Keys.W))
-        {
-            AttemptCameraMove(-Vector2.UnitY, dt);
-        }
-        if (BGame.KeyState.IsKeyDown(Keys.S))
-        {
-            AttemptCameraMove(Vector2.UnitY, dt);
-        }
-        if (BGame.KeyState.IsKeyDown(Keys.D))
-        {
-            AttemptCameraMove(Vector2.UnitX, dt);
-        }
-        if (BGame.KeyState.IsKeyDown(Keys.A))
-        {
-            AttemptCameraMove(-Vector2.UnitX, dt);
-        }
-    }
 
-    private void AttemptCameraMove(Vector2 movement, float dt)
-    {
-        var rect = Camera.BoundingRectangle;
-        var pos = rect.Position;
-        var size = rect.Size;
-        var nextPos = pos + movement * camSpeed * dt;
-        if (nextPos.X <= map.TileSize * map.Width - size.Width &&
-            nextPos.X >= 0f &&
-            nextPos.Y <= map.TileSize * map.Height - size.Height &&
-            nextPos.Y >= 0f)
-        {
-            Camera.Move(movement * camSpeed * dt);
-        }
-    }
+
+
 
 
     public override void Draw(GameTime gameTime)
