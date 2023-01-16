@@ -28,5 +28,4 @@ public class UIBox : Entity
 
         sb.DrawString(Font, Data, Bounds.Location.ToVector2() + new Vector2(200, 100), Color.Yellow);
     }
-
 }
