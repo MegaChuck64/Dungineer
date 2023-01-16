@@ -2,7 +2,6 @@
 using GameCode.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using MonoGame.Extended.Input;
 using System.Collections.Generic;
@@ -13,7 +12,7 @@ public class OrthScreen : BaseScreen
 {
     FPSCounter fpsCounter;
     TileMap map;
-    Sprite tileSelector;
+    TileSelector tileSelector;
     SidebarMenu tileInfoBox;
     bool showTileInfo = false;  
     
@@ -37,8 +36,10 @@ public class OrthScreen : BaseScreen
         map = new TileMap(BGame, Camera);
         EntityManager.AddEntity(map);
 
-        tileSelector = new Sprite(
+        tileSelector = new TileSelector(
             BGame,
+            map,
+            Camera,
             Sprite.LoadTexture("ui_box_select", BGame.Content),
             new Vector2());
 
@@ -60,20 +61,11 @@ public class OrthScreen : BaseScreen
 
         tileInfoBox.Update(dt);
 
-        HandleSelectorMovement();
         HandleTileSelecting();
     }
 
 
 
-    private void HandleSelectorMovement()
-    {
-        var (x, y) = map.WorldToMapPosition(BGame.MouseState.Position.ToVector2() + Camera.Position);
-        if (map.TryGetTile(x, y) != null)
-        {
-            tileSelector.Transform.Position = map.MapToWorldPosition((x, y));
-        }
-    }
 
     private void HandleTileSelecting()
     {
