@@ -57,9 +57,10 @@ public class OrthScreen : BaseScreen
         
         fpsCounter.Tick(gameTime);
 
-        var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;    
+        var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        tileInfoBox.Update(dt);
+        if (showTileInfo)
+            tileInfoBox.Update(dt);
 
         HandleTileSelecting();
     }
