@@ -37,13 +37,15 @@ public class MapPrinter
             { Sprites.Unknown , ("dg_grounds32", TileWorldBounds((0,0)))},
             { Sprites.Grass , ("dg_grounds32", TileWorldBounds((0,1)))},
             { Sprites.HumanFighter, ("HumanFighter", new Rectangle(11, 11, 32, 32))},
+            { Sprites.PineTree, ("dg_edging332", TileWorldBounds((6,9)))},
         };
 
         NameToSprite = new Dictionary<string, Sprites>
         {
             {"Unknown", Sprites.Unknown },
             {"Grass", Sprites.Grass },
-            {"Human Fighter", Sprites.HumanFighter }
+            {"Human Fighter", Sprites.HumanFighter },
+            {"Pine Tree", Sprites.PineTree }
         };
 
         TextureAtlas = new Dictionary<Sprites, Texture2D>();
@@ -90,5 +92,6 @@ public enum Sprites
 {
     Unknown,
     Grass,
-    HumanFighter
+    HumanFighter,
+    PineTree
 }

@@ -1527,7 +1527,7 @@
 /processorParam:TextureFormat=Color
 /build:Sprites/dg_edging232.gif
 
-#begin Sprites/dg_edging332.gif
+#begin Sprites/dg_edging332.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -1537,7 +1537,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Sprites/dg_edging332.gif
+/build:Sprites/dg_edging332.png
 
 #begin Sprites/dg_effects32.gif
 /importer:TextureImporter

@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using MonoGame.Extended.Input;
+using System;
 
 namespace Engine
 {
@@ -14,12 +16,14 @@ namespace Engine
         public Color BackgroundColor { get; set; } = Color.Black;
         public int Width { get; private set; }
         public int Height { get; private set; }
-
-        public BaseGame()
+        public FastRandom Rand { get; set; }
+        public BaseGame(int? seed = null)
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+
+            Rand = seed == null ? new FastRandom() : new FastRandom(seed.Value);            
         }
 
         protected override void Initialize()

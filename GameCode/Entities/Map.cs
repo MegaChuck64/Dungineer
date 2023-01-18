@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.Xna.Framework;
+using MonoGame.Extended;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -49,7 +50,7 @@ public class Map
 
         return tiles;
     }
-    public Map(int width, int height)
+    public Map(int width, int height, FastRandom rand, float treePercentage = 0.1f)
     {
         Width = width;
         Height = height;
@@ -59,13 +60,33 @@ public class Map
         {
             for (int y = 0; y < Height; y++)
             {
-                Tiles[x, y] = new MapTile()
+                Tiles[x, y] = new MapTile
                 {
                     X = x, 
                     Y = y,
-                    Name = "Unknown",
+                    Name = "Grass",
                     Solid = false
                 };
+
+                if (rand.NextSingle(0f, 1f) <= treePercentage)
+                {
+                    Objects.Add(new MapObject
+                    {
+                        X = x,
+                        Y = y,
+                        Name = "Pine Tree",
+                        Description = "Simple Pine Tree",
+                        Solid = true,
+                        Speed = 0,
+                        Armor = 0.25f,
+                        Health = 10,
+                        MaxHealth = 10,
+                        HealthRegen = .5f,
+                        Stamina = 1,
+                        MaxStamina = 1,
+                        StaminaRegen = 0f,                         
+                    });
+                }
             }
         }
     }
@@ -91,7 +112,7 @@ public class MapObject : MapTile
     /// 1 used every tick after moving
     /// </summary>
     public int Stamina { get; set; }
-
+    public int MaxStamina { get; set; }
     /// <summary>
     /// Stamina regained per tick
     /// </summary>
@@ -100,6 +121,7 @@ public class MapObject : MapTile
 
 
     public int Health { get; set; }
+    public int MaxHealth { get; set; }
     /// <summary>
     /// Percent 0-1. .5 means you take half damage 
     /// 1 means you take none, over 1 gives damage to attacker 
@@ -109,4 +131,11 @@ public class MapObject : MapTile
     /// Health regained per tick
     /// </summary>
     public float HealthRegen { get; set; }
+}
+
+public class MapCharacter : MapObject
+{
+    public string Race { get; set; }
+    public string Class { get; set; }
+    public int Strength { get; set; }
 }

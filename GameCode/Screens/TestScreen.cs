@@ -17,7 +17,7 @@ public class TestScreen : BaseScreen
         base.LoadContent();
         printer = new MapPrinter(Content)
         {
-            Map = new Map(10, 10),
+            Map = new Map(10, 10, BGame.Rand),
             Camera = Camera,
             TileSize = 32,
         };
