@@ -15,6 +15,7 @@ public class Map
     public int Width { get; private set; }
     public int Height { get; private set; }
 
+    public FastRandom Rand { get; set; }
     public MapTile GetTile(int x, int y) =>
         (x >= 0 && x < Width && y >= 0 && y < Height) 
         ? Tiles[x, y] : null;
@@ -50,8 +51,22 @@ public class Map
 
         return tiles;
     }
+
+    public (int x, int y) GetRandomEmptyTile()
+    {
+        var randX = Rand.Next(0, Width - 1);
+        var randY = Rand.Next(0, Height - 1);
+        while (GetMapObjects(randX, randY).Any())
+        {
+            randX = Rand.Next(0, Width - 1);
+            randY = Rand.Next(0, Height - 1);
+        }
+
+        return (randX, randY);
+    }
     public Map(int width, int height, FastRandom rand, float treePercentage = 0.1f)
     {
+        Rand = rand;
         Width = width;
         Height = height;
         Tiles = new MapTile[Width, Height];
@@ -68,7 +83,7 @@ public class Map
                     Solid = false
                 };
 
-                if (rand.NextSingle(0f, 1f) <= treePercentage)
+                if (Rand.NextSingle(0f, 1f) <= treePercentage)
                 {
                     Objects.Add(new MapObject
                     {
@@ -139,3 +154,4 @@ public class MapCharacter : MapObject
     public string Class { get; set; }
     public int Strength { get; set; }
 }
+

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace GameCode.Entities;
 
-public class MapPrinter
+public class MapPrinter : Entity
 {
     public Map Map { get; set; }
     public int TileSize { get; set; } = 32;
@@ -30,14 +30,15 @@ public class MapPrinter
     public Dictionary<string, Sprites> NameToSprite { get; set; }
     public Dictionary<Sprites, Texture2D> TextureAtlas { get; set; }
 
-    public MapPrinter(ContentManager content)
+    public MapPrinter(BaseGame game, int fighterSpriteIndex = 0) : base(game)
     {
         SpriteAtlas = new Dictionary<Sprites, (string sprite, Rectangle source)>
         {
-            { Sprites.Unknown , ("dg_grounds32", TileWorldBounds((0,0)))},
-            { Sprites.Grass , ("dg_grounds32", TileWorldBounds((0,1)))},
-            { Sprites.HumanFighter, ("HumanFighter", new Rectangle(11, 11, 32, 32))},
-            { Sprites.PineTree, ("dg_edging332", TileWorldBounds((6,9)))},
+            { Sprites.Unknown , ("grounds_32", TileWorldBounds((0,0)))},
+            { Sprites.Grass , ("grounds_32", TileWorldBounds((0,1)))},
+            { Sprites.HumanFighter, ("HumanFighter_32", TileWorldBounds((fighterSpriteIndex,0)))},
+            { Sprites.PineTree, ("trees_32", TileWorldBounds((3,0)))},
+            { Sprites.TileSelector, ("ui_box_select_32", TileWorldBounds((0,0))) }
         };
 
         NameToSprite = new Dictionary<string, Sprites>
@@ -45,7 +46,8 @@ public class MapPrinter
             {"Unknown", Sprites.Unknown },
             {"Grass", Sprites.Grass },
             {"Human Fighter", Sprites.HumanFighter },
-            {"Pine Tree", Sprites.PineTree }
+            {"Pine Tree", Sprites.PineTree },
+            {"Tile Selector", Sprites.TileSelector },
         };
 
         TextureAtlas = new Dictionary<Sprites, Texture2D>();
@@ -56,11 +58,15 @@ public class MapPrinter
                 Sprite.TextureFromSpriteAtlas(
                     spr.Value.sprite, 
                     spr.Value.source, 
-                    content));
+                    game.Content));
         }
     }
 
-    public void Draw(SpriteBatch sb)
+    public override void Update(float dt)
+    {
+    }
+
+    public override void Draw(SpriteBatch sb)
     {
         for (int x = 0; x < Map.Width; x++)
         {
@@ -85,7 +91,9 @@ public class MapPrinter
             TextureAtlas[NameToSprite[tile.Name]], 
             TileWorldBounds((tile.X, tile.Y)), 
             Color.White);
-    
+
+
+
 }
 
 public enum Sprites
@@ -93,5 +101,6 @@ public enum Sprites
     Unknown,
     Grass,
     HumanFighter,
-    PineTree
+    PineTree,
+    TileSelector,
 }

@@ -42,7 +42,7 @@ public class Sprite : Entity
     public static Texture2D TextureFromSpriteAtlas(
         string atlasName, Rectangle source, ContentManager content)
     {
-        var atlas = content.Load<Texture2D>($@"Sprites\{atlasName}");
+        var atlas = content.Load<Texture2D>($@"Tiles\{atlasName}");
 
         var tex = new Texture2D(content.GetGraphicsDevice(), source.Width, source.Height);
 

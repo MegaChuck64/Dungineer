@@ -10,7 +10,6 @@ namespace GameCode.Screens;
 
 public class OrthScreen : BaseScreen
 {
-    FPSCounter fpsCounter;
     TileMap map;
     TileSelector tileSelector;
     SidebarMenu tileInfoBox;
@@ -32,7 +31,6 @@ public class OrthScreen : BaseScreen
     {
         base.LoadContent();
         
-        fpsCounter = new FPSCounter(BGame as MainGame) { Font = Font };
         map = new TileMap(BGame, Camera);
         EntityManager.AddEntity(map);
 
@@ -40,7 +38,7 @@ public class OrthScreen : BaseScreen
             BGame,
             map,
             Camera,
-            Sprite.LoadTexture("ui_box_select", BGame.Content),
+            Sprite.LoadTexture("ui_box_select_32", BGame.Content),
             new Vector2());
 
         EntityManager.AddEntity(tileSelector);
@@ -54,8 +52,6 @@ public class OrthScreen : BaseScreen
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
-        
-        fpsCounter.Tick(gameTime);
 
         var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
@@ -137,8 +133,6 @@ public class OrthScreen : BaseScreen
 
         if (showTileInfo)
             tileInfoBox.Draw(BGame.SpriteBatch);
-
-        fpsCounter.Draw(BGame.SpriteBatch);
 
         //mouse pointer on top of everything
         BGame.SpriteBatch.DrawCircle(new CircleF(BGame.MouseState.Position, 4f), 10, Color.Yellow);

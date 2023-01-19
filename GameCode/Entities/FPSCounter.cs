@@ -11,14 +11,14 @@ public class FPSCounter : Entity
     int frameCounter = 0;
     TimeSpan elapsedTime = TimeSpan.Zero;
     public SpriteFont Font { get; set; }
-
-    public FPSCounter(MainGame game) : base(game)
+    
+    public FPSCounter(MainGame game, bool tickOnUpdate = false) : base(game)
     {
     }
 
     public override void Update(float dt)
     {
-        
+
     }
 
     public void Tick(GameTime gameTime)
@@ -36,7 +36,9 @@ public class FPSCounter : Entity
     public override void Draw(SpriteBatch sb)
     {
         frameCounter++;
+
         var fps = $"FPS: {frameRate}";
         sb.DrawString(Font, fps, new Vector2(4, sb.GraphicsDevice.Viewport.Height - 40), Color.Yellow);
+        
     }
 }
