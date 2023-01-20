@@ -10,6 +10,7 @@ public class TestScreen : BaseScreen
     MapPrinter printer;
     Map map;
     Player player;
+    Terminal terminal;
     const int tileSize = 32;
     public TestScreen(Game game) : base(game, "consolas_22")
     {
@@ -69,6 +70,10 @@ public class TestScreen : BaseScreen
         map.Objects.Add(tileSelectorTile);
         var tileSelector = new TileSelector(BGame, tileSelectorTile, map, tileSize);
         EntityManager.AddEntity(tileSelector);
+
+        terminal = new Terminal(BGame, Font);
+        terminal.Bounds = new Rectangle(map.Width * tileSize + 2, BGame.Height - (400 + 2), BGame.Width - (map.Width * tileSize) - 4, 400);
+        EntityManager.AddEntity(terminal);
     }
 
     public override void Update(GameTime gameTime)
@@ -79,6 +84,10 @@ public class TestScreen : BaseScreen
         {
             var (targetX, targetY) = printer.WorldToMapPosition(BGame.MouseState.Position);
             player.Target(targetX, targetY);
+
+            terminal.Active = terminal.Bounds.Contains(BGame.MouseState.Position);
         }
+
+        
     }
 }

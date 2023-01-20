@@ -20,3 +20,4 @@ we don't want to hardcode every tile
 - swarms of enemies come in from the edge of the screen
 - Approaching infinity style movement
 	- click tile on map, as many ticks happen as it takes for player to get to target
+- Left click is movement, right click is action. Switch actions with numbers
