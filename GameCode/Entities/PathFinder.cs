@@ -4,27 +4,25 @@ using Engine;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GameCode.Entities;
 
 public class PathFinder : Entity
 {
-    public TileMap Map { get; set; }
+    public int TileSize { get; private set; }
+    public short[,] Map { get; set; }
     public List<(int x, int y)> Path { get; set; }
     public int CurrentStep { get; set; }
 
-    public bool showDebug = false;
     public Color debugTint;
 
-    public PathFinder(BaseGame game, TileMap map) : base(game)
+    public PathFinder(BaseGame game, short[,] map, int tileSize) : base(game)
     {
+        TileSize = tileSize;
         Map = map;
-        debugTint = new Color(88, 33, 33);
+        debugTint = new Color(88, 33, 33, 100);
     }
 
     public void Clear()
@@ -44,19 +42,21 @@ public class PathFinder : Entity
             UseDiagonals = useDiagonals,
         };
 
-        var tiles = new short[Map.Width, Map.Height];
-        for (int x = 0; x < Map.Width; x++)
-        {
-            for (int y = 0; y < Map.Height; y++)
-            {
-                tiles[x, y] =
-                    (Map.TryGetTile(x, y)?.HasCollider ?? false) ||
-                    (Map.TryGetTileObject(x, y)?.HasCollider ?? false) ?
-                    (short)0 : (short)1;
-            }
-        }
+        //var tiles = new short[Map.GetLength(0), Map.GetLength(1)];
+        //for (int x = 0; x < Map.GetLength(0); x++)
+        //{
+        //    for (int y = 0; y < Map.GetLength(1); y++)
+        //    //{
+        //    //    tiles[x, y] =
+        //    //        (Map.TryGetTile(x, y)?.HasCollider ?? false) ||
+        //    //        (Map.TryGetTileObject(x, y)?.HasCollider ?? false) ?
+        //    { 
+        //        var j = 0 == 0 ? (short)0 : (short)1;
+        //        //collision check on generic type
+        //    }
+        //}
 
-        var grid = new WorldGrid(tiles);
+        var grid = new WorldGrid(Map);
         var pathfinder = new AStar.PathFinder(grid, pathFinderOptions);
 
         var path = pathfinder.FindPath(new Position(startPos.x, startPos.y), new Position(endPos.x, endPos.y))
@@ -92,18 +92,8 @@ public class PathFinder : Entity
     }
 
 
-    public bool IsEnd()
-    {
-        if (Path.Count > 0)
-        {
-            if (CurrentStep >= Path.Count - 1)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    public bool IsEnd() =>
+        Path.Count > 0 && CurrentStep >= Path.Count - 1;
 
     public override void Update(float dt)
     {
@@ -111,13 +101,13 @@ public class PathFinder : Entity
 
     public override void Draw(SpriteBatch sb)
     {
-        if (showDebug)
+        if (Game.Debug)
         {
             if (Path == null) return;
 
             foreach (var (x, y) in Path)
             {
-                sb.FillRectangle(new RectangleF(x * Map.TileSize, y * Map.TileSize, Map.TileSize, Map.TileSize), debugTint, 0.25f);
+                sb.FillRectangle(new RectangleF(x * TileSize, y * TileSize, TileSize, TileSize), debugTint, 0.15f);
             }
         }
     }

@@ -52,6 +52,28 @@ public class Map
         return tiles;
     }
 
+    public short[,] ToShortCollisionMap((int x, int y)? exclude = null)
+    {
+        var shMap = new short[Width, Height];
+
+        for (int x = 0; x < Width; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                if (exclude != null && x == exclude.Value.x && y == exclude.Value.y)
+                {
+                    shMap[x, y] = 1;
+                }
+                else
+                {
+                    shMap[x, y] = 
+                        (Tiles[x, y].Solid || GetMapObjects(x, y).Any(c => c.Solid)) ? (short)0 : (short)1;
+                }
+            }
+        }
+
+        return shMap;
+    }
     public (int x, int y) GetRandomEmptyTile()
     {
         var randX = Rand.Next(0, Width - 1);

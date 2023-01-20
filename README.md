@@ -7,10 +7,16 @@ Can do all tile based collisions this way, etc.
 
 ---
 
-remove orth scene
-remove old tilemap stuff and other unused stuff
 do character select scene
 think of a better way to handle control of map objects,
 loading and stuff
 we don't want to hardcode every tile
 
+---
+
+### Lets just make the goal simple
+
+- fixed size map with no camera movement, all fits on screen
+- swarms of enemies come in from the edge of the screen
+- Approaching infinity style movement
+	- click tile on map, as many ticks happen as it takes for player to get to target

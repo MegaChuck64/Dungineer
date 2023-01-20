@@ -44,6 +44,5 @@ public class BaseScreen : GameScreen
         EntityManager.Draw((Game as BaseGame).SpriteBatch);
 
         BGame.SpriteBatch.End();
-
     }
 }

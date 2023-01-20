@@ -1,13 +1,16 @@
 ﻿using Engine;
 using GameCode.Entities;
 using Microsoft.Xna.Framework;
+using MonoGame.Extended.Input;
+
 namespace GameCode.Screens;
 
 public class TestScreen : BaseScreen
 {
     MapPrinter printer;
     Map map;
-    MapCharacter player;
+    Player player;
+    const int tileSize = 32;
     public TestScreen(Game game) : base(game, "consolas_22")
     {
     }
@@ -25,13 +28,14 @@ public class TestScreen : BaseScreen
         {
             Map = map,
             Camera = Camera,
-            TileSize = 32,
+            TileSize = tileSize,
         };
 
         EntityManager.AddEntity(printer);
 
         var playerPos = map.GetRandomEmptyTile();
-        player = new MapCharacter()
+
+        var playerTile = new MapCharacter()
         {
             Name = "Human Fighter",
             Description = "A simple fighter.",
@@ -50,12 +54,20 @@ public class TestScreen : BaseScreen
             Y = playerPos.y,
             Solid = true,
         };
-        map.Objects.Add(player);
+        map.Objects.Add(playerTile);
+
+        player = new Player(BGame, map, playerTile);
+        EntityManager.AddEntity(player);
     }
 
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
 
+        if (BGame.MouseState.WasButtonJustDown(MouseButton.Left))
+        {
+            var (targetX, targetY) = printer.WorldToMapPosition(BGame.MouseState.Position);
+            player.Target(targetX, targetY);
+        }
     }
 }

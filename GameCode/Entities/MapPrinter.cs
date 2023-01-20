@@ -17,8 +17,8 @@ public class MapPrinter : Entity
     public Vector2 MapToWorldPosition((int x, int y) tilePos) =>
     new(tilePos.x * TileSize, tilePos.y * TileSize);
 
-    public (int x, int y) WorldToMapPosition(Vector2 worldPos) =>
-        ((int)worldPos.X / TileSize, (int)worldPos.Y / TileSize);
+    public (int x, int y) WorldToMapPosition(Point worldPos) =>
+        (worldPos.X / TileSize, worldPos.Y / TileSize);
     public Rectangle TileWorldBounds((int x, int y) tilePos) =>
         new(MapToWorldPosition(tilePos).ToPoint(), new Point(TileSize, TileSize));
 
@@ -88,9 +88,14 @@ public class MapPrinter : Entity
 
     public void DrawTile(SpriteBatch sb, MapTile tile) =>
         sb.Draw(
-            TextureAtlas[NameToSprite[tile.Name]], 
-            TileWorldBounds((tile.X, tile.Y)), 
-            Color.White);
+            TextureAtlas[NameToSprite[tile.Name]],
+            TileWorldBounds((tile.X, tile.Y)),
+            null,
+            Color.White,
+            0f, 
+            Vector2.Zero,
+            SpriteEffects.None,
+            tile is MapObject ? 0.2f : 0.1f);
 
 
 
