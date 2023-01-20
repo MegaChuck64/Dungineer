@@ -58,6 +58,17 @@ public class TestScreen : BaseScreen
 
         player = new Player(BGame, map, playerTile);
         EntityManager.AddEntity(player);
+
+        var tileSelectorTile = new MapObject()
+        {
+            Name = "Tile Selector",            
+            X = 0,
+            Y = 0,
+            Solid = false,
+        };
+        map.Objects.Add(tileSelectorTile);
+        var tileSelector = new TileSelector(BGame, tileSelectorTile, map, tileSize);
+        EntityManager.AddEntity(tileSelector);
     }
 
     public override void Update(GameTime gameTime)
