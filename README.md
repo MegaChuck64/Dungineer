@@ -11,7 +11,7 @@ do character select scene
 think of a better way to handle control of map objects,
 loading and stuff
 we don't want to hardcode every tile
-
+enhance terminal, selecting history lines, commands, 
 ---
 
 ### Lets just make the goal simple
