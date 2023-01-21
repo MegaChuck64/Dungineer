@@ -1,7 +1,9 @@
 ﻿using Engine;
 using GameCode.Entities;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Input;
+using System.Reflection.Metadata;
 
 namespace GameCode.Screens;
 
@@ -71,8 +73,16 @@ public class TestScreen : BaseScreen
         var tileSelector = new TileSelector(BGame, tileSelectorTile, map, tileSize);
         EntityManager.AddEntity(tileSelector);
 
-        terminal = new Terminal(BGame, Font);
-        terminal.Bounds = new Rectangle(map.Width * tileSize + 2, BGame.Height - (400 + 2), BGame.Width - (map.Width * tileSize) - 4, 400);
+        terminal = new Terminal(BGame, Font)
+        {
+            Bounds =
+                new Rectangle(
+                    map.Width * tileSize + 2,
+                    BGame.Height - (400 + 2),
+                    BGame.Width - (map.Width * tileSize) - 4,
+                    400)
+        };
+
         EntityManager.AddEntity(terminal);
     }
 
@@ -88,6 +98,9 @@ public class TestScreen : BaseScreen
             terminal.Active = terminal.Bounds.Contains(BGame.MouseState.Position);
         }
 
-        
+        if (BGame.KeyState.WasKeyJustDown(Keys.Space))
+        {
+            player.TakeStep();
+        }
     }
 }
