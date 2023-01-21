@@ -1,0 +1,31 @@
+Name: Jill the Ghost
+Name: Teddy the Ghost
+Name: Oprah the Ghost
+
+Description: Just regular people, but dead. Or undead. 
+Description: Ghostly undead humans. Scary...
+
+Race: Human
+Class: Fighter
+
+Health: 2d4-1
+HealthRegen: 1d4-1
+
+Stamina: 1d4
+StaminaRegen: 1d4
+
+Strength: 1d6
+Speed: 1d3
+Armor: 1d4
+Size: Medium
+
+Flag: Undead
+Flag: Solid
+
+Weapon: Ghostly Grasp
+
+Sprite: ghost_32
+Frame: 2,0
+Frame: 3,0 
+Frame: 4,0 
+
