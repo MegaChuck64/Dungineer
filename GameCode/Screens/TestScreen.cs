@@ -84,6 +84,7 @@ public class TestScreen : BaseScreen
         };
 
         EntityManager.AddEntity(terminal);
+
     }
 
     public override void Update(GameTime gameTime)

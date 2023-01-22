@@ -43,7 +43,7 @@ public class MenuScreen : GameScreen
 
     private void TestButton_OnClick(object sender, ClickEventArgs e)
     {
-        ScreenManager.LoadScreen(new TestScreen(game), new FadeTransition(GraphicsDevice, Color.Black, 2f));
+        ScreenManager.LoadScreen(new CharacterSelectScreen(game), new FadeTransition(GraphicsDevice, Color.Black, 2f));
     }
 
 

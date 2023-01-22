@@ -6,6 +6,7 @@ using MonoGame.Extended.Screens.Transitions;
 using GameCode.Screens;
 using GameCode.Entities;
 using Microsoft.Xna.Framework.Graphics;
+using System.Xml.Linq;
 
 namespace GameCode;
 
@@ -29,6 +30,8 @@ public class MainGame : BaseGame
         {
             Font = content.Load<SpriteFont>(@"Fonts\consolas_22"),
         };
+
+        TileLoader.Load(Content, Rand);
     }
 
     public override void OnUpdate(GameTime gameTime)

@@ -25,9 +25,10 @@ public class Weapon : TileObject
     public string Description { get; set; }
     public string Damage { get; set; }
     public string Rarity { get; set; }
-    public float Weight { get; set; }
-    public string WeaponType { get; set; }
+    public string Range { get; set; }
+    public int Weight { get; set; }
     public List<string> Requirements { get; set; }
+    public List<string> Flags { get; set; }
 }
 
 public class Character : TileObject
