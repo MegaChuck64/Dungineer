@@ -3,6 +3,4 @@
 SpeedMod: 1
 
 Sprite: grounds_32
-Frame: 0,1
-Frame: 1,1
-Frame: 2,1
+Frame: 0,1; 1,1; 2,1

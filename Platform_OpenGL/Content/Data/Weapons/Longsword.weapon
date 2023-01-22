@@ -6,11 +6,10 @@ Damage: 1d8
 Rarity: Standard
 
 Weight: 3
-
-Flag: Sword
+Range: 1d3
+Flag: Melee
 
 Requires: 5 Strength
 
 Sprite: weapons_32
-Frame: 3,1
-Frame: 2,1 
+Frame: 3,1; 2,1
