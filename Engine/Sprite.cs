@@ -56,6 +56,6 @@ public class Sprite : Entity
     }
 
     public static Texture2D LoadTexture(string name, ContentManager content) =>
-        content.Load<Texture2D>(@$"Sprites\{name}");
+        content.Load<Texture2D>(@$"Tiles\{name}");
 
 }

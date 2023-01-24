@@ -3,6 +3,7 @@ using GameCode.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using MonoGame.Extended.Screens.Transitions;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,7 +12,8 @@ namespace GameCode.Screens;
 public class CharacterSelectScreen : BaseScreen
 {
     public List<Character> PlayableCharacters { get; set; }
-    int selected = 0;
+    public int selected = 0;
+    public Button selectButton;
     public CharacterSelectScreen(Game game) : base(game, "consolas_14")
     {
         PlayableCharacters = new List<Character>();
@@ -31,6 +33,27 @@ public class CharacterSelectScreen : BaseScreen
 
         var cursor = new Cursor(BGame);
         EntityManager.AddEntity(cursor);
+
+        selectButton = new Button(BGame)
+        {
+            Color = Color.Orange,
+            HighlightColor = Color.Blue,
+            TextColor = Color.Red,
+            HighlightTextColor = Color.Blue,
+            Filled = false,
+            Font = Font,
+            Text = "Choose",
+            TextScale = 1f,
+            Rect = new Rectangle(Game.GraphicsDevice.Viewport.Width / 2 - 50, 150, 100, 40),
+            TextOffset = new Point(16, 6),
+        };
+        EntityManager.AddEntity(selectButton);
+        selectButton.OnClick += SelectButton_OnClick;
+    }
+
+    private void SelectButton_OnClick(object sender, ClickEventArgs e)
+    {
+        ScreenManager.LoadScreen(new PlayScreen(Game, PlayableCharacters[selected]), new FadeTransition(GraphicsDevice, Color.Black, 2f));
     }
 
     public override void Draw(GameTime gameTime)

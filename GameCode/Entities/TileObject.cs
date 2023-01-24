@@ -13,6 +13,8 @@ public class TileObject
     public int X { get; set; }
     public int Y { get; set; }
     public Texture2D Sprite { get; set; }
+    public List<string> Flags { get; set; }
+
 }
 
 public class GroundTile : TileObject
@@ -28,7 +30,7 @@ public class Weapon : TileObject
     public string Range { get; set; }
     public int Weight { get; set; }
     public List<string> Requirements { get; set; }
-    public List<string> Flags { get; set; }
+
 }
 
 public class Character : TileObject
@@ -45,7 +47,6 @@ public class Character : TileObject
     public int Strength { get; set; }
     public int Speed { get; set; }
     public int Armor { get; set; }
-    public List<string> Flags { get; set; } 
     public string Size { get; set; }
     public string Weapon { get; set; }
 

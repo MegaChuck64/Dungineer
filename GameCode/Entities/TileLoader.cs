@@ -1,6 +1,4 @@
-﻿using AStar.Collections.MultiDimensional;
-using DiceNotation;
-using DiceNotation.Rollers;
+﻿using DiceNotation;
 using Engine;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -112,6 +110,10 @@ public static class TileLoader
                                 ParseFrame(PickRandomOption(vl, rand)),
                                 content);
                     }
+                    break;
+                case "flag":
+                    grd.Flags ??= new List<string>();
+                    grd.Flags.Add(vl);
                     break;
                 default:
                     break;

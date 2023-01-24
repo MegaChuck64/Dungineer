@@ -8,12 +8,11 @@ using Engine;
 
 namespace GameCode.Screens;
 
-public class MenuScreen : GameScreen
+public class MenuScreen : BaseScreen
 {
     Button testButton;
 
-    MainGame game => Game as MainGame;
-    public MenuScreen(MainGame game) : base(game)
+    public MenuScreen(MainGame game) : base(game, "consolas_22")
     {
 
     }
@@ -21,7 +20,6 @@ public class MenuScreen : GameScreen
     public override void LoadContent()
     {
         base.LoadContent();
-        var font = Game.Content.Load<SpriteFont>(@"Fonts\consolas_22");
 
         testButton = new Button(Game as MainGame)
         {
@@ -30,7 +28,7 @@ public class MenuScreen : GameScreen
             TextColor = Color.Red,
             HighlightTextColor = Color.Blue,
             Filled = false,
-            Font = font,
+            Font = Font,
             Text = "Play",
             TextScale = 1f,
             Rect = new Rectangle(Game.GraphicsDevice.Viewport.Width / 2 - 50, 150, 100, 40),
@@ -43,7 +41,7 @@ public class MenuScreen : GameScreen
 
     private void TestButton_OnClick(object sender, ClickEventArgs e)
     {
-        ScreenManager.LoadScreen(new CharacterSelectScreen(game), new FadeTransition(GraphicsDevice, Color.Black, 2f));
+        ScreenManager.LoadScreen(new CharacterSelectScreen(Game), new FadeTransition(GraphicsDevice, Color.Black, 2f));
     }
 
 
@@ -55,12 +53,12 @@ public class MenuScreen : GameScreen
 
     public override void Draw(GameTime gameTime)
     {
-        game.SpriteBatch.Begin();
+        BGame.SpriteBatch.Begin();
 
-        testButton.Draw(game.SpriteBatch);
-        game.SpriteBatch.DrawCircle(new CircleF(game.MouseState.Position, 4f), 10, Color.Green);
+        testButton.Draw(BGame.SpriteBatch);
+        BGame.SpriteBatch.DrawCircle(new CircleF(BGame.MouseState.Position, 4f), 10, Color.Green);
 
-        game.SpriteBatch.End();
+        BGame.SpriteBatch.End();
 
     }
 
