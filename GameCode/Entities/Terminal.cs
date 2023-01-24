@@ -79,10 +79,10 @@ public class Terminal : Entity
                 Bounds.Bottom - 4 - (int)letterSize.Y - 2, 
                 Bounds.Width, 
                 (int)letterSize.Y + 4), 
-            new Color(22, 22, 22), 0.45f);
+            new Color(22, 22, 22), 0.5f);
 
         sb.DrawString(Font, "?>" + Input + (showCursor ? "|" : ""), new Vector2(Bounds.X + 4, Bounds.Bottom - letterSize.Y), TextColor, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.6f);
 
-        sb.DrawRectangle(Bounds, TextColor, 1, 0.5f);
+        sb.DrawRectangle(Bounds, TextColor, 1, 0.55f);
     }
 }

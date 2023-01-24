@@ -1,0 +1,14 @@
+﻿Name: Short Bow
+
+Description: You need arrows...
+
+Damage: 3d3 - 2
+Rarity: Standard
+
+Weight: 2
+Range: 3d3 + 1d4
+Flag: Ranged
+Flag: Ammo-Arrow
+
+Sprite: weapons_32
+Frame: 3,4

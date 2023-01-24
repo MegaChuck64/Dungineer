@@ -27,7 +27,7 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/consolas_22.spritefont
 
-#begin Tiles/grounds_32.png
+#begin Tiles/ghost_32.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -37,7 +37,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Tiles/grounds_32.png
+/build:Tiles/ghost_32.png
 
 #begin Tiles/grounds_32.png
 /importer:TextureImporter
@@ -51,7 +51,7 @@
 /processorParam:TextureFormat=Color
 /build:Tiles/grounds_32.png
 
-#begin Tiles/HumanFighter_32.png
+#begin Tiles/hand_32.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -61,7 +61,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Tiles/HumanFighter_32.png
+/build:Tiles/hand_32.png
 
 #begin Tiles/HumanFighter_32.png
 /importer:TextureImporter
@@ -74,18 +74,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Tiles/HumanFighter_32.png
-
-#begin Tiles/trees_32.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Tiles/trees_32.png
 
 #begin Tiles/trees_32.png
 /importer:TextureImporter
@@ -110,4 +98,16 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Tiles/ui_box_select_32.png
+
+#begin Tiles/weapons_32.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Tiles/weapons_32.png
 
