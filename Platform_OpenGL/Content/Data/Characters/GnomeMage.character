@@ -1,0 +1,25 @@
+﻿Name: Gerbo; Trekob; Tyre
+
+Description: Young, dumb, full of cu..; twisted, possibly wicked, fun loving. magic.
+
+Race: Gnome
+Class: Mage
+
+Health: 1d6 + 1d4
+HealthRegen: 1d4 + 1
+
+Stamina: 2d3
+StaminaRegen: 1d4 + 1
+
+Strength: 1d4
+Speed: 1d4
+Armor: 1d4
+Size: Small
+
+Flag: Solid
+Flag: Playable
+
+Weapon: Hand
+
+Sprite: GnomeMage_32
+Frame: 0,0; 1,0; 2,0; 3,0

@@ -2,6 +2,7 @@
 using GameCode.Entities;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.Input;
+using System.Linq;
 
 namespace GameCode.Screens;
 
@@ -12,6 +13,7 @@ public class PlayScreen : BaseScreen
     public TileSelector Select { get; set; }
     public TileMap Map { get; set; }
     public Terminal Terminal { get; set; }
+    public ItemInfoCard ItemInfo { get; set; }
     public PlayScreen(Game game, Character player) : base(game, "consolas_14")
     {
         Player = player;
@@ -44,6 +46,10 @@ public class PlayScreen : BaseScreen
             Bounds = new Rectangle(termPos, termSize)
         };
         EntityManager.AddEntity(Terminal);
+
+        var item = TileLoader.TileObjects.First(t => t.Name == "Short Bow") as Weapon;
+        ItemInfo = new ItemInfoCard(BGame, new Vector2(termPos.X, 2), null, Font, item.Name, item.Description);
+        EntityManager.AddEntity(ItemInfo);
     }
 
     public override void Update(GameTime gameTime)
@@ -55,7 +61,29 @@ public class PlayScreen : BaseScreen
             var (targetX, targetY) = Map.WorldToMapPosition(BGame.MouseState.Position);
             PathFinder.CreatePath((Player.X, Player.Y), (targetX, targetY), true, false);
 
-            Terminal.Active = Terminal.Bounds.Contains(BGame.MouseState.Position);            
+            Terminal.Active = Terminal.Bounds.Contains(BGame.MouseState.Position);
+
+            TileObject infoTile;
+            var mapObjs = Map.GetMapObjects(targetX, targetY);
+            if (mapObjs?.FirstOrDefault() is TileObject tileObj)
+            {
+                infoTile = tileObj;
+            }
+            else
+            {
+                infoTile = Map.GetGroundTile(targetX, targetY);
+            }
+
+            if (infoTile != null)
+            {
+                ItemInfo.Texture = infoTile.Sprite;
+                ItemInfo.Name = infoTile.Name;
+                if (infoTile is GroundTile gt) ItemInfo.Info = "Speed Mod: " + gt.SpeedMod;
+                else if (infoTile is Weapon wp) ItemInfo.Info = wp.Description;
+                else if (infoTile is Character ch) ItemInfo.Info = ch.Description;
+                else ItemInfo.Info = $"{infoTile.X}-{infoTile.Y}";
+            }
+
         }
     }
 

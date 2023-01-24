@@ -37,15 +37,15 @@ public class CharacterSelectScreen : BaseScreen
         selectButton = new Button(BGame)
         {
             Color = Color.Orange,
-            HighlightColor = Color.Blue,
+            HighlightColor = Color.DarkGray,
             TextColor = Color.Red,
-            HighlightTextColor = Color.Blue,
-            Filled = false,
+            HighlightTextColor = Color.White,
+            Filled = true,
             Font = Font,
             Text = "Choose",
             TextScale = 1f,
             Rect = new Rectangle(Game.GraphicsDevice.Viewport.Width / 2 - 50, 150, 100, 40),
-            TextOffset = new Point(16, 6),
+            TextOffset = new Point(18, 12),
         };
         EntityManager.AddEntity(selectButton);
         selectButton.OnClick += SelectButton_OnClick;
@@ -68,7 +68,7 @@ public class CharacterSelectScreen : BaseScreen
             var chr = PlayableCharacters[i];
             
             //sprite
-            var pos = new Point((10 * 32) + (i * 64 + 2), 10 * 32);
+            var pos = new Point((10 * 32) + (i * 100 + 50), 10 * 32);
             if (i == selected)
             {
                 BGame.SpriteBatch.FillRectangle(
