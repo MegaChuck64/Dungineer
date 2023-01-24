@@ -56,10 +56,12 @@ public class PlayScreen : BaseScreen
     {
         base.Update(gameTime);
 
+        var (targetX, targetY) = Map.WorldToMapPosition(BGame.MouseState.Position);
+        PathFinder.Map = Map.ToShortCollisionMap((Player.X, Player.Y));
+        PathFinder.CreatePath((Player.X, Player.Y), (targetX, targetY), true, false);
+
         if (BGame.MouseState.WasButtonJustDown(MouseButton.Left))
         {
-            var (targetX, targetY) = Map.WorldToMapPosition(BGame.MouseState.Position);
-            PathFinder.CreatePath((Player.X, Player.Y), (targetX, targetY), true, false);
 
             Terminal.Active = Terminal.Bounds.Contains(BGame.MouseState.Position);
 
@@ -76,6 +78,14 @@ public class PlayScreen : BaseScreen
 
             if (infoTile != null)
             {
+                if (PathFinder.TryStepForward(out (int x, int y)? newPosition))
+                {
+                    if (newPosition != null)
+                    {
+                        Player.X = newPosition.Value.x;
+                        Player.Y = newPosition.Value.y;
+                    }
+                }
                 ItemInfo.Texture = infoTile.Sprite;
                 ItemInfo.Name = infoTile.Name;
                 if (infoTile is GroundTile gt) ItemInfo.Info = "Speed Mod: " + gt.SpeedMod;
@@ -83,7 +93,6 @@ public class PlayScreen : BaseScreen
                 else if (infoTile is Character ch) ItemInfo.Info = ch.Description;
                 else ItemInfo.Info = $"{infoTile.X}-{infoTile.Y}";
             }
-
         }
     }
 
