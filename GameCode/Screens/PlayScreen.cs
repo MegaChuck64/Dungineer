@@ -1,19 +1,17 @@
 ﻿using Engine;
 using GameCode.Entities;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Input;
-using System.Reflection;
 
 namespace GameCode.Screens;
 
 public class PlayScreen : BaseScreen
 {
-
     public Character Player { get; set; }
     public PathFinder PathFinder { get; set; }
     public TileSelector Select { get; set; }
     public TileMap Map { get; set; }
+    public Terminal Terminal { get; set; }
     public PlayScreen(Game game, Character player) : base(game, "consolas_14")
     {
         Player = player;
@@ -25,7 +23,7 @@ public class PlayScreen : BaseScreen
         var cursor = new Cursor(BGame);
         EntityManager.AddEntity(cursor);
 
-        Map = new TileMap(BGame, 10, 10, Camera);
+        Map = new TileMap(BGame, 25, 25, Camera);
         Player.X = 4;
         Player.Y = 4;
         Map.TileObjects ??= new System.Collections.Generic.List<TileObject>();
@@ -37,7 +35,15 @@ public class PlayScreen : BaseScreen
 
         PathFinder = new PathFinder(BGame, Map.ToShortCollisionMap(), 32);
         EntityManager.AddEntity(PathFinder);
-        
+
+        var termHeight = 200;
+        var termPos = new Point(Map.Width * Map.TileSize + 2, Map.Height * Map.TileSize - termHeight);
+        var termSize = new Point(BGame.Width - termPos.X - 2, termHeight);
+        Terminal = new Terminal(BGame, Font)
+        {
+            Bounds = new Rectangle(termPos, termSize)
+        };
+        EntityManager.AddEntity(Terminal);
     }
 
     public override void Update(GameTime gameTime)
@@ -48,6 +54,8 @@ public class PlayScreen : BaseScreen
         {
             var (targetX, targetY) = Map.WorldToMapPosition(BGame.MouseState.Position);
             PathFinder.CreatePath((Player.X, Player.Y), (targetX, targetY), true, false);
+
+            Terminal.Active = Terminal.Bounds.Contains(BGame.MouseState.Position);            
         }
     }
 

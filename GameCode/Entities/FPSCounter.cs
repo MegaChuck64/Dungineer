@@ -38,7 +38,7 @@ public class FPSCounter : Entity
         frameCounter++;
 
         var fps = $"FPS: {frameRate}";
-        sb.DrawString(Font, fps, new Vector2(4, sb.GraphicsDevice.Viewport.Height - 40), Color.Yellow);
+        sb.DrawString(Font, fps, new Vector2(4, sb.GraphicsDevice.Viewport.Height - 40), Color.Yellow, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9f);
         
     }
 }

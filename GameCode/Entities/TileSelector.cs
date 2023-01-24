@@ -38,7 +38,7 @@ public class TileSelector : Entity
     public override void Draw(SpriteBatch sb)
     {
         sb.Draw(Texture, new Rectangle(TileSize * X, TileSize * Y, TileSize, TileSize), null, Tint, 0f,
-            Vector2.Zero, SpriteEffects.None, 0.9f);
+            Vector2.Zero, SpriteEffects.None, 0.25f);
     }
 
 }
