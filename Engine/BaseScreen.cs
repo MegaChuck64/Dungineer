@@ -22,7 +22,7 @@ public class BaseScreen : GameScreen
     public override void LoadContent()
     {
         base.LoadContent();
-        Font = Game.Content.Load<SpriteFont>(@$"Fonts\{FontName}");
+        Font = ContentLoader.LoadFont(FontName, Content);
 
         var viewportAdapter = new BoxingViewportAdapter(Game.Window, GraphicsDevice, BGame.Width, BGame.Height);
         Camera = new OrthographicCamera(viewportAdapter);

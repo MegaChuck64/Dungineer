@@ -197,7 +197,7 @@ public static class TileLoader
 
     public static Texture2D LoadTexture(string sprite, (int x, int y) frame, ContentManager content)
     {
-        return Sprite.TextureFromSpriteAtlas(sprite, new Rectangle(frame.x * 32, frame.y * 32, 32, 32), content);
+        return ContentLoader.TextureFromSpriteAtlas(sprite, new Rectangle(frame.x * 32, frame.y * 32, 32, 32), content);
     }
 
     public static (int x, int y) ParseFrame(string frm)

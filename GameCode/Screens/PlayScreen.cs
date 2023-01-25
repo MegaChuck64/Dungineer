@@ -32,7 +32,7 @@ public class PlayScreen : BaseScreen
         Map.TileObjects.Add(Player);
         EntityManager.AddEntity(Map);
 
-        Select = new TileSelector(BGame, Sprite.LoadTexture("ui_box_select_32", Content), Map.Width, Map.Height, 32);
+        Select = new TileSelector(BGame, ContentLoader.LoadTexture("ui_box_select_32", Content), Map.Width, Map.Height, 32);
         EntityManager.AddEntity(Select);
 
         PathFinder = new PathFinder(BGame, Map.ToShortCollisionMap(), 32);

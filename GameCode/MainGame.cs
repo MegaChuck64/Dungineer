@@ -6,7 +6,6 @@ using MonoGame.Extended.Screens.Transitions;
 using GameCode.Screens;
 using GameCode.Entities;
 using Microsoft.Xna.Framework.Graphics;
-using System.Xml.Linq;
 
 namespace GameCode;
 
@@ -28,7 +27,7 @@ public class MainGame : BaseGame
         Screens.LoadScreen(new MenuScreen(this), new FadeTransition(GraphicsDevice, Color.Black));
         FPSCounter = new FPSCounter(this)
         {
-            Font = content.Load<SpriteFont>(@"Fonts\consolas_22"),
+            Font = ContentLoader.LoadFont("consolas_22", Content),
         };
 
         TileLoader.Load(Content, Rand);
