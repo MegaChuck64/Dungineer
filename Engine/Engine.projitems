@@ -9,7 +9,6 @@
     <Import_RootNamespace>Engine</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Animation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BaseGame.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BaseScreen.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Button.cs" />
@@ -18,10 +17,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Sprite.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Content\" />
-  </ItemGroup>
-  <ItemGroup>
     <MonoGameContentReference Include="$(MSBuildThisFileDirectory)Content\Content.mgcb" />
-    <None Include="$(MSBuildThisFileDirectory)Content\Content.mgcb" />
   </ItemGroup>
 </Project>
