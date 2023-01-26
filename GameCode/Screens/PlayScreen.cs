@@ -48,7 +48,7 @@ public class PlayScreen : BaseScreen
         EntityManager.AddEntity(Terminal);
 
         var item = TileLoader.TileObjects.First(t => t.Name == "Short Bow") as Weapon;
-        ItemInfo = new ItemInfoCard(BGame, new Vector2(termPos.X, 2), null, Font, item.Name, item.Description);
+        ItemInfo = new ItemInfoCard(BGame, new Rectangle(termPos.X, 2, Map.TileSize * 4, Map.TileSize * 6), null, Font, Font, item.Name, item.Description);
         EntityManager.AddEntity(ItemInfo);
     }
 

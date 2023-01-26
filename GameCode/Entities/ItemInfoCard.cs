@@ -16,24 +16,24 @@ public class ItemInfoCard : Entity
     public Rectangle Bounds { get; set; }
     public Texture2D Texture { get; set; }
 
-    public SpriteFont Font { get; set; }
+    public SpriteFont NameFont { get; set; }
+    public SpriteFont InfoFont { get; set; }
     public string Name { get; set; }
     public string Info { get; set; }
 
     public Color TextColor { get; set; }
     public Color BackgroundColor { get; set; }
     public int Scale { get; set; } = 4;
-    private Vector2 pos;
-    public ItemInfoCard(BaseGame game, Vector2 pos, Texture2D texture, SpriteFont font, string name, string info) : base(game)
+    public ItemInfoCard(BaseGame game, Rectangle bounds, Texture2D texture, SpriteFont nameFont, SpriteFont infoFont, string name, string info) : base(game)
     {
-        this.pos = pos;
+        Bounds = bounds;
         Texture = texture;
         Name = name;
         Info = info;
         TextColor = Color.White;
         BackgroundColor = Color.DarkGray;
-        Font = font;
-
+        NameFont = nameFont;
+        InfoFont = infoFont;
     }
 
     public override void Update(float dt)
@@ -45,24 +45,45 @@ public class ItemInfoCard : Entity
     {
         if (Texture == null) return;
 
-        Bounds =
-        new Rectangle(pos.ToPoint(), new Point(
-            (Texture.Width * Scale) + 4,
-            (Texture.Height * Scale) + ((Texture.Height * Scale) / 2)));
-
         sb.FillRectangle(Bounds, BackgroundColor, 0.7f);
-        sb.Draw(Texture, new Rectangle(Bounds.X + 2, Bounds.Y + 2, Texture.Width * Scale, Texture.Height * Scale), null,
-            Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0.75f);
 
-        var nameSize = Font.MeasureString(Name);
-        sb.DrawString(Font,
+        //figure out height;
+
+        sb.Draw(
+            Texture, 
+            new Rectangle(Bounds.X + 1, Bounds.Y + 1, Bounds.Width - 2, Bounds.Width - 2), 
+            null,
+            Color.White, 
+            0f, 
+            Vector2.Zero, 
+            SpriteEffects.None, 
+            0.75f);
+
+        var nameSize = NameFont.MeasureString(Name);
+        sb.DrawString(
+            NameFont,
             Name,
-            new Vector2(Bounds.X + 2 + (Bounds.Width / 2) - (nameSize.X / 2), (Texture.Height * Scale) + 3), TextColor, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.77f);
+            new Vector2(Bounds.X + 2 + (Bounds.Width / 2) - (nameSize.X / 2), Bounds.Y + Bounds.Width + 2),
+            TextColor,
+            0f, 
+            Vector2.Zero, 
+            1f, 
+            SpriteEffects.None, 
+            0.77f);
 
-        var infoSize = Font.MeasureString(Info) * 0.75f;
-        sb.DrawString(Font,
+        var infoSize = InfoFont.MeasureString(Info);
+        sb.DrawString(
+            InfoFont,
             Info,
-            new Vector2(Bounds.X + 2 + (Bounds.Width / 2) - (infoSize.X / 2), (Texture.Height * Scale) + 3 + nameSize.Y + 3), TextColor, 0f, Vector2.Zero, 0.75f, SpriteEffects.None, 0.77f);
+            new Vector2(
+                Bounds.X + 2 + (Bounds.Width / 2) - (infoSize.X / 2), 
+                Bounds.Y + Bounds.Width + 2 + nameSize.Y + 2), 
+            TextColor, 
+            0f, 
+            Vector2.Zero, 
+            1f,
+            SpriteEffects.None, 
+            0.77f);
     }
 
 }

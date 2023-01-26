@@ -13,7 +13,7 @@ public class MainGame : BaseGame
 {
     public FPSCounter FPSCounter { get; set; }
     public ScreenManager Screens { get; set; }
-    public MainGame() : base()
+    public MainGame() : base(new System.Random().Next())
     {
         Screens = new ScreenManager();
         Components.Add(Screens);
