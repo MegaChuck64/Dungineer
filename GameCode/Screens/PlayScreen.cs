@@ -13,7 +13,7 @@ public class PlayScreen : BaseScreen
     public TileSelector Select { get; set; }
     public TileMap Map { get; set; }
     public Terminal Terminal { get; set; }
-    public CharacterInfoCard ItemInfo { get; set; }
+    public TileInfoCard ItemInfo { get; set; }
     public PlayScreen(Game game, Character player) : base(game, "consolas_14")
     {
         Player = player;
@@ -47,7 +47,7 @@ public class PlayScreen : BaseScreen
         EntityManager.AddEntity(Terminal);
 
         var item = TileLoader.GetTileObject(t => t.Name == "Short Bow") as Weapon;
-        ItemInfo = new CharacterInfoCard(BGame, new Rectangle(termPos.X, 2, Map.TileSize * 4, Map.TileSize * 6), null, Font, Font, item.Name, item.Description);
+        ItemInfo = new TileInfoCard(BGame, new Rectangle(termPos.X, 2, termSize.X, Map.TileSize * 4), null, Font, Font, item.Name, item.Description);
         EntityManager.AddEntity(ItemInfo);
     }
 
