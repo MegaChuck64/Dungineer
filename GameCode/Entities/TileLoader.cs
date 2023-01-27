@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,7 +13,34 @@ namespace GameCode.Entities;
 
 public static class TileLoader
 {
-    public static List<TileObject> TileObjects { get; set; }
+    private static List<TileObject> TileObjects { get; set; }
+
+    public static TileObject GetTileObject(Func<TileObject, bool> predicate)
+    {
+        TileObject tileObject = null;
+        var to = TileObjects.FirstOrDefault(predicate);
+
+        if (to != null)
+        {
+            tileObject = to.Copy;
+        }
+        return tileObject;
+    }
+    public static IEnumerable<TileObject> GetTileObjects(Func<TileObject, bool> predicate)
+    {
+        var tileObjects = new List<TileObject>();
+        var to = TileObjects.Where(predicate);
+
+        if (to != null)
+        {
+            foreach (var t in to)
+            {
+                tileObjects.Add(t.Copy);
+            }
+        }
+        return tileObjects;
+    }
+
     public static void Load(ContentManager content, FastRandom rand)
     {
         TileObjects = new List<TileObject>();
@@ -34,6 +62,8 @@ public static class TileLoader
                     TileObjects.Add(LoadGroundTile(lines, rand, content));
                 else if (ext == ".weapon")
                     TileObjects.Add(LoadWeapon(lines, rand, content));
+                else if (ext == ".item")
+                    TileObjects.Add(LoadItemTile(lines, rand, content));
 
             }
         }
@@ -84,7 +114,44 @@ public static class TileLoader
 
         return wep;
     }
+    public static ItemTile LoadItemTile(string[] lines, FastRandom rand, ContentManager content)
+    {
+        var itm = new ItemTile();
+        var spr = string.Empty;
 
+        foreach (var line in lines)
+        {
+            var vl = line[(line.IndexOf(':') + 1)..].Trim();
+
+            var splt = line.ToLower().Split(":", System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries);
+            var prop = splt[0];
+
+            switch (prop)
+            {
+                case "name": itm.Name = PickRandomOption(vl, rand); break;
+                case "sprite": spr = vl; break;
+                case "description": itm.Description = PickRandomOption(vl, rand); break;
+                case "frame":
+                    if (!string.IsNullOrEmpty(spr))
+                    {
+                        itm.Sprite =
+                            LoadTexture(
+                                spr,
+                                ParseFrame(PickRandomOption(vl, rand)),
+                                content);
+                    }
+                    break;
+                case "flag":
+                    itm.Flags ??= new List<string>();
+                    itm.Flags.Add(vl);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return itm;
+    }
     public static GroundTile LoadGroundTile(string[] lines, FastRandom rand, ContentManager content)
     {
         var grd = new GroundTile();

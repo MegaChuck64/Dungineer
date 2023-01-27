@@ -13,7 +13,7 @@ public class PlayScreen : BaseScreen
     public TileSelector Select { get; set; }
     public TileMap Map { get; set; }
     public Terminal Terminal { get; set; }
-    public ItemInfoCard ItemInfo { get; set; }
+    public CharacterInfoCard ItemInfo { get; set; }
     public PlayScreen(Game game, Character player) : base(game, "consolas_14")
     {
         Player = player;
@@ -25,10 +25,9 @@ public class PlayScreen : BaseScreen
         var cursor = new Cursor(BGame);
         EntityManager.AddEntity(cursor);
 
-        Map = new TileMap(BGame, 25, 25, Camera);
+        Map = new TileMap(BGame, 25, 25, BGame.Rand, Camera);
         Player.X = 4;
         Player.Y = 4;
-        Map.TileObjects ??= new System.Collections.Generic.List<TileObject>();
         Map.TileObjects.Add(Player);
         EntityManager.AddEntity(Map);
 
@@ -47,8 +46,8 @@ public class PlayScreen : BaseScreen
         };
         EntityManager.AddEntity(Terminal);
 
-        var item = TileLoader.TileObjects.First(t => t.Name == "Short Bow") as Weapon;
-        ItemInfo = new ItemInfoCard(BGame, new Rectangle(termPos.X, 2, Map.TileSize * 4, Map.TileSize * 6), null, Font, Font, item.Name, item.Description);
+        var item = TileLoader.GetTileObject(t => t.Name == "Short Bow") as Weapon;
+        ItemInfo = new CharacterInfoCard(BGame, new Rectangle(termPos.X, 2, Map.TileSize * 4, Map.TileSize * 6), null, Font, Font, item.Name, item.Description);
         EntityManager.AddEntity(ItemInfo);
     }
 
@@ -62,7 +61,6 @@ public class PlayScreen : BaseScreen
 
         if (BGame.MouseState.WasButtonJustDown(MouseButton.Left))
         {
-
             Terminal.Active = Terminal.Bounds.Contains(BGame.MouseState.Position);
 
             TileObject infoTile;
@@ -90,7 +88,8 @@ public class PlayScreen : BaseScreen
                 ItemInfo.Name = infoTile.Name;
                 if (infoTile is GroundTile gt) ItemInfo.Info = "Speed Mod: " + gt.SpeedMod;
                 else if (infoTile is Weapon wp) ItemInfo.Info = wp.Description;
-                else if (infoTile is Character ch) ItemInfo.Info = ch.Description;
+                else if (infoTile is Character ch) ItemInfo.Info = $"{ch.Race} {ch.Class}";
+                //else if (infoTile is ItemTile it) ItemInfo.Info = it.Description;
                 else ItemInfo.Info = $"{infoTile.X}-{infoTile.Y}";
             }
         }

@@ -14,6 +14,7 @@
     <None Remove="Content\Data\Characters\Ghost.character" />
     <None Remove="Content\Data\Characters\GnomeMage.character" />
     <None Remove="Content\Data\Characters\HumanFighter.character" />
+    <None Remove="Content\Data\Items\PineTree.item" />
     <None Remove="Content\Data\Tiles\Grass.tile" />
     <None Remove="Content\Data\Weapons\Hand.weapon" />
     <None Remove="Content\Data\Weapons\Longsword.weapon" />
@@ -41,6 +42,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Data\Characters\HumanFighter.character">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Data\Items\PineTree.item">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Data\Tiles\Grass.tile">

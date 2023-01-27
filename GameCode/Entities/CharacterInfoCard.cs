@@ -2,16 +2,10 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GameCode.Entities;
 
-public class ItemInfoCard : Entity
+public class CharacterInfoCard : Entity
 {
     public Rectangle Bounds { get; set; }
     public Texture2D Texture { get; set; }
@@ -24,7 +18,7 @@ public class ItemInfoCard : Entity
     public Color TextColor { get; set; }
     public Color BackgroundColor { get; set; }
     public int Scale { get; set; } = 4;
-    public ItemInfoCard(BaseGame game, Rectangle bounds, Texture2D texture, SpriteFont nameFont, SpriteFont infoFont, string name, string info) : base(game)
+    public CharacterInfoCard(BaseGame game, Rectangle bounds, Texture2D texture, SpriteFont nameFont, SpriteFont infoFont, string name, string info) : base(game)
     {
         Bounds = bounds;
         Texture = texture;

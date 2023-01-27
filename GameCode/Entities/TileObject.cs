@@ -10,14 +10,22 @@ public class TileObject
     public int Y { get; set; }
     public Texture2D Sprite { get; set; }
     public List<string> Flags { get; set; }
-
+    public TileObject Copy => this.MemberwiseClone() as TileObject;
+    
 }
 
 public class GroundTile : TileObject
 {
     public float SpeedMod { get; set; } = 1f;
+
+    
 }
 
+public class ItemTile : TileObject
+{
+    public string Description { get; set; }
+    public int Health { get; set; }
+}
 public class Weapon : TileObject
 {
     public string Description { get; set; }

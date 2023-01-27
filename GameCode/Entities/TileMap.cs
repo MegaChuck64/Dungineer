@@ -11,13 +11,15 @@ public class TileMap : Entity
 {
     public GroundTile[,] Ground { get; private set; }
     public List<TileObject> TileObjects { get; set; }
+    public FastRandom Rand { get; set; }
 
     public int TileSize { get; set; } = 32;
     public int Width { get; set; }
     public int Height { get; set; }
     public OrthographicCamera Camera { get; set; }
-    public TileMap(BaseGame game, int width, int height, OrthographicCamera cam) : base(game)
+    public TileMap(BaseGame game, int width, int height, FastRandom rand, OrthographicCamera cam) : base(game)
     {
+        Rand = rand;
         Width = width;
         Height = height;
         Camera = cam;
@@ -26,20 +28,31 @@ public class TileMap : Entity
 
     public void Create()
     {
+
+        TileObjects?.Clear();
+        TileObjects ??= new List<TileObject>();
+        var treeChance = 0.25f;
         Ground = new GroundTile[Width, Height];
         for (int x = 0; x < Width; x++)
         {
             for (int y = 0; y < Height; y++)
             {
-                var ground = TileLoader.TileObjects.First(t => t is GroundTile) as GroundTile;
+                var ground = TileLoader.GetTileObject(t => t is GroundTile) as GroundTile;
                 ground.X = x;
                 ground.Y = y;
                 Ground[x, y] = ground;
+
+                if (Rand.NextSingle(0f, 1f) <= treeChance)
+                {
+                    var tree = TileLoader.GetTileObject(t => t.Name.EndsWith("Tree")) as ItemTile;
+                    tree.X = x;
+                    tree.Y = y;
+                    TileObjects.Add(tree);
+                }
             }
         }
     }
 
-    public FastRandom Rand { get; set; }
     public GroundTile GetGroundTile(int x, int y) =>
         (x >= 0 && x < Width && y >= 0 && y < Height)
         ? Ground[x, y] : null;
