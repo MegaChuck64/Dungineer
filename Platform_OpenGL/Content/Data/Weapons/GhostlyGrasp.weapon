@@ -1,0 +1,13 @@
+﻿Name: Ghostly Grasp
+
+Description: Undead Hold
+
+Damage: 1d3
+Rarity: Divine
+
+Range: 1
+Weight: 0
+Flag: Melee
+
+Sprite: hand_32
+Frame: 0,0

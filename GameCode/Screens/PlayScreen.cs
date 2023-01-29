@@ -16,7 +16,7 @@ public class PlayScreen : BaseScreen
     public TileInfoCard ItemInfo { get; set; }
     public PlayScreen(Game game, Character player) : base(game, "consolas_14")
     {
-        Player = player;
+        Player = player; 
     }
     public override void LoadContent()
     {
@@ -46,8 +46,19 @@ public class PlayScreen : BaseScreen
         };
         EntityManager.AddEntity(Terminal);
 
+        //arbitrarily loading short boy to initialize out of laziness.
+        //Probably remove some params from tile info constructor 
         var item = TileLoader.GetTileObject(t => t.Name == "Short Bow") as Weapon;
-        ItemInfo = new TileInfoCard(BGame, new Rectangle(termPos.X, 2, termSize.X, Map.TileSize * 4), null, Font, Font, item.Name, item.Description);
+
+        ItemInfo = new TileInfoCard(
+            BGame, 
+            new Rectangle(termPos.X, 2, termSize.X, Map.TileSize * 4), 
+            null, 
+            Font, 
+            Font, 
+            item.Name, 
+            item.Description);
+        
         EntityManager.AddEntity(ItemInfo);
     }
 

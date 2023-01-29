@@ -32,6 +32,7 @@ public class TileMap : Entity
         TileObjects?.Clear();
         TileObjects ??= new List<TileObject>();
         var treeChance = 0.25f;
+        var numGhosts = 5;
         Ground = new GroundTile[Width, Height];
         for (int x = 0; x < Width; x++)
         {
@@ -50,6 +51,15 @@ public class TileMap : Entity
                     TileObjects.Add(tree);
                 }
             }
+        }
+
+        for (int i = 0; i < numGhosts; i++)
+        {
+            var (x, y) = GetRandomEmptyTile();
+            var ghost = TileLoader.GetTileObject(t => t.Name.EndsWith("Ghost")) as Character;
+            ghost.X = x;
+            ghost.Y = y;
+            TileObjects.Add(ghost);
         }
     }
 

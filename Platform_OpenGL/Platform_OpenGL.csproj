@@ -35,9 +35,9 @@
     <ProjectReference Include="..\GameCode\GameCode.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="Content\Data\Characters\Ghost.character">
+	<Content Include="Content\Data\Characters\Ghost.character">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </ApplicationDefinition>
+    </Content>
     <Content Include="Content\Data\Characters\GnomeMage.character">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

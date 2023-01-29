@@ -16,6 +16,7 @@ public class Terminal : Entity
     public Color TextColor { get; set; } = Color.Yellow;
     public Color BackgroundColor { get; set; } = Color.DarkBlue;
     public string Input { get; set; }
+
     private bool showCursor = false;
     private float cursorBlinkSpeed = 2f;
     private float cursorBlinkTimer = 0f;
@@ -34,7 +35,7 @@ public class Terminal : Entity
         if (e.Key == Keys.Back)
         { 
             if (Input.Length > 0)
-                Input = Input.Substring(0, Input.Length - 1);
+                Input = Input[..^1];
         }
         else
             Input += e.Character;
@@ -48,8 +49,7 @@ public class Terminal : Entity
         {
             if (!string.IsNullOrWhiteSpace(Input))
             {
-                Lines.Add(Input);
-                Input = string.Empty;
+                SubmitInput();
             }
         }
 
@@ -59,6 +59,12 @@ public class Terminal : Entity
             showCursor = !showCursor;
             cursorBlinkTimer = 0f;
         }
+    }
+
+    public void SubmitInput()
+    {
+        Lines.Add(Input);
+        Input = string.Empty;
     }
 
     public override void Draw(SpriteBatch sb)
@@ -81,7 +87,16 @@ public class Terminal : Entity
                 (int)letterSize.Y + 4), 
             new Color(22, 22, 22), 0.5f);
 
-        sb.DrawString(Font, "?>" + Input + (showCursor ? "|" : ""), new Vector2(Bounds.X + 4, Bounds.Bottom - letterSize.Y), TextColor, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.6f);
+        sb.DrawString(
+            Font, 
+            "?>" + Input + (showCursor ? "|" : ""), 
+            new Vector2(Bounds.X + 4, Bounds.Bottom - letterSize.Y), 
+            TextColor, 
+            0f, 
+            Vector2.Zero, 
+            1f, 
+            SpriteEffects.None, 
+            0.6f);
 
         sb.DrawRectangle(Bounds, TextColor, 1, 0.55f);
     }
