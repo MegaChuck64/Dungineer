@@ -5,7 +5,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace GameCode.Entities;
 
-public class TileSelector : Entity
+public class TileSelector : Component
 {
     public int X { get; set; }
     public int Y { get; set; }
@@ -14,7 +14,7 @@ public class TileSelector : Entity
     public int TileSize { get; set; }
     public Texture2D Texture { get; set; }
     public Color Tint { get; set; }
-    public TileSelector(BaseGame game, Texture2D texture, int width, int height, int tileSize) : base(game)
+    public TileSelector(Entity owner, Texture2D texture, int width, int height, int tileSize) : base(owner)
     {
         Texture = texture;
         TileSize = tileSize;
@@ -26,7 +26,7 @@ public class TileSelector : Entity
     public override void Update(float dt)
     {
         (int newX, int newY) = 
-            (Game.MouseState.Position.X / TileSize, Game.MouseState.Position.Y / TileSize);
+            (Owner.Game.MouseState.Position.X / TileSize, Owner.Game.MouseState.Position.Y / TileSize);
 
         if (newX >= 0 && newX < Width && newY >= 0 && newY < Height)
         {

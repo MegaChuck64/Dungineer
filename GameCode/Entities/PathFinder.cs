@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace GameCode.Entities;
 
-public class PathFinder : Entity
+public class PathFinder : Component
 {
     public int TileSize { get; private set; }
     public short[,] Map { get; set; }
@@ -18,7 +18,7 @@ public class PathFinder : Entity
 
     public Color debugTint;
 
-    public PathFinder(BaseGame game, short[,] map, int tileSize) : base(game)
+    public PathFinder(Entity entity, short[,] map, int tileSize) : base(entity)
     {
         TileSize = tileSize;
         Map = map;
@@ -101,7 +101,7 @@ public class PathFinder : Entity
 
     public override void Draw(SpriteBatch sb)
     {
-        if (Game.Debug)
+        if (Owner.Game.Debug)
         {
             if (Path == null) return;
 

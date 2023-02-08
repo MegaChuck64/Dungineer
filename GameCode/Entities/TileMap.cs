@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace GameCode.Entities;
 
-public class TileMap : Entity
+public class TileMap : Component
 {
     public GroundTile[,] Ground { get; private set; }
     public List<TileObject> TileObjects { get; set; }
@@ -17,7 +17,7 @@ public class TileMap : Entity
     public int Width { get; set; }
     public int Height { get; set; }
     public OrthographicCamera Camera { get; set; }
-    public TileMap(BaseGame game, int width, int height, FastRandom rand, OrthographicCamera cam) : base(game)
+    public TileMap(Entity entity, int width, int height, FastRandom rand, OrthographicCamera cam) : base(entity)
     {
         Rand = rand;
         Width = width;

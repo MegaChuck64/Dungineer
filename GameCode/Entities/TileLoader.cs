@@ -11,6 +11,7 @@ using System.Linq;
 
 namespace GameCode.Entities;
 
+//possibly a system in ECS? though it doesn't iterate over entites??
 public static class TileLoader
 {
     private static List<TileObject> TileObjects { get; set; }

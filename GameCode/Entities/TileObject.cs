@@ -3,6 +3,76 @@ using System.Collections.Generic;
 
 namespace GameCode.Entities;
 
+//Items
+//Entities
+//Actions
+
+//Components that are capabilities
+//turn verb into noun... operation into object
+
+//
+/*
+    
+class item:
+    Attack melee;
+    Attack ranged;
+    Defense defense;
+    Use use;
+
+
+class Attack:
+    int minDmg;
+    int maxDmg;
+    
+    void hit();
+
+ 
+class Defense:
+    int armor;
+    int dodgeBonus;
+    
+    void defend();
+
+
+abstract class Use:
+    void use();
+
+class HealUse extends Use:
+    void use() {
+        hero.health += 20;
+    }
+
+class FireBallUse extends Use:
+    void use() {
+        //Cast fireball
+    }
+
+
+
+var sword = new Item {
+    melee: new Attack(10, 20),
+};
+
+var crossbow = new Item {
+    ranged: new Attack(10, 20),
+};
+
+var shield = new Item {
+    melee: new Attack(5, 8),
+    defense: new Defense(3, 0),
+};
+
+var healPotion = new Item {
+    use: new HealUse(),
+};
+
+var fireSword = new Item {
+    melee: Attack(30, 40),
+    use: new FireBallUse()
+};
+
+
+ */
 public class TileObject
 {
     public string Name { get; set; }

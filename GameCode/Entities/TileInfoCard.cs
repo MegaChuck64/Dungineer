@@ -5,7 +5,7 @@ using MonoGame.Extended;
 
 namespace GameCode.Entities;
 
-public class TileInfoCard : Entity
+public class TileInfoCard : Component
 {
     public Rectangle Bounds { get; set; }
     public Texture2D Texture { get; set; }
@@ -18,7 +18,7 @@ public class TileInfoCard : Entity
     public Color TextColor { get; set; }
     public Color BackgroundColor { get; set; }
     public int Scale { get; set; } = 4;
-    public TileInfoCard(BaseGame game, Rectangle bounds, Texture2D texture, SpriteFont nameFont, SpriteFont infoFont, string name, string info) : base(game)
+    public TileInfoCard(Entity entity, Rectangle bounds, Texture2D texture, SpriteFont nameFont, SpriteFont infoFont, string name, string info) : base(entity)
     {
         Bounds = bounds;
         Texture = texture;

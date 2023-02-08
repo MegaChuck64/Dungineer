@@ -24,10 +24,12 @@ public class CharacterSelectScreen : BaseScreen
     {
         base.LoadContent();
 
-        var cursor = new Cursor(BGame);
-        EntityManager.AddEntity(cursor);
+        var cursor = new Entity(BGame);
+        cursor.Components.Add(new Cursor(cursor));        
+        EntityManager.Entities.Add(cursor);
 
-        selectButton = new Button(BGame)
+        var selectButton = new Entity(BGame);
+        var selectButtonComp = new Button(selectButton)
         {
             Color = Color.Orange,
             HighlightColor = Color.DarkGray,
@@ -40,8 +42,9 @@ public class CharacterSelectScreen : BaseScreen
             Rect = new Rectangle(Game.GraphicsDevice.Viewport.Width / 2 - 50, 150, 100, 40),
             TextOffset = new Point(18, 12),
         };
-        EntityManager.AddEntity(selectButton);
-        selectButton.OnClick += SelectButton_OnClick;
+        selectButtonComp.OnClick += SelectButton_OnClick;
+        selectButton.Components.Add(selectButtonComp);
+        EntityManager.Entities.Add(selectButton);
 
 
         PlayableCharacters =
@@ -56,15 +59,18 @@ public class CharacterSelectScreen : BaseScreen
         for (int i = 0; i < PlayableCharacters.Count; i++)
         {
             var chr = PlayableCharacters[i];
-            CharacterCards.Add(
+            var charEntity = new Entity(BGame);
+            var card = 
                 new CharacterInfoCard(
-                    BGame, 
+                    charEntity, 
                     new Rectangle(200 + (i * 32 * 5), 400, 32 * 4, 32 * 6), 
                     chr.Sprite, 
                     Font,
                     Font,
                     chr.Name, 
-                    $"{chr.Race} {chr.Class}")); 
+                    $"{chr.Race} {chr.Class}");
+            charEntity.Components.Add(card);
+            CharacterCards.Add(card);
         }
     }
 

@@ -25,10 +25,13 @@ public class MainGame : BaseGame
     public override void Load(ContentManager content)
     {
         Screens.LoadScreen(new MenuScreen(this), new FadeTransition(GraphicsDevice, Color.Black));
-        FPSCounter = new FPSCounter(this)
+
+        var fpsEntity = new Entity(this);
+        FPSCounter = new FPSCounter(fpsEntity)
         {
             Font = ContentLoader.LoadFont("consolas_22", Content),
         };
+        fpsEntity.Components.Add(FPSCounter);
 
         TileLoader.Load(Content, Rand);
     }

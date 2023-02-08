@@ -21,7 +21,8 @@ public class MenuScreen : BaseScreen
     {
         base.LoadContent();
 
-        testButton = new Button(Game as MainGame)
+        var testButtonEntity = new Entity(BGame);
+        testButton = new Button(testButtonEntity)
         {
             Color = Color.Orange,
             HighlightColor = Color.Blue,
@@ -34,6 +35,7 @@ public class MenuScreen : BaseScreen
             Rect = new Rectangle(Game.GraphicsDevice.Viewport.Width / 2 - 50, 150, 100, 40),
             TextOffset = new Point(16, 6),
         };
+        testButtonEntity.Components.Add(testButton);
 
         testButton.OnClick += TestButton_OnClick;
 

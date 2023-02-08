@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace GameCode.Entities;
 
-public class Terminal : Entity
+public class Terminal : Component
 {
     public List<string> Lines { get; set; }
     public Rectangle Bounds { get; set; }
@@ -20,12 +20,12 @@ public class Terminal : Entity
     private bool showCursor = false;
     private float cursorBlinkSpeed = 2f;
     private float cursorBlinkTimer = 0f;
-    public Terminal(BaseGame game, SpriteFont font) : base(game)
+    public Terminal(Entity entity, SpriteFont font) : base(entity)
     {
         Font = font;
         Lines = new List<string>();
         Input = string.Empty;
-        Game.Window.TextInput += Window_TextInput;
+        Owner.Game.Window.TextInput += Window_TextInput;
     }
 
     private void Window_TextInput(object sender, TextInputEventArgs e)
@@ -45,7 +45,7 @@ public class Terminal : Entity
     {
         if (!Active) return;
 
-        if (Game.KeyState.WasKeyJustDown(Keys.Enter))
+        if (Owner.Game.KeyState.WasKeyJustDown(Keys.Enter))
         {
             if (!string.IsNullOrWhiteSpace(Input))
             {

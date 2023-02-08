@@ -1,23 +1,54 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
 namespace Engine;
 
-public abstract class Entity
+public class Entity
 {
     public bool IsDestroyed { get; private set; }
     public BaseGame Game { get; private set; }
-    protected Entity(BaseGame game)
+
+    public List<Component> Components { get; private set; }
+    public Entity(BaseGame game)
     {
         IsDestroyed = false;
         Game = game;
+        Components = new List<Component>();
     }
 
-    public abstract void Update(float dt);
-    public abstract void Draw(SpriteBatch sb);
+    public void Update(float dt)
+    {
+        foreach (var comp in Components)
+        {
+            comp.Update(dt);
+        }
+    }
 
-    public virtual void Destroy()
+    public void Draw(SpriteBatch sb)
+    {
+        foreach (var comp in Components)
+        {
+            comp.Draw(sb);
+        }
+    }
+    public void Destroy()
     {
         IsDestroyed = true;
     }
+}
+
+public abstract class Component
+{
+    public Entity Owner { get; set; }
+    public bool IsActive { get; set; }
+
+    public Component(Entity owner, bool isActive = true)
+    {
+        Owner = owner;
+        IsActive = isActive;
+    }
+
+    public abstract void Update(float dt);
+
+    public abstract void Draw(SpriteBatch sb);
 }

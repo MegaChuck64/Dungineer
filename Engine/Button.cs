@@ -4,7 +4,7 @@ using MonoGame.Extended;
 using MonoGame.Extended.Input;
 
 namespace Engine;
-public class Button : Entity
+public class Button : Component
 {
     public Rectangle Rect { get; set; }
     public Color Color { get; set; }
@@ -21,16 +21,16 @@ public class Button : Entity
     public delegate void OnClickEventHandler(object sender, ClickEventArgs e);
     public event OnClickEventHandler OnClick;
 
-    public Button(BaseGame game) : base(game)
+    public Button(Entity entity) : base(entity)
     {
     }
 
 
     public override void Update(float dt)
     {
-        Hovering = Rect.Contains(Game.MouseState.Position);
+        Hovering = Rect.Contains(Owner.Game.MouseState.Position);
 
-        if (Hovering && Game.MouseState.WasButtonJustUp(MouseButton.Left))
+        if (Hovering && Owner.Game.MouseState.WasButtonJustUp(MouseButton.Left))
             OnClick?.Invoke(this, new ClickEventArgs(MouseButton.Left));
     }
 

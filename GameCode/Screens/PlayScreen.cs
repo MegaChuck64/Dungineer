@@ -22,44 +22,55 @@ public class PlayScreen : BaseScreen
     {
         base.LoadContent();
 
-        var cursor = new Cursor(BGame);
-        EntityManager.AddEntity(cursor);
+        var cursor = new Entity(BGame);
+        var cursorComp = new Cursor(cursor);
+        cursor.Components.Add(cursorComp);
+        EntityManager.Entities.Add(cursor);
 
-        Map = new TileMap(BGame, 25, 25, BGame.Rand, Camera);
+        var mapEntity = new Entity(BGame);
+        Map = new TileMap(mapEntity, 25, 25, BGame.Rand, Camera);
         Player.X = 4;
         Player.Y = 4;
         Map.TileObjects.Add(Player);
-        EntityManager.AddEntity(Map);
+        mapEntity.Components.Add(Map);
+        EntityManager.Entities.Add(mapEntity);
 
-        Select = new TileSelector(BGame, ContentLoader.LoadTexture("ui_box_select_32", Content), Map.Width, Map.Height, 32);
-        EntityManager.AddEntity(Select);
+        var selectEntity = new Entity(BGame);
+        Select = new TileSelector(selectEntity, ContentLoader.LoadTexture("ui_box_select_32", Content), Map.Width, Map.Height, 32);
+        selectEntity.Components.Add(Select);
+        EntityManager.Entities.Add(selectEntity);
 
-        PathFinder = new PathFinder(BGame, Map.ToShortCollisionMap(), 32);
-        EntityManager.AddEntity(PathFinder);
+        var pfEntity = new Entity(BGame);
+        PathFinder = new PathFinder(pfEntity, Map.ToShortCollisionMap(), 32);
+        pfEntity.Components.Add(PathFinder);
+        EntityManager.Entities.Add(pfEntity);
 
         var termHeight = 200;
         var termPos = new Point(Map.Width * Map.TileSize + 2, Map.Height * Map.TileSize - termHeight);
         var termSize = new Point(BGame.Width - termPos.X - 2, termHeight);
-        Terminal = new Terminal(BGame, Font)
+        var termEntity = new Entity(BGame);
+        Terminal = new Terminal(termEntity, Font)
         {
             Bounds = new Rectangle(termPos, termSize)
         };
-        EntityManager.AddEntity(Terminal);
+        termEntity.Components.Add(Terminal);
+        EntityManager.Entities.Add(termEntity);
 
         //arbitrarily loading short boy to initialize out of laziness.
         //Probably remove some params from tile info constructor 
         var item = TileLoader.GetTileObject(t => t.Name == "Short Bow") as Weapon;
 
+        var infoCardEntity = new Entity(BGame);
         ItemInfo = new TileInfoCard(
-            BGame, 
+            infoCardEntity, 
             new Rectangle(termPos.X, 2, termSize.X, Map.TileSize * 4), 
             null, 
             Font, 
             Font, 
             item.Name, 
             item.Description);
-        
-        EntityManager.AddEntity(ItemInfo);
+        infoCardEntity.Components.Add(ItemInfo);
+        EntityManager.Entities.Add(infoCardEntity);
     }
 
     public override void Update(GameTime gameTime)
@@ -99,7 +110,7 @@ public class PlayScreen : BaseScreen
                 ItemInfo.Name = infoTile.Name;
                 if (infoTile is GroundTile gt) ItemInfo.Info = "Speed Mod: " + gt.SpeedMod;
                 else if (infoTile is Weapon wp) ItemInfo.Info = wp.Description;
-                else if (infoTile is Character ch) ItemInfo.Info = $"{ch.Race} {ch.Class}";
+                else if (infoTile is Character ch) ItemInfo.Info = $"{ch.Race} {ch.Class} {ch.Weapon}";
                 //else if (infoTile is ItemTile it) ItemInfo.Info = it.Description;
                 else ItemInfo.Info = $"{infoTile.X}-{infoTile.Y}";
             }

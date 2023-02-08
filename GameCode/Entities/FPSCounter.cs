@@ -5,14 +5,14 @@ using System;
 
 namespace GameCode.Entities;
 
-public class FPSCounter : Entity
+public class FPSCounter : Component
 {
     int frameRate = 0;
     int frameCounter = 0;
     TimeSpan elapsedTime = TimeSpan.Zero;
     public SpriteFont Font { get; set; }
     
-    public FPSCounter(MainGame game, bool tickOnUpdate = false) : base(game)
+    public FPSCounter(Entity owner, bool tickOnUpdate = false) : base(owner)
     {
     }
 

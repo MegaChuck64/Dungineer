@@ -5,11 +5,11 @@ using MonoGame.Extended;
 
 namespace GameCode.Entities;
 
-public class Cursor : Entity
+public class Cursor : Component
 {
     public Color Tint { get; set; } = Color.White;
     public float Radius { get; set; } = 4f;
-    public Cursor(BaseGame game) : base(game)
+    public Cursor(Entity entity) : base(entity)
     {
     }
 
@@ -19,6 +19,6 @@ public class Cursor : Entity
 
     public override void Draw(SpriteBatch sb)
     {
-        sb.DrawCircle(new CircleF(Game.MouseState.Position, Radius), 6, Tint, 1f, 1f);
+        sb.DrawCircle(new CircleF(Owner.Game.MouseState.Position, Radius), 6, Tint, 1f, 1f);
     }
 }
