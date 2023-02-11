@@ -32,7 +32,8 @@
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GameCode\GameCode.csproj" />
+    <ProjectReference Include="..\Dungineer\Dungineer.csproj" />
+    <!--ProjectReference Include="..\GameCode\GameCode.csproj" /-->
   </ItemGroup>
   <ItemGroup>
 	<Content Include="Content\Data\Characters\Ghost.character">

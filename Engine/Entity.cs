@@ -1,5 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Engine;
 
@@ -16,39 +16,13 @@ public class Entity
         Components = new List<Component>();
     }
 
-    public void Update(float dt)
-    {
-        foreach (var comp in Components)
-        {
-            comp.Update(dt);
-        }
-    }
-
-    public void Draw(SpriteBatch sb)
-    {
-        foreach (var comp in Components)
-        {
-            comp.Draw(sb);
-        }
-    }
     public void Destroy()
     {
         IsDestroyed = true;
     }
+
+    public T GetComponent<T>() where T : Component => 
+        Components.OfType<T>().FirstOrDefault();
+    
 }
 
-public abstract class Component
-{
-    public Entity Owner { get; set; }
-    public bool IsActive { get; set; }
-
-    public Component(Entity owner, bool isActive = true)
-    {
-        Owner = owner;
-        IsActive = isActive;
-    }
-
-    public abstract void Update(float dt);
-
-    public abstract void Draw(SpriteBatch sb);
-}

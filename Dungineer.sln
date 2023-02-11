@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameCode", "GameCode\GameCo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Platform_OpenGL", "Platform_OpenGL\Platform_OpenGL.csproj", "{004DD712-BB0E-4996-BCE0-EC45D9326887}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dungineer", "Dungineer\Dungineer.csproj", "{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,22 @@ Global
 		{004DD712-BB0E-4996-BCE0-EC45D9326887}.Release|x64.Build.0 = Release|Any CPU
 		{004DD712-BB0E-4996-BCE0-EC45D9326887}.Release|x86.ActiveCfg = Release|Any CPU
 		{004DD712-BB0E-4996-BCE0-EC45D9326887}.Release|x86.Build.0 = Release|Any CPU
+		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Debug|ARM.Build.0 = Debug|Any CPU
+		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Debug|x64.Build.0 = Debug|Any CPU
+		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Debug|x86.Build.0 = Debug|Any CPU
+		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Release|ARM.ActiveCfg = Release|Any CPU
+		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Release|ARM.Build.0 = Release|Any CPU
+		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Release|x64.ActiveCfg = Release|Any CPU
+		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Release|x64.Build.0 = Release|Any CPU
+		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Release|x86.ActiveCfg = Release|Any CPU
+		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,7 +79,7 @@ Global
 		SolutionGuid = {E52842CE-3571-427B-8D21-CFE4CE74843A}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Engine\Engine.projitems*{5b45e328-6f5b-44e5-a44e-8cc78f86bd40}*SharedItemsImports = 5
+		Engine\Engine.projitems*{761760dd-5e41-4f49-8f7d-c4b57fa11efb}*SharedItemsImports = 5
 		Engine\Engine.projitems*{a0cdbd0e-3a41-42b7-9425-a838bc2c7383}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

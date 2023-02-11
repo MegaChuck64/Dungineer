@@ -1,32 +1,32 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
-using MonoGame.Extended.Input;
 using System;
+using System.Collections.Generic;
 
 namespace Engine
 {
+    //spell system
+    //encoded string of colored characters, we create a system of arbritrarily decoding it to different properties of a spell
     public abstract class BaseGame : Game
     {
         private GraphicsDeviceManager _graphics;
-        public SpriteBatch SpriteBatch { get; set; }
-        public KeyboardStateExtended KeyState { get; private set; }
-        public MouseStateExtended MouseState { get; private set; }
         public Color BackgroundColor { get; set; } = Color.Black;
         public int Width { get; private set; }
         public int Height { get; private set; }
-        public FastRandom Rand { get; set; }
+        public Random Rand { get; set; }
         public bool Debug { get; set; } = false;
+        public List<BaseSystem> Systems { get; private set; }
         public BaseGame(int? seed = null, int width = 1300, int height = 900)
         {
             Width = width;
             Height = height;
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            IsMouseVisible = true;
 
-            Rand = seed == null ? new FastRandom() : new FastRandom(seed.Value);            
+            Systems = new List<BaseSystem>();
+            
+            Rand = seed == null ? new Random(1) : new Random(seed.Value);            
         }
 
         protected override void Initialize()
@@ -36,7 +36,6 @@ namespace Engine
             _graphics.PreferredBackBufferHeight = Height;
             
             IsFixedTimeStep = true;
-            IsMouseVisible = false;
             _graphics.ApplyChanges();
 
             Init();
@@ -65,17 +64,18 @@ namespace Engine
 
         protected override void LoadContent()
         {
-            SpriteBatch = new SpriteBatch(GraphicsDevice);
             Load(Content);
-
         }
 
         protected override void Update(GameTime gameTime)
         {
-            KeyState = KeyboardExtended.GetState();
-            MouseState = MouseExtended.GetState();
-  
+
             base.Update(gameTime);
+
+            foreach (var sys in Systems)
+            {
+                sys.Update(gameTime, SceneManager.Entities);
+            }
 
             OnUpdate(gameTime);
         }
@@ -85,6 +85,11 @@ namespace Engine
             GraphicsDevice.Clear(BackgroundColor);
 
             base.Draw(gameTime);
+
+            foreach (var sys in Systems)
+            {
+                sys.Draw(gameTime, SceneManager.Entities);
+            }
 
             OnDraw(gameTime);
         }
