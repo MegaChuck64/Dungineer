@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Dungineer.Components;
 using Engine.Components;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -13,7 +14,7 @@ public class MouseInputSystem : BaseSystem
 
     public MouseInputSystem(BaseGame game) : base(game)
     {
-        entered = new List<MouseInput>();
+        entered = new List<MouseInput>();        
     }
 
     public override void Update(GameTime gameTime, IEnumerable<Entity> entities)
@@ -28,6 +29,11 @@ public class MouseInputSystem : BaseSystem
 
             if (transform == null || !transform.IsActive)
                 continue;
+
+            if (entity.GetComponent<Cursor>() is Cursor cursor && cursor.IsActive)
+            {
+                transform.Position = mouseState.Position.ToVector2();
+            }
 
             var bounds = transform.Bounds;
 

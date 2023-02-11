@@ -13,15 +13,15 @@ public class MainGame : BaseGame
     public const string PlayScene = "Play";
     public MainGame() : base(new System.Random().Next())
     {
-        BackgroundColor = Color.MonoGameOrange;
-        IsMouseVisible = true;
+        BackgroundColor = new Color(10, 10, 10);
+        IsMouseVisible = false;
     }
+
     public override void Init()
     {
         //ToggleFullscreen();
-
-
     }
+
     public override void Load(ContentManager content)
     {
         AddSystems();
@@ -30,7 +30,6 @@ public class MainGame : BaseGame
         BuildMenuScene();
         BuildCharacterSelectScene();
 
-        BackgroundColor = new Color(10, 10, 10);
         SceneManager.ChangeScene(MenuScene);
     }
 
@@ -51,7 +50,8 @@ public class MainGame : BaseGame
             "trees_32",
             "ui_box_select_32",
             "weapons_32",
-            "WizardPortraits_512"
+            "WizardPortraits_512",
+            "cursor_16"
         };
         Systems.Add(new SpriteRenderSystem(this, Content, textureNames));
 

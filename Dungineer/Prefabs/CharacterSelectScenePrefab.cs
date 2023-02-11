@@ -12,12 +12,19 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
     {
         var entities = new List<Entity>();
 
+        //cursor
+        var cursorPrefab = new CursorPrefab();
+        var cursor = cursorPrefab.Instantiate(game);
+        entities.Add(cursor);
 
+
+        //wizard description
         var descEnt = new Entity(game);
         var descTrn = new Transform(descEnt)
         {
             Position = new Vector2(game.Width / 2f - 600, game.Height / 2f),
-            Size = new Vector2(100, 100)
+            Size = new Vector2(100, 100),
+            Layer = 0.6f,
         };
         var descText = new Text(descEnt)
         {
@@ -54,20 +61,21 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
             entities.Add(ent);
         }
 
-        //Text description
-        var textEntity = new Entity(game);
-        var textTrn = new Transform(textEntity)
+        //instructions
+        var instrEnt = new Entity(game);
+        var instrTran = new Transform(instrEnt)
         {
             Position = new Vector2(game.Width / 2 - 140, game.Height / 2 + 300),
             Size = new Vector2(game.Width, game.Height),
+            Layer = 0.6f
         };
-        var txt = new Text(textEntity)
+        var instrTxt = new Text(instrEnt)
         {
             FontName = "consolas_14",
             Tint = Color.Orange,
             Content = "Select one of the wizards above."
         };
-        entities.Add(textEntity);
+        entities.Add(instrEnt);
 
 
         //back button
@@ -82,6 +90,7 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
         var backButton = backButtonPrefab.Instantiate(game);
         var backTrn = backButton.GetComponent<Transform>();
         backTrn.Position = new Vector2(game.Width / 2f - backTrn.Size.X / 2f, game.Height / 2f + 360);
+        backTrn.Layer = 0.7f;
         backButton.GetComponent<Text>().Offset = new Vector2(19, 12);
         backButton.GetComponent<MouseInput>().OnMouseReleased = (mb) =>
         {
@@ -89,6 +98,9 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
             game.BackgroundColor = new Color(10, 10, 10);
         };
         entities.Add(backButton);
+
+
+
 
         return entities;
     }
@@ -103,7 +115,8 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
         var pTrns = new Transform(card)
         {
             Position = bounds.Location.ToVector2(),
-            Size = bounds.Size.ToVector2()
+            Size = bounds.Size.ToVector2(),
+            Layer = 0.7f,
         };
         //sprite
         var pspr = new Sprite(card)
@@ -117,7 +130,7 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
         {
             OnMouseEnter = () =>
             {
-                pspr.Tint = new Color(150, 255, 180, 150);
+                pspr.Tint = new Color(255, 255, 0, 150);
                 descText.Content = wizardDesc;
             },
 

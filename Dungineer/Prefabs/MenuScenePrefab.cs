@@ -13,6 +13,11 @@ public class MenuScenePrefab : IPrefab<List<Entity>>
     {
         var ents = new List<Entity>();
 
+        //cursor
+        var cursorPrefab = new CursorPrefab();
+        var cursor = cursorPrefab.Instantiate(game);
+        ents.Add(cursor);
+
         //play button
         var playButtonPrefab = new ButtonPrefab(
             defaultColor: new Color(50, 50, 50),
@@ -25,6 +30,7 @@ public class MenuScenePrefab : IPrefab<List<Entity>>
         var playButton = playButtonPrefab.Instantiate(game);
         var plytrns = playButton.GetComponent<Transform>();
         plytrns.Position = new Vector2(game.Width / 2f - plytrns.Size.X / 2f, game.Height / 2f + 100);
+        plytrns.Layer = 0.7f;
         playButton.GetComponent<Text>().Offset = new Vector2(19, 12);
         playButton.GetComponent<MouseInput>().OnMouseReleased = (mb) =>
         {
@@ -38,7 +44,8 @@ public class MenuScenePrefab : IPrefab<List<Entity>>
         var pTrns = new Transform(portrait)
         {
             Position = new Vector2(game.Width / 2f - 256, 10),
-            Size = new Vector2(512, 512)
+            Size = new Vector2(512, 512),
+            Layer = 0.7f
         };
         var pspr = new Sprite(portrait)
         {
@@ -47,6 +54,8 @@ public class MenuScenePrefab : IPrefab<List<Entity>>
             Source = new Rectangle(game.Rand.Next(7) * 512, 0, 512, 512),
         };
         ents.Add(portrait);
+
+
 
 
         return ents;

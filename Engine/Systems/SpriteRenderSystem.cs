@@ -34,12 +34,12 @@ public class SpriteRenderSystem : BaseSystem
      {
         sb.Begin(
             sortMode: SpriteSortMode.FrontToBack,
-            blendState: BlendState.Opaque,
-            samplerState: SamplerState.PointWrap,
-            depthStencilState: DepthStencilState.Default,
+            blendState: BlendState.NonPremultiplied,
+            samplerState: SamplerState.PointClamp,
+            depthStencilState: DepthStencilState.DepthRead,
             rasterizerState: RasterizerState.CullCounterClockwise,
             effect: null,
-            null); //camera here todo
+            transformMatrix: null); //camera here todo
 
         foreach (var entity in entities)
         {
