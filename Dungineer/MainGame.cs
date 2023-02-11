@@ -4,7 +4,6 @@ using Engine.Prefabs;
 using Engine.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Dungineer;
 
@@ -15,8 +14,6 @@ public class MainGame : BaseGame
     public const string PlayScene = "Play";
     public MainGame() : base(new System.Random().Next())
     {
-
-
         BackgroundColor = Color.MonoGameOrange;
         IsMouseVisible = true;
     }
@@ -29,8 +26,11 @@ public class MainGame : BaseGame
     {
         AddSystems();
 
-        BuildMenuScene();
 
+        BuildMenuScene();
+        BuildCharacterSelectScene();
+
+        BackgroundColor = new Color(10, 10, 10);
         SceneManager.ChangeScene(MenuScene);
     }
 
@@ -51,6 +51,7 @@ public class MainGame : BaseGame
             "trees_32",
             "ui_box_select_32",
             "weapons_32",
+            "WizardPortraits_512"
         };
         Systems.Add(new SpriteRenderSystem(this, Content, textureNames));
 
@@ -67,9 +68,9 @@ public class MainGame : BaseGame
     }
     private void BuildMenuScene()
     {
-        BackgroundColor = new Color(10, 10, 10);
         SceneManager.AddScene(MenuScene);
 
+        //play button
         var playButtonPrefab = new ButtonPrefab(
             defaultColor:   new Color(50, 50, 50),
             hoverColor:     new Color(75, 75, 75), 
@@ -78,10 +79,9 @@ public class MainGame : BaseGame
             fontName:       "consolas_22", 
             text:           "Play");
 
-
         var playButton = playButtonPrefab.Instantiate(this);
         var plytrns = playButton.GetComponent<Transform>();
-        plytrns.Position = new Vector2(Width / 2f - plytrns.Size.X / 2f, Height / 2f);
+        plytrns.Position = new Vector2(Width / 2f - plytrns.Size.X / 2f, Height / 2f + 100);
         playButton.GetComponent<Text>().Offset = new Vector2(19, 12);
         playButton.GetComponent<MouseInput>().OnMouseReleased = (mb) => 
         {
@@ -89,20 +89,70 @@ public class MainGame : BaseGame
             BackgroundColor = new Color(25, 25, 25);
         };
         SceneManager.AddEntity(MenuScene, playButton);
+
+        //wizard portraits
+        var portrait = new Entity(this);
+        var pTrns = new Transform(portrait)
+        {
+            Position = new Vector2(Width / 2f - 256, 10),
+            Size = new Vector2(512, 512)
+        };
+        var pspr = new Sprite(portrait)
+        {
+            TextureName = "WizardPortraits_512",
+            Tint = Color.White,
+            Source = new Rectangle(Rand.Next(7) * 512, 0, 512, 512),            
+        };
+        SceneManager.AddEntity(MenuScene, portrait);
+    }
+
+    private void BuildCharacterSelectScene()
+    {
+        SceneManager.AddScene(CharacterSelectScene);
+
+        //play button
+        var backButtonPrefab = new ButtonPrefab(
+            defaultColor: new Color(50, 50, 50),
+            hoverColor: new Color(75, 75, 75),
+            pressedColor: new Color(90, 90, 90),
+            txtColor: Color.White,
+            fontName: "consolas_22",
+            text: "Back");
+
+        var backButton = backButtonPrefab.Instantiate(this);
+        var backTrn = backButton.GetComponent<Transform>();
+        backTrn.Position = new Vector2(Width / 2f - backTrn.Size.X / 2f, Height / 2f + 100);
+        backButton.GetComponent<Text>().Offset = new Vector2(19, 12);
+        backButton.GetComponent<MouseInput>().OnMouseReleased = (mb) =>
+        {
+            SceneManager.ChangeScene(MenuScene);
+            BackgroundColor = new Color(10, 10, 10);
+        };
+        SceneManager.AddEntity(CharacterSelectScene, backButton);
+
+        //wizard portraits
+        var portrait = new Entity(this);
+        var pTrns = new Transform(portrait)
+        {
+            Position = new Vector2(Width / 2f - 256, 10),
+            Size = new Vector2(512, 512)
+        };
+        var pspr = new Sprite(portrait)
+        {
+            TextureName = "WizardPortraits_512",
+            Tint = Color.White,
+            Source = new Rectangle(Rand.Next(7) * 512, 0, 512, 512),
+        };
+        SceneManager.AddEntity(CharacterSelectScene, portrait);
     }
 
     public override void OnUpdate(GameTime gameTime)
     {
-        //if (KeyState.WasKeyJustDown(Microsoft.Xna.Framework.Input.Keys.OemTilde)) //todo
-        //{
-        //    Debug = !Debug;
-        //}
+
     }
 
     public override void OnDraw(GameTime gameTime)
     {
-        if (!Debug) return;
-
-
+        
     }
 }
