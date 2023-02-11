@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 
 namespace Engine.Prefabs;
-public class ButtonPrefab : IPrefab
+public class ButtonPrefab : IPrefab<Entity>
 {
     private Color hoverColor;
     private Color pressedColor;

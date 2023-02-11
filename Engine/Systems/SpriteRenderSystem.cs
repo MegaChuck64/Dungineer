@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Engine.Systems;
 
@@ -46,17 +47,17 @@ public class SpriteRenderSystem : BaseSystem
             if (transform == null || !transform.IsActive)
                 continue;
 
-            if (entity.GetComponent<Sprite>() is Sprite sprite && sprite.IsActive)
+            foreach (var sprite in entity.GetComponents<Sprite>().Where(s=>s.IsActive))
             {
                 var bounds = transform.Bounds;
                 sb.Draw(
-                    textures[sprite.TextureName], 
-                    bounds, 
-                    sprite.Source, 
-                    sprite.Tint, 
-                    0f, 
-                    Vector2.Zero, 
-                    SpriteEffects.None, 
+                    textures[sprite.TextureName],
+                    bounds,
+                    sprite.Source,
+                    sprite.Tint,
+                    0f,
+                    Vector2.Zero,
+                    SpriteEffects.None,
                     transform.Layer);
             }
         }

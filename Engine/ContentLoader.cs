@@ -28,4 +28,7 @@ public static class ContentLoader
 
     public static SpriteFont LoadFont(string name, ContentManager content) =>
         content.Load<SpriteFont>(@$"Fonts\{name}");
+
+    public static string[] LoadText(string name, ContentManager content) =>
+        System.IO.File.ReadAllLines(System.IO.Path.Combine(content.RootDirectory, @$"Data\{name}"));
 }

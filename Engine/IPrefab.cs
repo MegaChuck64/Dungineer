@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Engine;
 
-public interface IPrefab
+public interface IPrefab<T>
 {
-    public Entity Instantiate(BaseGame game);
+    public T Instantiate(BaseGame game);
 }
