@@ -5,20 +5,13 @@ namespace Engine;
 
 public class Entity
 {
-    public bool IsDestroyed { get; private set; }
     public BaseGame Game { get; private set; }
 
     public List<Component> Components { get; private set; }
     public Entity(BaseGame game)
     {
-        IsDestroyed = false;
         Game = game;
         Components = new List<Component>();
-    }
-
-    public void Destroy()
-    {
-        IsDestroyed = true;
     }
 
     public T GetComponent<T>() where T : Component => 

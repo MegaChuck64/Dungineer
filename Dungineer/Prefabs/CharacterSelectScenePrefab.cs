@@ -125,6 +125,7 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
             Tint = Color.White,
             Source = source,
         };
+        
         //mouse input
         var pMI = new MouseInput(card)
         {
@@ -143,6 +144,14 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
             {
                 SceneManager.ChangeScene("Play");
                 game.BackgroundColor = Color.Black;
+                SceneManager.AddEntity(
+                    "Play", 
+                    new PlayerPrefab(
+                        wizardName, 
+                        wizardDesc, 
+                        textureName, 
+                        game.Rand.Next(8))
+                    .Instantiate(game));
             }
         };
 

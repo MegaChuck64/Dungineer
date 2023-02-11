@@ -29,6 +29,7 @@ public class MainGame : BaseGame
 
         BuildMenuScene();
         BuildCharacterSelectScene();
+        BuildPlayScene();
 
         SceneManager.ChangeScene(MenuScene);
     }
@@ -87,6 +88,18 @@ public class MainGame : BaseGame
         foreach (var ent in ents)
         {
             SceneManager.AddEntity(CharacterSelectScene, ent);
+        }
+    }
+
+    private void BuildPlayScene()
+    {
+        SceneManager.AddScene(PlayScene);
+
+        var scenePrefab = new PlayScenePrefab();
+        var ents = scenePrefab.Instantiate(this);
+        foreach (var ent in ents)
+        {
+            SceneManager.AddEntity(PlayScene, ent);
         }
     }
 
