@@ -24,7 +24,7 @@ public class PlayerPrefab : IPrefab<Entity>
         var tran = new Transform(ent)
         {
             Position = new Vector2(game.Width/2, game.Height/2),
-            Size = new Vector2(32, 32), 
+            Size = new Vector2(64, 64), 
             Layer = 0.7f,
         };
         var player = new Player(ent)
@@ -33,6 +33,7 @@ public class PlayerPrefab : IPrefab<Entity>
             MaxHealth = 20,
             Name = name,
             Description = description,
+            PortraitTextureName = portraitTextureName
         };
         var spr = new Sprite(ent)
         {

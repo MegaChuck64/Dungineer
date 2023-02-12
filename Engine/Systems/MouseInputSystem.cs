@@ -30,12 +30,13 @@ public class MouseInputSystem : BaseSystem
             if (transform == null || !transform.IsActive)
                 continue;
 
-            if (entity.GetComponent<Cursor>() is Cursor cursor && cursor.IsActive)
+            var bounds = transform.Bounds;
+
+
+            if (entity.GetComponent<Cursor>() is Cursor cursor && cursor.IsActive) //todo, move out of engine, or move cursor into engine
             {
                 transform.Position = mouseState.Position.ToVector2();
             }
-
-            var bounds = transform.Bounds;
 
             if (entity.GetComponent<MouseInput>() is MouseInput mi && mi.IsActive)
             {
@@ -50,11 +51,7 @@ public class MouseInputSystem : BaseSystem
                     HandleMouseLeave(mi);
                 }
 
-            }
-
-            continue;
-
-            
+            }         
 
         }
 

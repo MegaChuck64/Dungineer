@@ -1,4 +1,5 @@
-﻿using Engine;
+﻿using Dungineer.Components;
+using Engine;
 using Engine.Components;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
@@ -60,8 +61,19 @@ public class PlayScenePrefab : IPrefab<List<Entity>>
             TextureName = "_pixel",
             Tint = new Color(20,20,20),             
         };
+        var stTxt = new Text(statEntity)
+        {
+            Content = string.Empty,
+            Tint = Color.White,
+            FontName = "consolas_12",
+            Offset = new Vector2(2, 2)
+        };
+        var stat = new StatPanel(statEntity);
 
         ents.Add(statEntity);
+
+        //terminal
+        
 
         return ents;
     }

@@ -1,4 +1,5 @@
 ﻿using Dungineer.Prefabs;
+using Dungineer.Systems;
 using Engine;
 using Engine.Systems;
 using Microsoft.Xna.Framework;
@@ -65,6 +66,8 @@ public class MainGame : BaseGame
             "consolas_22"
         };
         Systems.Add(new FontRenderSystem(this, Content, fontNames));
+
+        Systems.Add(new UISystem(this));
 
     }
     private void BuildMenuScene()

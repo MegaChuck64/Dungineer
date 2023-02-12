@@ -144,7 +144,7 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
             {
                 SceneManager.ChangeScene("Play");
                 game.BackgroundColor = Color.Black;
-                SceneManager.AddEntity(
+                SceneManager.AddEntity( //add player to play scene with chosen character data
                     "Play", 
                     new PlayerPrefab(
                         wizardName, 
