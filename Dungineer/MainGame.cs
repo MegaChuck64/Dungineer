@@ -41,6 +41,8 @@ public class MainGame : BaseGame
         Systems.Add(new MouseInputSystem(this));
 
 
+        Systems.Add(new MapSystem(this, Content));
+
         //sprites
         var textureNames = new string[]
         {
@@ -70,6 +72,7 @@ public class MainGame : BaseGame
         Systems.Add(new UISystem(this));
 
         Systems.Add(new PlayerSystem(this));
+
 
     }
     private void BuildMenuScene()

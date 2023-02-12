@@ -154,6 +154,10 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
                         potraitIndex, 
                         potraitIndex)
                     .Instantiate(game));
+
+                SceneManager.AddEntity( //add player to play scene with chosen character data
+                    "Play",
+                    new MapPrefab().Instantiate(game));
             }
         };
 

@@ -16,6 +16,7 @@
     <None Remove="Content\Data\Characters\HumanFighter.character" />
     <None Remove="Content\Data\Characters\WizardNames.txt" />
     <None Remove="Content\Data\Items\PineTree.item" />
+    <None Remove="Content\Data\MapValues.txt" />
     <None Remove="Content\Data\Tiles\Grass.tile" />
     <None Remove="Content\Data\Weapons\Hand.weapon" />
     <None Remove="Content\Data\Weapons\Longsword.weapon" />
@@ -45,6 +46,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Data\Characters\HumanFighter.character">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Data\MapValues.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Data\WizardDescriptions.txt">

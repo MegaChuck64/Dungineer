@@ -25,7 +25,7 @@ public class PlayerPrefab : IPrefab<Entity>
         {
             Position = new Vector2(game.Width/2, game.Height/2),
             Size = new Vector2(64, 64), 
-            Layer = 0.7f,
+            Layer = 0.8f,
         };
         var player = new Player(ent)
         {
