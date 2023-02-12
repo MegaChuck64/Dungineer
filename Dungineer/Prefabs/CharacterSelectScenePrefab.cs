@@ -57,7 +57,8 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
                 new Rectangle(10 + (256 * i), 10, 256, 256),
                 wizardName,
                 wizardDescription,
-                descText);
+                descText,
+                randWiz[i]);
             entities.Add(ent);
         }
 
@@ -106,7 +107,7 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
     }
 
 
-    private Entity AddCharcterChoice(BaseGame game, string textureName, Rectangle source, Rectangle bounds, string wizardName, string wizardDesc, Text descText)
+    private Entity AddCharcterChoice(BaseGame game, string textureName, Rectangle source, Rectangle bounds, string wizardName, string wizardDesc, Text descText, int potraitIndex)
     {
 
         //wizard card
@@ -124,6 +125,7 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
             TextureName = textureName,
             Tint = Color.White,
             Source = source,
+            Offset = Vector2.Zero,
         };
         
         //mouse input
@@ -149,8 +151,8 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
                     new PlayerPrefab(
                         wizardName, 
                         wizardDesc, 
-                        textureName, 
-                        game.Rand.Next(8))
+                        potraitIndex, 
+                        potraitIndex)
                     .Instantiate(game));
             }
         };

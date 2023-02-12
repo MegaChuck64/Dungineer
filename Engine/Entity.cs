@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Engine.Components;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Engine;
@@ -19,6 +20,8 @@ public class Entity
 
     public IEnumerable<T> GetComponents<T>() where T : Component =>
         Components.OfType<T>();
+
+    public bool HasTag(string val) => Components.Any(t => t is Tag tag && tag.Value == val);
     
 }
 

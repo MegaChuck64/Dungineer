@@ -1,4 +1,5 @@
-﻿using Engine.Components;
+﻿using Dungineer.Components;
+using Engine.Components;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -47,12 +48,15 @@ public class SpriteRenderSystem : BaseSystem
             if (transform == null || !transform.IsActive)
                 continue;
 
+            var bounds = transform.Bounds;
+
             foreach (var sprite in entity.GetComponents<Sprite>().Where(s=>s.IsActive))
             {
-                var bounds = transform.Bounds;
+                var tempBounds = new Rectangle(bounds.Location + sprite.Offset.ToPoint(), bounds.Size);
+
                 sb.Draw(
                     textures[sprite.TextureName],
-                    bounds,
+                    tempBounds,
                     sprite.Source,
                     sprite.Tint,
                     0f,

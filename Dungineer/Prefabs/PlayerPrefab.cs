@@ -9,13 +9,13 @@ public class PlayerPrefab : IPrefab<Entity>
 {
     private string name;
     private string description;
-    private string portraitTextureName;
+    private int portraitIndex;
     private int spriteIndex;
-    public PlayerPrefab(string name, string description, string portraitTextureName, int spriteIndex)
+    public PlayerPrefab(string name, string description, int portraitIndex, int spriteIndex)
     {
         this.name = name;
         this.description = description;
-        this.portraitTextureName = portraitTextureName;
+        this.portraitIndex = portraitIndex;
         this.spriteIndex = spriteIndex;
     }
     public Entity Instantiate(BaseGame game)
@@ -33,7 +33,7 @@ public class PlayerPrefab : IPrefab<Entity>
             MaxHealth = 20,
             Name = name,
             Description = description,
-            PortraitTextureName = portraitTextureName
+            PotraitIndex = portraitIndex
         };
         var spr = new Sprite(ent)
         {

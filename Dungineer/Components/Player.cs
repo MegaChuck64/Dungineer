@@ -8,7 +8,7 @@ public class Player : Component
     public string Description { get; set; } 
     public int Health { get; set; }
     public int MaxHealth { get; set; }
-    public string PortraitTextureName { get; set; }
+    public int PotraitIndex { get; set; }
     public Player(Entity owner, bool isActive = true) : base(owner, isActive)
     {
     }

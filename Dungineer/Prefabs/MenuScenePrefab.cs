@@ -52,6 +52,7 @@ public class MenuScenePrefab : IPrefab<List<Entity>>
             TextureName = "WizardPortraits_512",
             Tint = Color.White,
             Source = new Rectangle(game.Rand.Next(7) * 512, 0, 512, 512),
+            Offset = Vector2.Zero,
         };
         ents.Add(portrait);
 

@@ -22,8 +22,12 @@ public class CursorPrefab : IPrefab<Entity>
             TextureName = "cursor_16",
             Source = new Rectangle(0,0, 16, 16),
             Tint = Color.White,
+            Offset = Vector2.Zero
         };
-        var cursor = new Cursor(entity);
+        var cursor = new Tag(entity)
+        {
+            Value = "Cursor"
+        };
 
 
         return entity;

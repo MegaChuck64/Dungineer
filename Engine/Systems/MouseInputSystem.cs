@@ -33,7 +33,7 @@ public class MouseInputSystem : BaseSystem
             var bounds = transform.Bounds;
 
 
-            if (entity.GetComponent<Cursor>() is Cursor cursor && cursor.IsActive) //todo, move out of engine, or move cursor into engine
+            if (entity.HasTag("Cursor")) //not checking if active, disable it visually 
             {
                 transform.Position = mouseState.Position.ToVector2();
             }

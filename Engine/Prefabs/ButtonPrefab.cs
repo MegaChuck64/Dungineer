@@ -33,6 +33,7 @@ public class ButtonPrefab : IPrefab<Entity>
             TextureName = "_pixel",
             Source = new Rectangle(0,0, 1, 1),
             Tint = defaultColor,
+            Offset = Vector2.Zero,
         };
         var txt = new Text(ent)
         {
