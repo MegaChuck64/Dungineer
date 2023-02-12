@@ -69,6 +69,8 @@ public class MainGame : BaseGame
 
         Systems.Add(new UISystem(this));
 
+        Systems.Add(new PlayerSystem(this));
+
     }
     private void BuildMenuScene()
     {
