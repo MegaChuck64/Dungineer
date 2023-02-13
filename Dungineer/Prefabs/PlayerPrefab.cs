@@ -23,7 +23,7 @@ public class PlayerPrefab : IPrefab<Entity>
         var ent = new Entity(game);
         var tran = new Transform(ent)
         {
-            Position = new Vector2(game.Width/2, game.Height/2),
+            Position = new Vector2(game.Width/2 - 64, game.Height/2),
             Size = new Vector2(64, 64), 
             Layer = 0.8f,
         };

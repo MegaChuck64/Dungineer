@@ -2,6 +2,8 @@
 using Engine;
 using Engine.Components;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,10 +11,15 @@ namespace Dungineer.Systems;
 
 public class UISystem : BaseSystem
 {
-    //private readonly SpriteBatch sb;
-    public UISystem(BaseGame game) : base(game)
+    private readonly SpriteBatch sb;
+    int frameRate = 0;
+    int frameCounter = 0;
+    TimeSpan elapsedTime = TimeSpan.Zero;
+    public SpriteFont Font { get; set; }
+    public UISystem(BaseGame game, string fontName) : base(game)
     {
-        //sb = new SpriteBatch(game.GraphicsDevice);
+        sb = new SpriteBatch(game.GraphicsDevice);
+        Font = ContentLoader.LoadFont(fontName, game.Content);
     }
 
     public override void Update(GameTime gameTime, IEnumerable<Entity> entities)
@@ -38,30 +45,36 @@ public class UISystem : BaseSystem
                 }
             }
         }
+
+
+        elapsedTime += gameTime.ElapsedGameTime;
+
+        if (elapsedTime > TimeSpan.FromSeconds(1))
+        {
+            elapsedTime -= TimeSpan.FromSeconds(1);
+            frameRate = frameCounter;
+            frameCounter = 0;
+        }
     }
 
     public override void Draw(GameTime gameTime, IEnumerable<Entity> entities)
     {
-        //sb.Begin(
-        //    sortMode: SpriteSortMode.FrontToBack,
-        //    blendState: BlendState.NonPremultiplied,
-        //    samplerState: SamplerState.PointClamp,
-        //    depthStencilState: DepthStencilState.DepthRead,
-        //    rasterizerState: RasterizerState.CullCounterClockwise,
-        //    effect: null,
-        //    transformMatrix: null); //camera here todo... probably no ui camera needed actually
+        sb.Begin(
+            sortMode: SpriteSortMode.FrontToBack,
+            blendState: BlendState.NonPremultiplied,
+            samplerState: SamplerState.PointClamp,
+            depthStencilState: DepthStencilState.DepthRead,
+            rasterizerState: RasterizerState.CullCounterClockwise,
+            effect: null,
+            transformMatrix: null); //camera here todo... probably no ui camera needed actually
 
-        //var player = entities.FirstOrDefault(t => t.Components.Any(c => c is Player))?.GetComponent<Player>();
-        //if (player == null) return;
+        frameCounter++;
 
-        //foreach (var ent in entities)
-        //{
-        //    if (ent.GetComponent<StatPanel>() is StatPanel statPanel)
-        //    {
-        //        sb.Draw()
-        //    }
-        //}
+        var fps = $"FPS: {frameRate}";
+        sb.DrawString(Font, fps, new Vector2(4, sb.GraphicsDevice.Viewport.Height - 40), Color.Yellow, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9f);
 
-        //sb.End();
+
+
+        sb.End();
     }
 }

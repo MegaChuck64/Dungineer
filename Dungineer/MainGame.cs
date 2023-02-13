@@ -69,7 +69,7 @@ public class MainGame : BaseGame
         };
         Systems.Add(new FontRenderSystem(this, Content, fontNames));
 
-        Systems.Add(new UISystem(this));
+        Systems.Add(new UISystem(this, "consolas_14"));
 
         Systems.Add(new PlayerSystem(this));
 

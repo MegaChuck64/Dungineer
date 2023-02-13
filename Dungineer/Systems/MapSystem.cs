@@ -17,7 +17,7 @@ public class MapSystem : BaseSystem
     private Vector2 offset;
     public MapSystem(BaseGame game, ContentManager content) : base(game)
     {
-        offset = new Vector2(game.Width / 5, 0);
+        offset = Vector2.Zero;//new Vector2(game.Width / 5, 0);
         sb = new SpriteBatch(game.GraphicsDevice);
         mapItems = new Dictionary<int, MapItem>();
         var mapVals = ContentLoader.LoadText("MapValues.txt", content);
