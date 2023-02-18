@@ -1,11 +1,6 @@
 ﻿using Dungineer.Components;
 using Engine;
 using Engine.Components;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dungineer.Prefabs;
 
@@ -13,8 +8,9 @@ public class MapPrefab : IPrefab<Entity>
 {
     public Entity Instantiate(BaseGame game)
     {
-
-        var tiles = new byte[10, 10];
+        int mapWidth = 25;
+        int mapHeight = 20;
+        var tiles = new byte[mapWidth, mapHeight];
         for (int x = 0; x < tiles.GetLength(0); x++)
         {
             for (int y= 0; y < tiles.GetLength(1); y++)
@@ -33,7 +29,6 @@ public class MapPrefab : IPrefab<Entity>
 
         var trn = new Transform
         {
-            Size = new Microsoft.Xna.Framework.Vector2(64, 64),
             Position = new Microsoft.Xna.Framework.Vector2(),
             Layer = 0.5f,
         };

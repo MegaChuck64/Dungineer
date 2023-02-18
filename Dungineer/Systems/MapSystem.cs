@@ -4,6 +4,7 @@ using Engine.Components;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,6 +17,8 @@ public class MapSystem : BaseSystem
     private SpriteBatch sb;
     private Vector2 offset;
     private Texture2D playerTexture;
+    private Texture2D tileSelectTexture;
+
     public MapSystem(BaseGame game, ContentManager content) : base(game)
     {
         offset = new Vector2(game.Width / 5, 0);
@@ -36,11 +39,13 @@ public class MapSystem : BaseSystem
         }
 
         playerTexture = ContentLoader.LoadTexture("GnomeMage_32", content);
+        tileSelectTexture = ContentLoader.LoadTexture("ui_box_select_32", content);
     }
 
 
     public override void Update(GameTime gameTime, IEnumerable<Entity> entities)
     {
+
     }
 
     public override void Draw(GameTime gameTime, IEnumerable<Entity> entities)
@@ -56,9 +61,6 @@ public class MapSystem : BaseSystem
         if (map == null || mapTransform == null || player == null || playerTransform == null)
             return;
         
-        var tileSize = mapTransform.Bounds.Size.X;
-
-
         sb.Begin(
             sortMode: SpriteSortMode.FrontToBack,
             blendState: BlendState.NonPremultiplied,
@@ -77,10 +79,23 @@ public class MapSystem : BaseSystem
                 var txtr = mapItem.texture;
                     
                 var bnds = new Rectangle(
-                    mapTransform.Bounds.Location + offset.ToPoint() + new Point(x * tileSize, y * tileSize),
-                    mapTransform.Bounds.Size);
+                    mapTransform.Bounds.Location + offset.ToPoint() + new Point(x * Settings.TileSize, y * Settings.TileSize),
+                    new Point(Settings.TileSize, Settings.TileSize));
 
                 sb.Draw(txtr, bnds, mapItem.source, Color.White, 0f, Vector2.Zero, SpriteEffects.None, mapTransform.Layer);
+
+                if (bnds.Contains(Mouse.GetState().Position))
+                {
+                    sb.Draw(
+                        tileSelectTexture,
+                        bnds,
+                        null,
+                        Color.White,
+                        0f,
+                        Vector2.Zero,
+                        SpriteEffects.None,
+                        0.75f);
+                }
             }
         }
 
@@ -88,13 +103,12 @@ public class MapSystem : BaseSystem
         
         
         var playerBnds = new Rectangle(
-            new Point(playerTransform.Bounds.X * tileSize, playerTransform.Bounds.Y * tileSize) +
+            new Point(playerTransform.Bounds.X * Settings.TileSize, playerTransform.Bounds.Y * Settings.TileSize) +
             offset.ToPoint(),
-            mapTransform.Bounds.Size);
+            new Point(Settings.TileSize, Settings.TileSize));
 
         sb.Draw(playerTexture, playerBnds, player.Source, player.Tint, 0f, Vector2.Zero, SpriteEffects.None, playerTransform.Layer);
         
-
         sb.End();
     }
 

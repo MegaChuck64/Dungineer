@@ -12,7 +12,7 @@ public class MainGame : BaseGame
     public const string MenuScene = "Menu";
     public const string CharacterSelectScene = "CharacterSelect";
     public const string PlayScene = "Play";
-    public MainGame() : base(new System.Random().Next())
+    public MainGame() : base(new System.Random().Next(), Settings.TileSize * 42, Settings.TileSize * 28)
     {
         BackgroundColor = new Color(10, 10, 10);
         IsMouseVisible = false;
