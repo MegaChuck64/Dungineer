@@ -51,9 +51,11 @@ public class PlayerSystem : BaseSystem
             nextPos -= Vector2.UnitX;
 
         var nxt = nextPos.ToPoint();
-        if (nxt.X >= 0 && nxt.Y >= 0 && nxt.X < map.Tiles.GetLength(0) && nxt.Y < map.Tiles.GetLength(1))//bounds
+        if (nxt.X >= 0 && nxt.Y >= 0 && nxt.X < map.GroundTiles.GetLength(0) && nxt.Y < map.GroundTiles.GetLength(1))//bounds
         {
-            if (map.Tiles[nxt.X, nxt.Y] == 0) //collision
+            var groundTile = Settings.TileAtlas[map.GroundTiles[nxt.X, nxt.Y].Type];
+            var objectTiles = map.ObjectTiles.Where(t => t.X == nxt.X && t.Y == nxt.Y).Select(c => Settings.TileAtlas[c.Type]);
+            if (!groundTile.Solid && !objectTiles.Any(f => f.Solid)) //collision
             {
                 transform.Position = nextPos;
             }

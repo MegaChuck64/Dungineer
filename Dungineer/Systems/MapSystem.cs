@@ -12,8 +12,6 @@ namespace Dungineer.Systems;
 
 public class MapSystem : BaseSystem
 {
-    private Dictionary<int, MapItem> mapItems;
-    
     private SpriteBatch sb;
     private Vector2 offset;
     private Texture2D playerTexture;
@@ -23,20 +21,6 @@ public class MapSystem : BaseSystem
     {
         offset = new Vector2(game.Width / 5, 0);
         sb = new SpriteBatch(game.GraphicsDevice);
-        mapItems = new Dictionary<int, MapItem>();
-        var mapVals = ContentLoader.LoadText("MapValues.txt", content);
-        foreach (var val in mapVals)
-        {
-            var splt = val.Split(',', System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries);
-            var ndx = int.Parse(splt[0]);
-            var txtrName = splt[1];
-            var x = int.Parse(splt[2]);
-            var y = int.Parse(splt[3]);
-            var w = int.Parse(splt[4]);
-            var h = int.Parse(splt[5]);
-            var txtr = ContentLoader.LoadTexture(txtrName, content);
-            mapItems.Add(ndx, new MapItem { source = new Rectangle(x, y, w, h), texture = txtr});
-        }
 
         playerTexture = ContentLoader.LoadTexture("GnomeMage_32", content);
         tileSelectTexture = ContentLoader.LoadTexture("ui_box_select_32", content);
@@ -45,7 +29,6 @@ public class MapSystem : BaseSystem
 
     public override void Update(GameTime gameTime, IEnumerable<Entity> entities)
     {
-
     }
 
     public override void Draw(GameTime gameTime, IEnumerable<Entity> entities)
@@ -71,18 +54,20 @@ public class MapSystem : BaseSystem
             transformMatrix: null); //camera here todo
 
         
-        for (int x = 0; x < map.Tiles.GetLength(0); x++)
+        for (int x = 0; x < map.GroundTiles.GetLength(0); x++)
         {
-            for (int y = 0; y < map.Tiles.GetLength(1); y++)
+            for (int y = 0; y < map.GroundTiles.GetLength(1); y++)
             {
-                var mapItem = mapItems[map.Tiles[x, y]];
-                var txtr = mapItem.texture;
+                var groundTile = map.GroundTiles[x, y];
+                var tileInfo = Settings.TileAtlas[groundTile.Type];
+
+                var txtr = tileInfo.Texture;
                     
                 var bnds = new Rectangle(
                     mapTransform.Bounds.Location + offset.ToPoint() + new Point(x * Settings.TileSize, y * Settings.TileSize),
                     new Point(Settings.TileSize, Settings.TileSize));
 
-                sb.Draw(txtr, bnds, mapItem.source, Color.White, 0f, Vector2.Zero, SpriteEffects.None, mapTransform.Layer);
+                sb.Draw(txtr, bnds, tileInfo.Source, Color.White, 0f, Vector2.Zero, SpriteEffects.None, mapTransform.Layer);
 
                 if (bnds.Contains(Mouse.GetState().Position))
                 {
@@ -99,9 +84,29 @@ public class MapSystem : BaseSystem
             }
         }
 
-        
-        
-        
+        for (int i = 0; i < map.ObjectTiles.Count; i++)
+        {
+            var objectTile = map.ObjectTiles[i];
+            var objectTileInfo = Settings.TileAtlas[objectTile.Type];
+            var tileBnds = new Rectangle(
+              new Point(objectTile.X * Settings.TileSize, objectTile.Y * Settings.TileSize) +
+              offset.ToPoint(),
+              new Point(Settings.TileSize, Settings.TileSize));
+
+            sb.Draw(
+                objectTileInfo.Texture, 
+                tileBnds, 
+                objectTileInfo.Source, 
+                objectTile.Tint, 
+                0f, 
+                Vector2.Zero, 
+                SpriteEffects.None, 
+                mapTransform.Layer + 0.05f);
+
+        }
+
+
+
         var playerBnds = new Rectangle(
             new Point(playerTransform.Bounds.X * Settings.TileSize, playerTransform.Bounds.Y * Settings.TileSize) +
             offset.ToPoint(),
@@ -112,10 +117,4 @@ public class MapSystem : BaseSystem
         sb.End();
     }
 
-
-    private struct MapItem
-    {
-        public Texture2D texture;
-        public Rectangle source;
-    }
 }

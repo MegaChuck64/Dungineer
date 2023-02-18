@@ -1,6 +1,9 @@
 ﻿using Dungineer.Components;
 using Engine;
 using Engine.Components;
+using Microsoft.Xna.Framework;
+using System;
+using System.Collections.Generic;
 
 namespace Dungineer.Prefabs;
 
@@ -10,26 +13,43 @@ public class MapPrefab : IPrefab<Entity>
     {
         int mapWidth = 25;
         int mapHeight = 20;
-        var tiles = new byte[mapWidth, mapHeight];
-        for (int x = 0; x < tiles.GetLength(0); x++)
+        var groundTiles = new Tile[mapWidth, mapHeight];
+        var objectTiles = new List<Tile>();
+        for (int x = 0; x < groundTiles.GetLength(0); x++)
         {
-            for (int y= 0; y < tiles.GetLength(1); y++)
+            for (int y= 0; y < groundTiles.GetLength(1); y++)
             {
-                tiles[x, y] = 0;
-                if (game.Rand.NextDouble() > 0.75f)
+                groundTiles[x, y] = new Tile
                 {
-                    tiles[x, y] = 1;
-                }
+                    X = x,
+                    Y = y,
+                    Tint = Color.White,
+                    Type = TileType.Grass
+                };
+                
+                var rand = game.Rand.NextDouble();
+
+                if (rand > 0.95f)
+                    groundTiles[x, y].Type = TileType.Water;
+                else if (rand > 0.75f)
+                    objectTiles.Add(new Tile
+                    {
+                        X = x, Y = y,
+                        Tint = Color.White,
+                        Type = TileType.PineTree
+                    });
+
             }
         }
         var map = new Map
         {
-            Tiles = tiles
+            GroundTiles = groundTiles,
+            ObjectTiles = objectTiles
         };
 
         var trn = new Transform
         {
-            Position = new Microsoft.Xna.Framework.Vector2(),
+            Position = new Vector2(),
             Layer = 0.5f,
         };
 

@@ -1,2 +1,4 @@
-﻿0, grounds_32, 0, 32, 32, 32
-1, grounds_32, 0, 192, 32, 32
+﻿Grass, grounds_32, 0, 32, 32, 32, false
+Pine Tree, trees_32, 96, 0, 32, 32, true
+Water, grounds_32, 0, 64, 32, 32, true
+Human, human_32, 0, 0, 32, 32, true

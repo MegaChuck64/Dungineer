@@ -4,6 +4,8 @@ using Engine;
 using Engine.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
 namespace Dungineer;
 
@@ -25,8 +27,9 @@ public class MainGame : BaseGame
 
     public override void Load(ContentManager content)
     {
-        AddSystems();
+        Settings.LoadTileAtlas(content);
 
+        AddSystems();
 
         BuildMenuScene();
         BuildCharacterSelectScene();
