@@ -29,7 +29,7 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
         var descEnt = new Entity(game)
             .With(new Transform
             {
-                Position = new Vector2(game.Width / 2f - 600, game.Height / 2f),
+                Position = new Vector2(game.Width / 2f - (500 * game.WindowRatio), game.Height / 2f),
                 Size = new Vector2(100, 100),
                 Layer = 0.6f,
             })
@@ -52,12 +52,13 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
             
             var wizardName = wizardNames[randWiz[i]];
             var wizardDescription = wizardDescriptions.FirstOrDefault(t => t.StartsWith(wizardName))[(wizardName.Length + 2)..];
+            var spaceSize = (game.Width / 5) * i + 10;
 
             var ent = AddCharcterChoice(
                 game,
                 "WizardPortraits_512",
                 new Rectangle(rnd * 512, 0, 512, 512),
-                new Rectangle(10 + (256 * i), 10, 256, 256),
+                new Rectangle((int)(spaceSize), (int)(10 * game.WindowRatio), 256, 256),
                 wizardName,
                 wizardDescription,
                 descTxt,
@@ -69,7 +70,7 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
         var instrEnt = new Entity(game)
             .With(new Transform
             {
-                Position = new Vector2(game.Width / 2 - 140, game.Height / 2 + 300),
+                Position = new Vector2(game.Width / 2 - (140 * game.WindowRatio), game.Height / 2 + (300 * game.WindowRatio)),
                 Size = new Vector2(game.Width, game.Height),
                 Layer = 0.6f
             })
@@ -93,7 +94,7 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
 
         var backButton = backButtonPrefab.Instantiate(game);
         var backTrn = backButton.GetComponent<Transform>();
-        backTrn.Position = new Vector2(game.Width / 2f - backTrn.Size.X / 2f, game.Height / 2f + 360);
+        backTrn.Position = new Vector2(game.Width / 2f - backTrn.Size.X / 2f, game.Height  - backTrn.Size.Y - (10 * game.WindowRatio));
         backTrn.Layer = 0.7f;
         backButton.GetComponent<Text>().Offset = new Vector2(19, 12);
         backButton.GetComponent<MouseInput>().OnMouseReleased = (mb) =>
@@ -119,6 +120,7 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
             Source = source,
             Offset = Vector2.Zero,
         };
+
 
         //wizard card
         var card = new Entity(game)
@@ -165,7 +167,7 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
                 Content = wizardName,
                 FontName = "consolas_14",
                 Tint = Color.OrangeRed,
-                Offset = new Vector2(bounds.Width / 2 - 45, bounds.Height + 10)
+                Offset = new Vector2(bounds.Width / 2 - (45 * game.WindowRatio), bounds.Height + (10 * game.WindowRatio))
             });
 
         return card;

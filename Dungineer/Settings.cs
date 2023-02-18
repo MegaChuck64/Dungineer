@@ -10,6 +10,7 @@ namespace Dungineer;
 
 public static class Settings
 {
+    //tilesize works best for 27 - 36
     public static int TileSize { get; private set; } = 32;
     public static Dictionary<TileType, TileInfo> TileAtlas { get; private set; }
 

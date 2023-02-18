@@ -71,7 +71,18 @@ public class UISystem : BaseSystem
         frameCounter++;
 
         var fps = $"FPS: {frameRate}";
-        sb.DrawString(Font, fps, new Vector2(4, sb.GraphicsDevice.Viewport.Height - 40), Color.Yellow, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0.9f);
+        sb.DrawString(
+            Font, 
+            fps, 
+            new Vector2(
+                4 * Game.WindowRatio, 
+                Game.Height - Font.MeasureString(fps).Y - (4 * Game.WindowRatio)), 
+            Color.Yellow, 
+            0f, 
+            Vector2.Zero, 
+            1f, 
+            SpriteEffects.None, 
+            0.9f);
 
 
 

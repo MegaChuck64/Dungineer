@@ -52,7 +52,7 @@ public class PlayScenePrefab : IPrefab<List<Entity>>
             .With(new Transform
             {
                 Layer = 0.7f,
-                Position = new Vector2(2,2),
+                Position = new Vector2(2 * game.WindowRatio,2 * game.WindowRatio),
                 Size = new Vector2(game.Width/5 - 2, game.Height - 4)
             })
             .With(new Sprite
@@ -67,7 +67,7 @@ public class PlayScenePrefab : IPrefab<List<Entity>>
                 Content = string.Empty,
                 Tint = Color.White,
                 FontName = "consolas_12",
-                Offset = new Vector2(2, 2)
+                Offset = new Vector2(2 * game.WindowRatio, 2 * game.WindowRatio)
             })
             .With(new Tag
             { 
@@ -81,7 +81,7 @@ public class PlayScenePrefab : IPrefab<List<Entity>>
         var potrait = new Entity(game)
             .With(new Transform
             {
-                Position = new Vector2(128, 4),
+                Position = new Vector2(game.Width/5 - (128f) - (2 * game.WindowRatio), 4 * game.WindowRatio),
                 Layer = 0.7f,
                 Size = new Vector2(128f, 128f),
             })

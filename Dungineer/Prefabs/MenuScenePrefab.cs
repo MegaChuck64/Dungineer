@@ -29,7 +29,7 @@ public class MenuScenePrefab : IPrefab<List<Entity>>
 
         var playButton = playButtonPrefab.Instantiate(game);
         var plytrns = playButton.GetComponent<Transform>();
-        plytrns.Position = new Vector2(game.Width / 2f - plytrns.Size.X / 2f, game.Height / 2f + 100);
+        plytrns.Position = new Vector2(game.Width / 2f - plytrns.Size.X / 2f, game.Height - (plytrns.Size.Y) - (10 * game.WindowRatio));
         plytrns.Layer = 0.7f;
         playButton.GetComponent<Text>().Offset = new Vector2(19, 12);
         playButton.GetComponent<MouseInput>().OnMouseReleased = (mb) =>
@@ -43,7 +43,7 @@ public class MenuScenePrefab : IPrefab<List<Entity>>
         var portrait = new Entity(game)
             .With(new Transform
             {
-                Position = new Vector2(game.Width / 2f - 256, 10),
+                Position = new Vector2(game.Width / 2f - 256, 10 * game.WindowRatio),
                 Size = new Vector2(512, 512),
                 Layer = 0.7f
             })

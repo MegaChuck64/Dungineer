@@ -17,6 +17,9 @@ namespace Engine
         public Random Rand { get; set; }
         public bool Debug { get; set; } = false;
         public List<BaseSystem> Systems { get; private set; }
+
+        public float WindowRatio => Width / Height;
+
         public BaseGame(int? seed = null, int width = 1300, int height = 900)
         {
             Width = width;
@@ -60,7 +63,6 @@ namespace Engine
             
             _graphics.ApplyChanges();
         }
-
 
         protected override void LoadContent()
         {
