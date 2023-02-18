@@ -35,30 +35,8 @@ public class PlayerSystem : BaseSystem
         var transform = playerEntity.GetComponent<Transform>();
         if (transform == null) return;
 
-        //moveTimer += dt;
-        //if (moveTimer > 1f/player.MoveSpeed)
-        //{
-        //    moveTimer = 0f;
-
-        //    if (keyState.IsKeyDown(Keys.W))
-        //    {
-        //        transform.Position -= Vector2.UnitY * transform.Size.Y;
-        //    }
-        //    if (keyState.IsKeyDown(Keys.S))
-        //    {
-        //        transform.Position += Vector2.UnitY * transform.Size.Y;
-        //    }
-        //    if (keyState.IsKeyDown(Keys.D))
-        //    {
-        //        transform.Position += Vector2.UnitX * transform.Size.X;
-        //    }
-        //    if (keyState.IsKeyDown(Keys.A))
-        //    {
-        //        transform.Position -= Vector2.UnitX * transform.Size.X;
-        //    }
-        //}
-
-        var nextPos = transform.Position / transform.Size;
+        
+        var nextPos = transform.Position;
 
         if (WasPressed(Keys.W))
             nextPos -= Vector2.UnitY;
@@ -73,11 +51,11 @@ public class PlayerSystem : BaseSystem
             nextPos -= Vector2.UnitX;
 
         var nxt = nextPos.ToPoint();
-        if (nxt.X >= 0 && nxt.Y >= 0 && nxt.X < map.Tiles.GetLength(0) && nxt.Y < map.Tiles.GetLength(1))
+        if (nxt.X >= 0 && nxt.Y >= 0 && nxt.X < map.Tiles.GetLength(0) && nxt.Y < map.Tiles.GetLength(1))//bounds
         {
-            if (map.Tiles[nxt.X, nxt.Y] == 0)
+            if (map.Tiles[nxt.X, nxt.Y] == 0) //collision
             {
-                transform.Position = nextPos * transform.Size;
+                transform.Position = nextPos;
             }
         }
         

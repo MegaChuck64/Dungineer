@@ -13,7 +13,6 @@ public class MapPrefab : IPrefab<Entity>
 {
     public Entity Instantiate(BaseGame game)
     {
-        var ent = new Entity(game);
 
         var tiles = new byte[10, 10];
         for (int x = 0; x < tiles.GetLength(0); x++)
@@ -27,17 +26,22 @@ public class MapPrefab : IPrefab<Entity>
                 }
             }
         }
-        var map = new Map(ent)
+        var map = new Map
         {
             Tiles = tiles
         };
 
-        var trn = new Transform(ent)
+        var trn = new Transform
         {
             Size = new Microsoft.Xna.Framework.Vector2(64, 64),
             Position = new Microsoft.Xna.Framework.Vector2(),
             Layer = 0.5f,
         };
+
+
+        var ent = new Entity(game)
+            .With(map)
+            .With(trn);
 
         return ent;
     }

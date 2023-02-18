@@ -40,20 +40,20 @@ public class MenuScenePrefab : IPrefab<List<Entity>>
         ents.Add(playButton);
 
         //wizard portraits
-        var portrait = new Entity(game);
-        var pTrns = new Transform(portrait)
-        {
-            Position = new Vector2(game.Width / 2f - 256, 10),
-            Size = new Vector2(512, 512),
-            Layer = 0.7f
-        };
-        var pspr = new Sprite(portrait)
-        {
-            TextureName = "WizardPortraits_512",
-            Tint = Color.White,
-            Source = new Rectangle(game.Rand.Next(7) * 512, 0, 512, 512),
-            Offset = Vector2.Zero,
-        };
+        var portrait = new Entity(game)
+            .With(new Transform
+            {
+                Position = new Vector2(game.Width / 2f - 256, 10),
+                Size = new Vector2(512, 512),
+                Layer = 0.7f
+            })
+            .With(new Sprite
+            {
+                TextureName = "WizardPortraits_512",
+                Tint = Color.White,
+                Source = new Rectangle(game.Rand.Next(7) * 512, 0, 512, 512),
+                Offset = Vector2.Zero,
+            });
         ents.Add(portrait);
 
 

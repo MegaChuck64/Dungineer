@@ -8,5 +8,5 @@ public class Sprite : Component
     public Color Tint { get; set; }    
     public Vector2 Offset { get; set; }
     public Rectangle? Source { get; set; }
-    public Sprite(Entity owner, bool isActive = true) : base(owner, isActive) { }
+    public Sprite(bool isActive = true) : base(isActive) { }
 }

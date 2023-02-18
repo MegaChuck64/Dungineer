@@ -19,19 +19,22 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
 
 
         //wizard description
-        var descEnt = new Entity(game);
-        var descTrn = new Transform(descEnt)
-        {
-            Position = new Vector2(game.Width / 2f - 600, game.Height / 2f),
-            Size = new Vector2(100, 100),
-            Layer = 0.6f,
-        };
-        var descText = new Text(descEnt)
+        var descTxt = new Text
         {
             Content = string.Empty,
             FontName = "consolas_14",
             Tint = Color.White,
         };
+
+        var descEnt = new Entity(game)
+            .With(new Transform
+            {
+                Position = new Vector2(game.Width / 2f - 600, game.Height / 2f),
+                Size = new Vector2(100, 100),
+                Layer = 0.6f,
+            })
+            .With(descTxt);
+
         entities.Add(descEnt);
 
         //character select options
@@ -57,25 +60,25 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
                 new Rectangle(10 + (256 * i), 10, 256, 256),
                 wizardName,
                 wizardDescription,
-                descText,
+                descTxt,
                 randWiz[i]);
             entities.Add(ent);
         }
 
         //instructions
-        var instrEnt = new Entity(game);
-        var instrTran = new Transform(instrEnt)
-        {
-            Position = new Vector2(game.Width / 2 - 140, game.Height / 2 + 300),
-            Size = new Vector2(game.Width, game.Height),
-            Layer = 0.6f
-        };
-        var instrTxt = new Text(instrEnt)
-        {
-            FontName = "consolas_14",
-            Tint = Color.Orange,
-            Content = "Select one of the wizards above."
-        };
+        var instrEnt = new Entity(game)
+            .With(new Transform
+            {
+                Position = new Vector2(game.Width / 2 - 140, game.Height / 2 + 300),
+                Size = new Vector2(game.Width, game.Height),
+                Layer = 0.6f
+            })
+            .With(new Text
+            {
+                FontName = "consolas_14",
+                Tint = Color.Orange,
+                Content = "Select one of the wizards above."
+            });
         entities.Add(instrEnt);
 
 
@@ -109,66 +112,61 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
 
     private Entity AddCharcterChoice(BaseGame game, string textureName, Rectangle source, Rectangle bounds, string wizardName, string wizardDesc, Text descText, int potraitIndex)
     {
-
-        //wizard card
-        var card = new Entity(game);
-        //transform
-        var pTrns = new Transform(card)
-        {
-            Position = bounds.Location.ToVector2(),
-            Size = bounds.Size.ToVector2(),
-            Layer = 0.7f,
-        };
-        //sprite
-        var pspr = new Sprite(card)
+        var cardSpr = new Sprite
         {
             TextureName = textureName,
             Tint = Color.White,
             Source = source,
             Offset = Vector2.Zero,
         };
-        
-        //mouse input
-        var pMI = new MouseInput(card)
-        {
-            OnMouseEnter = () =>
+
+        //wizard card
+        var card = new Entity(game)
+            .With(new Transform
             {
-                pspr.Tint = new Color(255, 255, 0, 150);
-                descText.Content = wizardDesc;
-            },
-
-            OnMouseLeave = () =>
+                Position = bounds.Location.ToVector2(),
+                Size = bounds.Size.ToVector2(),
+                Layer = 0.7f,
+            })
+            .With(cardSpr)
+            .With(new MouseInput
             {
-                pspr.Tint = Color.White;
-            },
+                OnMouseEnter = () =>
+                {
+                    cardSpr.Tint = new Color(255, 255, 0, 150);
+                    descText.Content = wizardDesc;
+                },
 
-            OnMouseReleased = (mb) =>
+                OnMouseLeave = () =>
+                {
+                    cardSpr.Tint = Color.White;
+                },
+
+                OnMouseReleased = (mb) =>
+                {
+                    SceneManager.ChangeScene("Play");
+                    game.BackgroundColor = Color.Black;
+                    SceneManager.AddEntity( //add player to play scene with chosen character data
+                        "Play", 
+                        new PlayerPrefab(
+                            wizardName, 
+                            wizardDesc, 
+                            potraitIndex, 
+                            potraitIndex)
+                        .Instantiate(game));
+
+                    SceneManager.AddEntity( //add player to play scene with chosen character data
+                        "Play",
+                        new MapPrefab().Instantiate(game));
+                }
+            })
+            .With(new Text
             {
-                SceneManager.ChangeScene("Play");
-                game.BackgroundColor = Color.Black;
-                SceneManager.AddEntity( //add player to play scene with chosen character data
-                    "Play", 
-                    new PlayerPrefab(
-                        wizardName, 
-                        wizardDesc, 
-                        potraitIndex, 
-                        potraitIndex)
-                    .Instantiate(game));
-
-                SceneManager.AddEntity( //add player to play scene with chosen character data
-                    "Play",
-                    new MapPrefab().Instantiate(game));
-            }
-        };
-
-        //name text
-        var nameText = new Text(card)
-        {
-            Content = wizardName,
-            FontName = "consolas_14",
-            Tint = Color.OrangeRed,
-            Offset = new Vector2(bounds.Width / 2 - 45, bounds.Height + 10)
-        };
+                Content = wizardName,
+                FontName = "consolas_14",
+                Tint = Color.OrangeRed,
+                Offset = new Vector2(bounds.Width / 2 - 45, bounds.Height + 10)
+            });
 
         return card;
     }

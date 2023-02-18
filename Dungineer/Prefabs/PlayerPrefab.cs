@@ -20,36 +20,31 @@ public class PlayerPrefab : IPrefab<Entity>
     }
     public Entity Instantiate(BaseGame game)
     {
-        var ent = new Entity(game);
-        var tran = new Transform(ent)
-        {
-            Position = new Vector2(game.Width/2 - 64, game.Height/2),
-            Size = new Vector2(64, 64), 
-            Layer = 0.8f,
-        };
-        var player = new Player(ent)
+        var player = new Player
         {
             Health = 20,
             MaxHealth = 20,
             MoveSpeed = 4,
             Name = name,
             Description = description,
-            PotraitIndex = portraitIndex
-        };
-        var spr = new Sprite(ent)
-        {
+            PotraitIndex = portraitIndex,
             Source = new Rectangle(32 * spriteIndex, 0, 32, 32),
-            TextureName = "GnomeMage_32",
             Tint = Color.White,
         };
 
-        var ms = new MouseInput(ent)
-        {
-            OnMousePressed = (mb) =>
+        return new Entity(game)
+            .With(new Transform
             {
-                player.Health -= player.Health > 0 ? 1 : 0;
-            }
-        };
-        return ent;
+                Position = new Vector2(4, 4),
+                Layer = 0.8f,
+            })
+            .With(player)
+            .With(new MouseInput
+            {
+                OnMousePressed = (mb) =>
+                {
+                    player.Health -= player.Health > 0 ? 1 : 0;
+                }
+            });
     }
 }

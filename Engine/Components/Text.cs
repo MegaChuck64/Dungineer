@@ -12,7 +12,7 @@ public class Text : Component
     public Vector2 Offset { get; set; }
     public Color Tint { get; set; }
 
-    public Text(Entity owner, bool isActive = true) : base(owner, isActive)
+    public Text(bool isActive = true) : base(isActive)
     {
     }
 }

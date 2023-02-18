@@ -15,9 +15,10 @@ public class MapSystem : BaseSystem
     
     private SpriteBatch sb;
     private Vector2 offset;
+    private Texture2D playerTexture;
     public MapSystem(BaseGame game, ContentManager content) : base(game)
     {
-        offset = Vector2.Zero;//new Vector2(game.Width / 5, 0);
+        offset = new Vector2(game.Width / 5, 0);
         sb = new SpriteBatch(game.GraphicsDevice);
         mapItems = new Dictionary<int, MapItem>();
         var mapVals = ContentLoader.LoadText("MapValues.txt", content);
@@ -33,6 +34,8 @@ public class MapSystem : BaseSystem
             var txtr = ContentLoader.LoadTexture(txtrName, content);
             mapItems.Add(ndx, new MapItem { source = new Rectangle(x, y, w, h), texture = txtr});
         }
+
+        playerTexture = ContentLoader.LoadTexture("GnomeMage_32", content);
     }
 
 
@@ -44,11 +47,17 @@ public class MapSystem : BaseSystem
     {
         var mapEntity = entities.FirstOrDefault(t => t.Components.Any(v => v is Map));
         var map = mapEntity?.GetComponent<Map>();
-        if (map == null)
+        var mapTransform = mapEntity?.GetComponent<Transform>();
+
+        var playerEntity = entities.FirstOrDefault(t => t.Components.Any(v => v is Player));
+        var player = playerEntity?.GetComponent<Player>();
+        var playerTransform = playerEntity?.GetComponent<Transform>();
+
+        if (map == null || mapTransform == null || player == null || playerTransform == null)
             return;
-        var transform = mapEntity?.GetComponent<Transform>();
-        if (transform == null)
-            return;
+        
+        var tileSize = mapTransform.Bounds.Size.X;
+
 
         sb.Begin(
             sortMode: SpriteSortMode.FrontToBack,
@@ -59,16 +68,32 @@ public class MapSystem : BaseSystem
             effect: null,
             transformMatrix: null); //camera here todo
 
+        
         for (int x = 0; x < map.Tiles.GetLength(0); x++)
         {
-            for (int y =0; y < map.Tiles.GetLength(1); y++)
+            for (int y = 0; y < map.Tiles.GetLength(1); y++)
             {
                 var mapItem = mapItems[map.Tiles[x, y]];
                 var txtr = mapItem.texture;
-                var bnds = new Rectangle(transform.Bounds.Location + offset.ToPoint() + new Point(x * (int)transform.Size.X, y * (int)transform.Size.Y), transform.Bounds.Size);
-                sb.Draw(txtr, bnds, mapItem.source, Color.White, 0f, Vector2.Zero, SpriteEffects.None, transform.Layer);
+                    
+                var bnds = new Rectangle(
+                    mapTransform.Bounds.Location + offset.ToPoint() + new Point(x * tileSize, y * tileSize),
+                    mapTransform.Bounds.Size);
+
+                sb.Draw(txtr, bnds, mapItem.source, Color.White, 0f, Vector2.Zero, SpriteEffects.None, mapTransform.Layer);
             }
         }
+
+        
+        
+        
+        var playerBnds = new Rectangle(
+            new Point(playerTransform.Bounds.X * tileSize, playerTransform.Bounds.Y * tileSize) +
+            offset.ToPoint(),
+            mapTransform.Bounds.Size);
+
+        sb.Draw(playerTexture, playerBnds, player.Source, player.Tint, 0f, Vector2.Zero, SpriteEffects.None, playerTransform.Layer);
+        
 
         sb.End();
     }

@@ -8,8 +8,8 @@ public class ButtonPrefab : IPrefab<Entity>
     private Color pressedColor;
     private Color defaultColor;
     private Color txtColor;
-    private string fontName;
-    private string text;
+    private readonly string fontName;
+    private readonly string text;
     public ButtonPrefab(Color hoverColor, Color pressedColor, Color defaultColor, Color txtColor, string fontName, string text)
     {
         this.hoverColor = hoverColor;
@@ -21,38 +21,40 @@ public class ButtonPrefab : IPrefab<Entity>
     }
     public Entity Instantiate(BaseGame game)
     {
-        var ent = new Entity(game);
-        var trf = new Transform(ent)
-        {
-            Position = new Vector2(2, 2),
-            Size = new Vector2(100, 50),
-            Layer = 0.5f,
-        };
-        var spr = new Sprite(ent)
+        var spr = new Sprite
         {
             TextureName = "_pixel",
-            Source = new Rectangle(0,0, 1, 1),
+            Source = new Rectangle(0, 0, 1, 1),
             Tint = defaultColor,
             Offset = Vector2.Zero,
         };
-        var txt = new Text(ent)
-        {
-            FontName = fontName,
-            Content = text,
-            Offset = Vector2.Zero,
-            Tint = txtColor
-        };
-        var mse = new MouseInput(ent)
-        {
-            OnMouseEnter = () => { spr.Tint = hoverColor; },
-            OnMouseLeave = () => { spr.Tint = defaultColor; },
-            OnMousePressed = (mb) => //todo
+
+        var ent = new Entity(game)
+            .With(new Transform
             {
-                //todo
-                if (mb == Systems.MouseButton.Left)
-                    spr.Tint = pressedColor;
-            },
-        };
+                Position = new Vector2(2, 2),
+                Size = new Vector2(100, 50),
+                Layer = 0.5f,
+            })
+            .With(spr)
+            .With(new Text
+            {
+                FontName = fontName,
+                Content = text,
+                Offset = Vector2.Zero,
+                Tint = txtColor
+            })
+            .With(new MouseInput
+            {
+                OnMouseEnter = () => { spr.Tint = hoverColor; },
+                OnMouseLeave = () => { spr.Tint = defaultColor; },
+                OnMousePressed = (mb) => //todo
+                {
+                    //todo
+                    if (mb == Systems.MouseButton.Left)
+                        spr.Tint = pressedColor;
+                },
+            });
 
         return ent;
         

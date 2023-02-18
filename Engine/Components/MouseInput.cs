@@ -13,7 +13,7 @@ public class MouseInput : Component
 
     public Action<MouseButton> OnMouseReleased;
 
-    public MouseInput(Entity owner, bool isActive = true) : base(owner, isActive)
+    public MouseInput(bool isActive = true) : base(isActive)
     {
     }
 }

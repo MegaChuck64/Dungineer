@@ -48,60 +48,61 @@ public class PlayScenePrefab : IPrefab<List<Entity>>
         ents.Add(cursor);
 
         //stats
-        var statEntity = new Entity(game);
-        var stTran = new Transform(statEntity)
-        {
-            Layer = 0.7f,
-            Position = new Vector2(2,2),
-            Size = new Vector2(game.Width/5 - 2, game.Height - 4)
-        };
-
-        //background
-        var stSpr = new Sprite(statEntity)
-        {
-            Source = new Rectangle(0,0,1,1),
-            TextureName = "_pixel",
-            Tint = new Color(20,20,20),             
-            Offset = Vector2.Zero,
-        };
-
-        //text
-        var stTxt = new Text(statEntity)
-        {
-            Content = string.Empty,
-            Tint = Color.White,
-            FontName = "consolas_12",
-            Offset = new Vector2(2, 2)
-        };
-
-        var stat = new Tag(statEntity) 
-        { 
-            Value = "Stat Panel" 
-        };
+        var statEntity = new Entity(game)
+            .With(new Transform
+            {
+                Layer = 0.7f,
+                Position = new Vector2(2,2),
+                Size = new Vector2(game.Width/5 - 2, game.Height - 4)
+            })
+            .With(new Sprite
+            {
+                Source = new Rectangle(0,0,1,1),
+                TextureName = "_pixel",
+                Tint = new Color(20,20,20),             
+                Offset = Vector2.Zero,
+            })
+            .With(new Text
+            {
+                Content = string.Empty,
+                Tint = Color.White,
+                FontName = "consolas_12",
+                Offset = new Vector2(2, 2)
+            })
+            .With(new Tag
+            { 
+                Value = "Stat Panel" 
+            });
 
         ents.Add(statEntity);
 
 
         //portrait
-        var potrait = new Entity(game);
-        var porTran = new Transform(potrait)
-        {
-            Position = new Vector2(128,4),
-            Layer = 0.7f,
-            Size = new Vector2(128f, 128f),
-        };
-        var porSpr = new Sprite(potrait)
-        {
-            Offset = Vector2.Zero,
-            Source = new Rectangle(0, 0, 512, 512),
-            TextureName = "WizardPortraits_512",
-            Tint = Color.White,
-        };
-        var tag = new Tag(potrait)
-        {
-            Value = "Portrait"
-        };
+        var potrait = new Entity(game)
+            .With(new Transform
+            {
+                Position = new Vector2(128, 4),
+                Layer = 0.7f,
+                Size = new Vector2(128f, 128f),
+            })
+            .With(new Sprite
+            {
+                Offset = Vector2.Zero,
+                Source = new Rectangle(0, 0, 512, 512),
+                TextureName = "WizardPortraits_512",
+                Tint = Color.White,
+            })
+            .With(new Tag
+            {
+                Value = "Portrait"
+            });
+
         ents.Add(potrait);
+
+        
+        //map
+        ents.Add(new MapPrefab().Instantiate(game));
+
 
         return ents;
     }

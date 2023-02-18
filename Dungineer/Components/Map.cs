@@ -10,7 +10,7 @@ namespace Dungineer.Components;
 public class Map : Component
 {
     public byte[,] Tiles { get; set; }
-    public Map(Entity owner, bool isActive = true) : base(owner, isActive)
+    public Map(bool isActive = true) : base(isActive)
     {
 
     }
