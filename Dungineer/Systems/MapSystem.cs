@@ -16,6 +16,8 @@ public class MapSystem : BaseSystem
     private Vector2 offset;
     private Texture2D playerTexture;
     private Texture2D tileSelectTexture;
+    private MouseState mouseState;
+    private MouseState lastMouseState;
 
     public MapSystem(BaseGame game, ContentManager content) : base(game)
     {
@@ -29,6 +31,7 @@ public class MapSystem : BaseSystem
 
     public override void Update(GameTime gameTime, IEnumerable<Entity> entities)
     {
+        
     }
 
     public override void Draw(GameTime gameTime, IEnumerable<Entity> entities)
@@ -53,7 +56,28 @@ public class MapSystem : BaseSystem
             effect: null,
             transformMatrix: null); //camera here todo
 
-        
+        lastMouseState = mouseState;
+        mouseState = Mouse.GetState();
+        var mouseTilePos = new Point(
+                (int)(mouseState.X - offset.ToPoint().X) / Settings.TileSize,
+                (int)(mouseState.Y - offset.ToPoint().Y) / Settings.TileSize);
+
+       
+        var path = 
+            mouseTilePos.X >= 0 && 
+            mouseTilePos.Y >= 0 && 
+            mouseTilePos.X < map.GroundTiles.GetLength(0) &&
+            mouseTilePos.Y < map.GroundTiles.GetLength(1) ? 
+            
+            GetPath( playerTransform.Position.ToPoint(), mouseTilePos, map) : 
+            new List<Point>();
+
+
+        if (path != null && path.Count > 0 && WasPressed)
+        {
+            playerTransform.Position = new Vector2(path.First().X, path.First().Y);
+        }
+
         for (int x = 0; x < map.GroundTiles.GetLength(0); x++)
         {
             for (int y = 0; y < map.GroundTiles.GetLength(1); y++)
@@ -66,8 +90,11 @@ public class MapSystem : BaseSystem
                 var bnds = new Rectangle(
                     mapTransform.Bounds.Location + offset.ToPoint() + new Point(x * Settings.TileSize, y * Settings.TileSize),
                     new Point(Settings.TileSize, Settings.TileSize));
+                
+                var tint = Color.White;
 
-                sb.Draw(txtr, bnds, tileInfo.Source, Color.White, 0f, Vector2.Zero, SpriteEffects.None, mapTransform.Layer);
+                if (path.Contains(new Point(x, y)))
+                    tint = new Color(100, 100, 100);
 
                 if (bnds.Contains(Mouse.GetState().Position))
                 {
@@ -79,8 +106,13 @@ public class MapSystem : BaseSystem
                         0f,
                         Vector2.Zero,
                         SpriteEffects.None,
-                        0.75f);
+                        0.75f);      
                 }
+                
+
+                sb.Draw(txtr, bnds, tileInfo.Source, tint, 0f, Vector2.Zero, SpriteEffects.None, mapTransform.Layer);
+
+  
             }
         }
 
@@ -116,5 +148,31 @@ public class MapSystem : BaseSystem
         
         sb.End();
     }
+
+
+    public List<Point> GetPath(Point start, Point end, Map map)
+    {
+
+        var grid = new bool[map.GroundTiles.GetLength(0), map.GroundTiles.GetLength(1)];
+
+
+        for (int x = 0; x < map.GroundTiles.GetLength(0); x++)
+        {
+            for (int y = 0; y < map.GroundTiles.GetLength(1); y++)
+            {
+                var groundTile = Settings.TileAtlas[map.GroundTiles[x, y].Type];
+                var objectTiles = map.ObjectTiles.Where(t => t.X == x && t.Y == y).Select(v => Settings.TileAtlas[v.Type]);
+                grid[x, y] = !groundTile.Solid && !objectTiles.Any(y => y.Solid);
+            }
+
+        }
+
+        var pathFinder = new PathFinder(new PathFinderSearchParams(start, end, grid));
+
+        return pathFinder.FindPath();
+
+    }
+
+    private bool WasPressed => lastMouseState.LeftButton == ButtonState.Released && mouseState.LeftButton == ButtonState.Pressed;
 
 }

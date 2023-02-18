@@ -75,7 +75,7 @@ public class MainGame : BaseGame
 
         Systems.Add(new UISystem(this, "consolas_14"));
 
-        Systems.Add(new PlayerSystem(this));
+        //Systems.Add(new PlayerSystem(this));
 
 
     }
