@@ -24,19 +24,34 @@ public class MapPrefab : IPrefab<Entity>
                     X = x,
                     Y = y,
                     Tint = Color.White,
-                    Type = TileType.Grass
+                    Type = TileType.DungeonFloor
                 };
                 
                 var rand = game.Rand.NextDouble();
 
-                if (rand > 0.95f)
-                    groundTiles[x, y].Type = TileType.Water;
-                else if (rand > 0.75f)
+                if (rand > 0.97f)
                     objectTiles.Add(new Tile
                     {
-                        X = x, Y = y,
+                        X = x,
+                        Y = y,
                         Tint = Color.White,
-                        Type = TileType.PineTree
+                        Type = TileType.DungeonFloorHole
+                    });
+                else if (rand > 0.6f)
+                    objectTiles.Add(new Tile
+                    {
+                        X = x,
+                        Y = y,
+                        Tint = Color.White,
+                        Type = TileType.DungeonWall
+                    });
+                else if (rand > 0.57f)
+                    objectTiles.Add(new Tile
+                    {
+                        X = x,
+                        Y = y,
+                        Tint = Color.White,
+                        Type = TileType.Ghost
                     });
 
             }

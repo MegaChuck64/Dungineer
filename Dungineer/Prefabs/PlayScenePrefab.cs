@@ -99,7 +99,60 @@ public class PlayScenePrefab : IPrefab<List<Entity>>
 
         ents.Add(potrait);
 
-        
+
+
+
+        //tile info
+        var infoEntity = new Entity(game)
+            .With(new Transform
+            {
+                Layer = 0.7f,
+                Position = new Vector2(game.Width - (game.Width / 5), 2 * game.WindowRatio),//2 * game.WindowRatio, 2 * game.WindowRatio),
+                Size = new Vector2(game.Width / 5 - 4, game.Height - 4)
+            })
+            .With(new Sprite
+            {
+                Source = new Rectangle(0, 0, 1, 1),
+                TextureName = "_pixel",
+                Tint = new Color(20, 20, 20),
+                Offset = Vector2.Zero,
+            })
+            .With(new Text
+            {
+                Content = string.Empty,
+                Tint = Color.White,
+                FontName = "consolas_12",
+                Offset = new Vector2(2 * game.WindowRatio, 2 * game.WindowRatio)
+            })
+            .With(new Tag
+            {
+                Value = "Tile Info Panel"
+            });
+
+        ents.Add(infoEntity);
+
+
+        //portrait
+        var infoImage = new Entity(game)
+            .With(new Transform
+            {
+                Position = new Vector2(game.Width / 5 - (128f) - (2 * game.WindowRatio), 4 * game.WindowRatio),
+                Layer = 0.7f,
+                Size = new Vector2(128f, 128f),
+            })
+            .With(new Sprite
+            {
+                Offset = Vector2.Zero,
+                Source = new Rectangle(0, 0, 512, 512),
+                Tint = Color.White,
+            })
+            .With(new Tag
+            {
+                Value = "Tile Info Image"
+            });
+
+        ents.Add(infoImage);
+
         //map
         ents.Add(new MapPrefab().Instantiate(game));
 

@@ -11,6 +11,7 @@ namespace Dungineer;
 public static class Settings
 {
     //tilesize works best for 27 - 36
+    //designed for 32
     public static int TileSize { get; private set; } = 32;
     public static Dictionary<TileType, TileInfo> TileAtlas { get; private set; }
 
@@ -55,5 +56,9 @@ public enum TileType
     Grass,
     Water,
     PineTree,
-    Human,   
+    Human,
+    DungeonWall,
+    DungeonFloor,
+    DungeonFloorHole,
+    Ghost
 }

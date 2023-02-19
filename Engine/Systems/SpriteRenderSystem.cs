@@ -53,7 +53,7 @@ public class SpriteRenderSystem : BaseSystem
             foreach (var sprite in entity.GetComponents<Sprite>().Where(s=>s.IsActive))
             {
                 var tempBounds = new Rectangle(bounds.Location + sprite.Offset.ToPoint(), bounds.Size);
-
+                if (sprite?.TextureName != null)
                 sb.Draw(
                     textures[sprite.TextureName],
                     tempBounds,

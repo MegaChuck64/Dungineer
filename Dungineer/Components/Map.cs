@@ -14,7 +14,7 @@ public class Map : Component
     }
 }
 
-public struct Tile
+public class Tile
 {
     public TileType Type { get; set; }
     public int X { get; set; }
