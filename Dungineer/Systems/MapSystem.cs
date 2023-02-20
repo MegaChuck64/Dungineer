@@ -1,7 +1,6 @@
 ﻿using Dungineer.Components;
 using Engine;
 using Engine.Components;
-using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -15,9 +14,7 @@ public class MapSystem : BaseSystem
 {
     private SpriteBatch sb;
     private Vector2 offset;
-    private Texture2D playerTexture;
     private Texture2D tileSelectTexture;
-    private Texture2D pathTexture;
     private MouseState mouseState;
     private MouseState lastMouseState;
 
@@ -52,10 +49,7 @@ public class MapSystem : BaseSystem
         offset = new Vector2(game.Width / 5, 0);
         sb = new SpriteBatch(game.GraphicsDevice);
 
-        playerTexture = ContentLoader.LoadTexture("GnomeMage_32", content);
         tileSelectTexture = ContentLoader.LoadTexture("ui_box_select_32", content);
-        pathTexture = ContentLoader.LoadTexture("effects_32", content);
-
     }
 
 
@@ -79,17 +73,12 @@ public class MapSystem : BaseSystem
             else if (ent.HasTag("Player"))
             {
                 var playerObject = ent.GetComponent<MapObject>();
-                if (MapPixelBounds.Contains(mouseState.Position))
+                if (WasPressed && MapPixelBounds.Contains(mouseState.Position))
                 {
-                    var path = GetPath(new Point(playerObject.MapX, playerObject.MapY), MouseTilePosition, map);
-                        
-                    //if clicked on a tile that we can travel to move player one step towards it
-                    if (path != null && path.Count > 0 && WasPressed)
-                    {
-                        var nextStep = path.First();
-                        playerObject.MapX = nextStep.X;
-                        playerObject.MapY = nextStep.Y;
-                    }
+                    MovePlayer(playerObject, map, entities
+                                .Where(g => g.Components.Any(h => h is MapObject))
+                                .Select(n => n.GetComponent<MapObject>())
+                                .ToArray());
                 }
             }
             else if (ent.HasTag("Ghost"))
@@ -98,15 +87,11 @@ public class MapSystem : BaseSystem
                 var ghostObj = ent.GetComponent<MapObject>();
                 if (WasPressed && MapPixelBounds.Contains(mouseState.Position))
                 {
-                    MoveGhost(ghostObj, player, map);
-                    //var path = GetPath(new Point(ghostObj.MapX, ghostObj.MapY), new Point(player.MapX, player.MapY), map);
 
-                    //if (path != null && path.Count > 0)
-                    //{
-                    //    var nextStep = path.First();
-                    //    ghostObj.MapX = nextStep.X;
-                    //    ghostObj.MapY = nextStep.Y;
-                    //}
+                    MoveGhost(ghostObj, player, map, entities
+                            .Where(g => g.Components.Any(h => h is MapObject))
+                            .Select(n => n.GetComponent<MapObject>())
+                            .ToArray());
                 }
             }
         }
@@ -130,7 +115,7 @@ public class MapSystem : BaseSystem
             SpriteEffects.None,
             itemLayer);
 
-        
+
     }
     private void DrawTile(Tile tile, float layer)
     {
@@ -139,7 +124,7 @@ public class MapSystem : BaseSystem
 
         var bnds = GetTileBounds(tile.X, tile.Y);
 
-        sb.Draw(texture, bnds, tileInfo.Source, tile.Tint, 0f, Vector2.Zero, SpriteEffects.None, layer);        
+        sb.Draw(texture, bnds, tileInfo.Source, tile.Tint, 0f, Vector2.Zero, SpriteEffects.None, layer);
     }
     private void DrawMap(Entity ent)
     {
@@ -151,7 +136,7 @@ public class MapSystem : BaseSystem
         for (int x = 0; x < map.GroundTiles.GetLength(0); x++)
         {
             for (int y = 0; y < map.GroundTiles.GetLength(1); y++)
-            {                
+            {
                 DrawTile(map.GroundTiles[x, y], groundLayer);
             }
         }
@@ -211,7 +196,7 @@ public class MapSystem : BaseSystem
                     {
                         var winfo = Settings.WardrobeAtlas[wardrobe.BodySlot.Value];
                         var wtxt = Settings.TextureAtlas[winfo.TextureName];
-                        
+
                         var bnds = GetTileBounds(mapObj.MapX, mapObj.MapY);
 
                         sb.Draw(wtxt, bnds, winfo.Source, mapObj.Tint, 0f, Vector2.Zero, SpriteEffects.None, itemLayer + 0.1f);
@@ -374,26 +359,58 @@ public class MapSystem : BaseSystem
         objB.X = tempX;
         objB.Y = tempY;
     }
-    private void MoveGhost(MapObject ghost, MapObject target, Map map)
+    private void MoveGhost(MapObject ghost, MapObject target, Map map, params MapObject[] mapObjects)
     {
         if (Vector2.Distance(new Vector2(ghost.MapX, ghost.MapY), new Vector2(target.MapX, target.MapY)) < 6)
-        {             
-            if (GetPath(new Point(ghost.MapX, ghost.MapY), new Point(target.MapX, target.MapY), map)?.FirstOrDefault() is Point nextPos)
+        {
+            var targAdj = map.GetAdjacentEmptyTiles(target.MapX, target.MapY, true, mapObjects);
+
+            if (targAdj.Any())
             {
-                if (nextPos != new Point(target.MapX, target.MapY))
+                var targ = targAdj.First();
+                var path = GetPath(
+                new Point(ghost.MapX, ghost.MapY),
+                new Point(targ.x, targ.y),
+                    map,
+                    mapObjects);
+
+                if (path != null && path.Count > 0)
                 {
-                    ghost.MapX = nextPos.X;
-                    ghost.MapY = nextPos.Y;
-                }
-                else
-                {
-                    //attack
+                    var nextStep = path.First();
+
+                    if (nextStep != new Point(target.MapX, target.MapY))
+                    {
+                        ghost.MapX = nextStep.X;
+                        ghost.MapY = nextStep.Y;
+                    }
+                    else
+                    {
+                        //attack
+                    }
                 }
             }
+
         }
     }
 
-    public List<Point> GetPath(Point start, Point end, Map map)
+    private void MovePlayer(MapObject player, Map map, params MapObject[] mapObjects)
+    {
+        var path = GetPath(
+            new Point(player.MapX, player.MapY),
+                MouseTilePosition,
+                map,
+                mapObjects);
+
+        //if clicked on a tile that we can travel to move player one step towards it
+        if (path != null && path.Count > 0)
+        {
+            var nextStep = path.First();
+            player.MapX = nextStep.X;
+            player.MapY = nextStep.Y;
+        }
+    }
+
+    public List<Point> GetPath(Point start, Point end, Map map, params MapObject[] mapObjects)
     {
 
         var grid = new bool[map.GroundTiles.GetLength(0), map.GroundTiles.GetLength(1)];
@@ -405,7 +422,12 @@ public class MapSystem : BaseSystem
             {
                 var groundTile = Settings.TileAtlas[map.GroundTiles[x, y].Type];
                 var objectTiles = map.ObjectTiles.Where(t => t.X == x && t.Y == y).Select(v => Settings.TileAtlas[v.Type]);
-                grid[x, y] = !groundTile.Solid && !objectTiles.Any(y => y.Solid);
+
+                var hasGroundCollision = groundTile.Solid;
+                var hasObjectCollision = objectTiles.Any(y => y.Solid);
+                var hasItemCollision = mapObjects.Any(g => g.MapX == x && g.MapY == y);
+
+                grid[x, y] = !hasGroundCollision && !hasObjectCollision && !hasItemCollision;
             }
 
         }

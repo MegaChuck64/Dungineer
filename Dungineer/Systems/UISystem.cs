@@ -24,8 +24,8 @@ public class UISystem : BaseSystem
 
     public override void Update(GameTime gameTime, IEnumerable<Entity> entities)
     {
-        var player = entities.FirstOrDefault(t => t.Components.Any(c => c is Player))?.GetComponent<Player>();
-        if (player == null) return;
+        var playerStats = entities.FirstOrDefault(t => t.HasTag("Player"))?.GetComponent<CreatureStats>();
+        if (playerStats == null) return;
 
         foreach (var ent in entities)
         {            
@@ -33,17 +33,17 @@ public class UISystem : BaseSystem
             {
                 if (ent.GetComponent<Text>() is Text text)
                 {
-                    text.Content = player.Name + " \\n" + player.Health + "/" + player.MaxHealth;
+                    text.Content = playerStats.Health + "/" + playerStats.MaxHealth;
                 }
             }
 
-            if (ent.HasTag("Portrait"))
-            {
-                if (ent.GetComponent<Sprite>() is Sprite spr)
-                {
-                    spr.Source = new Rectangle(player.PotraitIndex * 512, 0, 512, 512);
-                }
-            }
+            //if (ent.HasTag("Portrait"))
+            //{
+            //    if (ent.GetComponent<Sprite>() is Sprite spr)
+            //    {
+            //        spr.Source = new Rectangle(player.PotraitIndex * 512, 0, 512, 512);
+            //    }
+            //}
         }
 
 
