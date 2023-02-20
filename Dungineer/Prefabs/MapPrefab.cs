@@ -12,7 +12,7 @@ public class MapPrefab : IPrefab<Entity>
     public Entity Instantiate(BaseGame game)
     {
         int mapWidth = 27;
-        int mapHeight = 20;
+        int mapHeight = 28;
         var groundTiles = new Tile[mapWidth, mapHeight];
         var objectTiles = new List<Tile>();
         for (int x = 0; x < groundTiles.GetLength(0); x++)
@@ -27,17 +27,10 @@ public class MapPrefab : IPrefab<Entity>
                     Type = TileType.DungeonFloor
                 };
                 
-                var rand = game.Rand.NextDouble();
 
-                if (rand > 0.97f)
-                    objectTiles.Add(new Tile
-                    {
-                        X = x,
-                        Y = y,
-                        Tint = Color.White,
-                        Type = TileType.DungeonFloorHole
-                    });
-                else if (rand > 0.6f)
+                //border
+                if (x == 0 || y == 0 || x == groundTiles.GetLength(0) - 1 || y == groundTiles.GetLength(1) - 1)
+                {
                     objectTiles.Add(new Tile
                     {
                         X = x,
@@ -45,14 +38,57 @@ public class MapPrefab : IPrefab<Entity>
                         Tint = Color.White,
                         Type = TileType.DungeonWall
                     });
-                else if (rand > 0.57f)
-                    objectTiles.Add(new Tile
+                }
+                else
+                {
+                    var rand = game.Rand.NextDouble();
+
+                    if (rand <= 0.2f)
                     {
-                        X = x,
-                        Y = y,
-                        Tint = Color.White,
-                        Type = TileType.Ghost
-                    });
+                        objectTiles.Add(new Tile
+                        {
+                            X = x,
+                            Y = y,
+                            Tint = Color.White,
+                            Type = TileType.DungeonWall
+                        });
+                    }
+                    else if (rand <= 0.25f)
+                    {
+                        objectTiles.Add(new Tile
+                        {
+                            X = x,
+                            Y = y,
+                            Tint = Color.White,
+                            Type = TileType.DungeonFloorHole
+                        });
+                    }
+                }
+                //}
+                //if (rand > 0.97f)
+                //    objectTiles.Add(new Tile
+                //    {
+                //        X = x,
+                //        Y = y,
+                //        Tint = Color.White,
+                //        Type = TileType.DungeonFloorHole
+                //    });
+                //else if (rand > 0.6f || )
+                //    objectTiles.Add(new Tile
+                //    {
+                //        X = x,
+                //        Y = y,
+                //        Tint = Color.White,
+                //        Type = TileType.DungeonWall
+                //    });
+                //else if (rand > 0.57f)
+                //    objectTiles.Add(new Tile
+                //    {
+                //        X = x,
+                //        Y = y,
+                //        Tint = Color.White,
+                //        Type = TileType.Ghost
+                //    });
 
             }
         }
@@ -62,16 +98,21 @@ public class MapPrefab : IPrefab<Entity>
             ObjectTiles = objectTiles
         };
 
-        var trn = new Transform
+        //var trn = new Transform
+        //{
+        //    Position = new Vector2(),
+        //    Layer = 0.5f,
+        //};
+
+        var tag = new Tag()
         {
-            Position = new Vector2(),
-            Layer = 0.5f,
+            Value = "Map"
         };
 
 
         var ent = new Entity(game)
             .With(map)
-            .With(trn);
+            .With(tag);
 
         return ent;
     }

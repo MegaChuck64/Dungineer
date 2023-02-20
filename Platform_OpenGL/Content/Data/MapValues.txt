@@ -1,8 +1,0 @@
-﻿Grass, grounds_32, 0, 32, 32, 32, false
-Pine Tree, trees_32, 96, 0, 32, 32, true
-Water, grounds_32, 0, 64, 32, 32, true
-Human, human_32, 0, 0, 32, 32, true
-Dungeon Floor, dungeon_32, 32, 0, 32, 32, false
-Dungeon Wall, dungeon_32, 0, 0, 32, 32, true
-Dungeon Floor Hole, floorHoles_32, 32, 0, 32, 32, true
-Ghost, ghost_32, 0, 0, 32, 32, true

@@ -34,7 +34,7 @@ public class MenuScenePrefab : IPrefab<List<Entity>>
         playButton.GetComponent<Text>().Offset = new Vector2(19, 12);
         playButton.GetComponent<MouseInput>().OnMouseReleased = (mb) =>
         {
-            SceneManager.ChangeScene("CharacterSelect");
+            SceneManager.ChangeScene("CharacterCreation");
             game.BackgroundColor = new Color(25, 25, 25);
         };
         ents.Add(playButton);

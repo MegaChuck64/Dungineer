@@ -1,6 +1,7 @@
 ﻿using Dungineer.Components;
 using Engine;
 using Engine.Components;
+using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -16,9 +17,35 @@ public class MapSystem : BaseSystem
     private Vector2 offset;
     private Texture2D playerTexture;
     private Texture2D tileSelectTexture;
-    private Texture2D pathTexture; 
+    private Texture2D pathTexture;
     private MouseState mouseState;
     private MouseState lastMouseState;
+
+    private const float groundLayer = 0.5f;
+    private const float objectLayer = 0.6f;
+    private const float effectLayer = 0.7f;
+    private const float itemLayer = 0.8f;
+
+
+    private Rectangle MapPixelBounds => new(Game.Width / 5, 0, (Game.Width / 5) * 3, Game.Height);
+
+    private Rectangle GetTileBounds(Point pos) => GetTileBounds(pos.X, pos.Y);
+
+    private Rectangle GetTileBounds(int x, int y) =>
+        new Rectangle(
+            offset.ToPoint() + new Point(x * Settings.TileSize, y * Settings.TileSize),
+            new Point(Settings.TileSize, Settings.TileSize));
+
+
+    private Point MouseTilePosition
+    {
+        get
+        {
+            return new Point(
+                (int)(mouseState.X - offset.ToPoint().X) / Settings.TileSize,
+                (int)(mouseState.Y - offset.ToPoint().Y) / Settings.TileSize);
+        }
+    }
 
     public MapSystem(BaseGame game, ContentManager content) : base(game)
     {
@@ -34,48 +61,111 @@ public class MapSystem : BaseSystem
 
     public override void Update(GameTime gameTime, IEnumerable<Entity> entities)
     {
+        if (SceneManager.CurrentScene != "Play") return;
+
+        var map = entities.First(t => t.Components.Any(v => v is Map)).GetComponent<Map>();
+
+        lastMouseState = mouseState;
+        mouseState = Mouse.GetState();
+
+        foreach (var ent in entities)
+        {
+            if (ent.HasTag("Cursor"))
+            {
+                var cursorSprite = ent.GetComponent<Sprite>();
+
+                cursorSprite.IsActive = MapPixelBounds.Contains(mouseState.Position) == false;
+            }
+            else if (ent.HasTag("Player"))
+            {
+                var playerObject = ent.GetComponent<MapObject>();
+                if (MapPixelBounds.Contains(mouseState.Position))
+                {
+                    var path = GetPath(new Point(playerObject.MapX, playerObject.MapY), MouseTilePosition, map);
+                        
+                    //if clicked on a tile that we can travel to move player one step towards it
+                    if (path != null && path.Count > 0 && WasPressed)
+                    {
+                        var nextStep = path.First();
+                        playerObject.MapX = nextStep.X;
+                        playerObject.MapY = nextStep.Y;
+                    }
+                }
+            }
+            else if (ent.HasTag("Ghost"))
+            {
+                var player = entities.First(t => t.HasTag("Player")).GetComponent<MapObject>();
+                var ghostObj = ent.GetComponent<MapObject>();
+                if (WasPressed && MapPixelBounds.Contains(mouseState.Position))
+                {
+                    MoveGhost(ghostObj, player, map);
+                    //var path = GetPath(new Point(ghostObj.MapX, ghostObj.MapY), new Point(player.MapX, player.MapY), map);
+
+                    //if (path != null && path.Count > 0)
+                    //{
+                    //    var nextStep = path.First();
+                    //    ghostObj.MapX = nextStep.X;
+                    //    ghostObj.MapY = nextStep.Y;
+                    //}
+                }
+            }
+        }
+    }
+
+    //items that will move around our map
+    private void DrawMapObject(MapObject mapObject)
+    {
+        var mapObjectInfo = Settings.MapObjectAtlas[mapObject.Type];
+        var texture = Settings.TextureAtlas[mapObjectInfo.TextureName];
+
+        var bnds = GetTileBounds(mapObject.MapX, mapObject.MapY);
+
+        sb.Draw(
+            texture,
+            bnds,
+            mapObjectInfo.Source,
+            mapObject.Tint,
+            0f,
+            Vector2.Zero,
+            SpriteEffects.None,
+            itemLayer);
+
         
+    }
+    private void DrawTile(Tile tile, float layer)
+    {
+        var tileInfo = Settings.TileAtlas[tile.Type];
+        var texture = Settings.TextureAtlas[tileInfo.TextureName];
+
+        var bnds = GetTileBounds(tile.X, tile.Y);
+
+        sb.Draw(texture, bnds, tileInfo.Source, tile.Tint, 0f, Vector2.Zero, SpriteEffects.None, layer);        
+    }
+    private void DrawMap(Entity ent)
+    {
+        var map = ent.GetComponent<Map>();
+        if (map == null) throw new System.Exception("Entity tagged with 'Map' must have map component");
+
+
+        //ground tiles
+        for (int x = 0; x < map.GroundTiles.GetLength(0); x++)
+        {
+            for (int y = 0; y < map.GroundTiles.GetLength(1); y++)
+            {                
+                DrawTile(map.GroundTiles[x, y], groundLayer);
+            }
+        }
+
+        //object tiles
+        for (int i = 0; i < map.ObjectTiles.Count; i++)
+        {
+            DrawTile(map.ObjectTiles[i], objectLayer);
+        }
     }
 
     public override void Draw(GameTime gameTime, IEnumerable<Entity> entities)
     {
-        //get map data
-        var mapEntity = entities.FirstOrDefault(t => t.Components.Any(v => v is Map));
-        var map = mapEntity?.GetComponent<Map>();
-        var mapTransform = mapEntity?.GetComponent<Transform>();
-
-        //get player data
-        var playerEntity = entities.FirstOrDefault(t => t.Components.Any(v => v is Player));
-        var player = playerEntity?.GetComponent<Player>();
-        var playerTransform = playerEntity?.GetComponent<Transform>();
-
-        
-        if (map == null || mapTransform == null || player == null || playerTransform == null)
-            return;
-
-        //get mouse data
-        lastMouseState = mouseState;
-        mouseState = Mouse.GetState();
-        var mouseTilePos = new Point(
-                (int)(mouseState.X - offset.ToPoint().X) / Settings.TileSize,
-                (int)(mouseState.Y - offset.ToPoint().Y) / Settings.TileSize);
-
-        //get path between player and mouse
-        var path =
-            mouseTilePos.X >= 0 &&
-            mouseTilePos.Y >= 0 &&
-            mouseTilePos.X < map.GroundTiles.GetLength(0) &&
-            mouseTilePos.Y < map.GroundTiles.GetLength(1) ?
-
-            GetPath(playerTransform.Position.ToPoint(), mouseTilePos, map) :
-            new List<Point>();
-
-        //if clicked on a tile that we can travel to move player one step towards it
-        if (path != null && path.Count > 0 && WasPressed)
-        {
-            playerTransform.Position = new Vector2(path.First().X, path.First().Y);
-        }
-
+        if (SceneManager.CurrentScene != "Play") return;
 
         //DRAWING
         sb.Begin(
@@ -87,99 +177,191 @@ public class MapSystem : BaseSystem
             effect: null,
             transformMatrix: null); //camera here todo
 
-
-        //draw ground tiles
-        for (int x = 0; x < map.GroundTiles.GetLength(0); x++)
+        foreach (var ent in entities)
         {
-            for (int y = 0; y < map.GroundTiles.GetLength(1); y++)
+            if (ent.HasTag("Map"))
             {
-                var groundTile = map.GroundTiles[x, y];
-                var tileInfo = Settings.TileAtlas[groundTile.Type];
+                DrawMap(ent);
+            }
+            else if (ent.HasTag("Cursor"))
+            {
+                var cursorTransform = ent.GetComponent<Transform>();
+                var cursorSprite = ent.GetComponent<Sprite>();
 
-                var txtr = tileInfo.Texture;
-                    
-                var bnds = new Rectangle(
-                    mapTransform.Bounds.Location + offset.ToPoint() + new Point(x * Settings.TileSize, y * Settings.TileSize),
-                    new Point(Settings.TileSize, Settings.TileSize));
-                
-
-
-
-                //draw ground tile
-                sb.Draw(txtr, bnds, tileInfo.Source, Color.White, 0f, Vector2.Zero, SpriteEffects.None, mapTransform.Layer);
-
-                //draw path semi transparent path texture over tiles that are part of our player path
-                if (path.Contains(new Point(x, y)))
-                    sb.Draw(
-                        pathTexture,
-                        bnds,
-                        new Rectangle(0, 0, Settings.TileSize, Settings.TileSize),
-                        new Color(100, 200, 255, 100),
-                        0f,
-                        Vector2.Zero,
-                        SpriteEffects.None,
-                        mapTransform.Layer + 0.1f);
-
-                //if mouse is over tile, draw tile selector over it
-                if (bnds.Contains(Mouse.GetState().Position))
+                if (!cursorSprite.IsActive)
                 {
                     sb.Draw(
                         tileSelectTexture,
-                        bnds,
+                        GetTileBounds(MouseTilePosition),
                         null,
                         Color.White,
                         0f,
                         Vector2.Zero,
                         SpriteEffects.None,
-                        0.75f);
+                        effectLayer);
                 }
+
             }
-        }
-
-        //draw object tiles 
-        for (int i = 0; i < map.ObjectTiles.Count; i++)
-        {
-            var objectTile = map.ObjectTiles[i];
-            var objectTileInfo = Settings.TileAtlas[objectTile.Type];
-
-            var tileBnds = new Rectangle(
-              new Point(objectTile.X * Settings.TileSize, objectTile.Y * Settings.TileSize) +
-              offset.ToPoint(),
-              new Point(Settings.TileSize, Settings.TileSize));
-
-            //draw object tile
-            sb.Draw(
-                objectTileInfo.Texture, 
-                tileBnds, 
-                objectTileInfo.Source, 
-                objectTile.Tint, 
-                0f, 
-                Vector2.Zero, 
-                SpriteEffects.None, 
-                mapTransform.Layer + 0.05f);
-
-            if (WasPressed)
+            else if (ent.GetComponent<MapObject>() is MapObject mapObj)
             {
-                //move ghost on tick
-                if (objectTile.Type == TileType.Ghost)
+                DrawMapObject(mapObj);
+                if (ent.GetComponent<Wardrobe>() is Wardrobe wardrobe)
                 {
-                    MoveGhost(objectTile, playerTransform.Position.ToPoint(), map);
+                    if (wardrobe.BodySlot.HasValue)
+                    {
+                        var winfo = Settings.WardrobeAtlas[wardrobe.BodySlot.Value];
+                        var wtxt = Settings.TextureAtlas[winfo.TextureName];
+                        
+                        var bnds = GetTileBounds(mapObj.MapX, mapObj.MapY);
+
+                        sb.Draw(wtxt, bnds, winfo.Source, mapObj.Tint, 0f, Vector2.Zero, SpriteEffects.None, itemLayer + 0.1f);
+                    }
                 }
             }
-
         }
 
-
-
-        var playerBnds = new Rectangle(
-            new Point(playerTransform.Bounds.X * Settings.TileSize, playerTransform.Bounds.Y * Settings.TileSize) +
-            offset.ToPoint(),
-            new Point(Settings.TileSize, Settings.TileSize));
-
-        sb.Draw(playerTexture, playerBnds, player.Source, player.Tint, 0f, Vector2.Zero, SpriteEffects.None, playerTransform.Layer);
-        
         sb.End();
+
     }
+
+
+    ////get map data
+    //var mapEntity = entities.FirstOrDefault(t => t.Components.Any(v => v is Map));
+    //var map = mapEntity?.GetComponent<Map>();
+    //var mapTransform = mapEntity?.GetComponent<Transform>();
+
+
+
+    //if (map == null || mapTransform == null || player == null || playerTransform == null)
+    //    return;
+
+    ////get mouse data
+    //lastMouseState = mouseState;
+    //mouseState = Mouse.GetState();
+    //var mouseTilePos = new Point(
+    //        (int)(mouseState.X - offset.ToPoint().X) / Settings.TileSize,
+    //        (int)(mouseState.Y - offset.ToPoint().Y) / Settings.TileSize);
+
+    ////get path between player and mouse
+    //var path =
+    //    mouseTilePos.X >= 0 &&
+    //    mouseTilePos.Y >= 0 &&
+    //    mouseTilePos.X < map.GroundTiles.GetLength(0) &&
+    //    mouseTilePos.Y < map.GroundTiles.GetLength(1) ?
+
+    //    GetPath(playerTransform.Position.ToPoint(), mouseTilePos, map) :
+    //    new List<Point>();
+
+    ////if clicked on a tile that we can travel to move player one step towards it
+    //if (path != null && path.Count > 0 && WasPressed)
+    //{
+    //    playerTransform.Position = new Vector2(path.First().X, path.First().Y);
+    //}
+
+
+    ////DRAWING
+    //sb.Begin(
+    //    sortMode: SpriteSortMode.FrontToBack,
+    //    blendState: BlendState.NonPremultiplied,
+    //    samplerState: SamplerState.PointClamp,
+    //    depthStencilState: DepthStencilState.DepthRead,
+    //    rasterizerState: RasterizerState.CullCounterClockwise,
+    //    effect: null,
+    //    transformMatrix: null); //camera here todo
+
+
+    ////draw ground tiles
+    //for (int x = 0; x < map.GroundTiles.GetLength(0); x++)
+    //{
+    //    for (int y = 0; y < map.GroundTiles.GetLength(1); y++)
+    //    {
+    //        var groundTile = map.GroundTiles[x, y];
+    //        var tileInfo = Settings.TileAtlas[groundTile.Type];
+
+    //        var txtr = tileInfo.Texture;
+
+    //        var bnds = new Rectangle(
+    //            mapTransform.Bounds.Location + offset.ToPoint() + new Point(x * Settings.TileSize, y * Settings.TileSize),
+    //            new Point(Settings.TileSize, Settings.TileSize));
+
+
+
+
+    //        //draw ground tile
+    //        sb.Draw(txtr, bnds, tileInfo.Source, Color.White, 0f, Vector2.Zero, SpriteEffects.None, mapTransform.Layer);
+
+    //        //draw path semi transparent path texture over tiles that are part of our player path
+    //        if (path.Contains(new Point(x, y)))
+    //            sb.Draw(
+    //                pathTexture,
+    //                bnds,
+    //                new Rectangle(0, 0, Settings.TileSize, Settings.TileSize),
+    //                new Color(100, 200, 255, 100),
+    //                0f,
+    //                Vector2.Zero,
+    //                SpriteEffects.None,
+    //                mapTransform.Layer + 0.1f);
+
+    //        //if mouse is over tile, draw tile selector over it
+    //        if (bnds.Contains(Mouse.GetState().Position))
+    //        {
+    //            sb.Draw(
+    //                tileSelectTexture,
+    //                bnds,
+    //                null,
+    //                Color.White,
+    //                0f,
+    //                Vector2.Zero,
+    //                SpriteEffects.None,
+    //                0.75f);
+    //        }
+    //    }
+    //}
+
+    ////draw object tiles 
+    //for (int i = 0; i < map.ObjectTiles.Count; i++)
+    //{
+    //    var objectTile = map.ObjectTiles[i];
+    //    var objectTileInfo = Settings.TileAtlas[objectTile.Type];
+
+    //    var tileBnds = new Rectangle(
+    //      new Point(objectTile.X * Settings.TileSize, objectTile.Y * Settings.TileSize) +
+    //      offset.ToPoint(),
+    //      new Point(Settings.TileSize, Settings.TileSize));
+
+    //    //draw object tile
+    //    sb.Draw(
+    //        objectTileInfo.Texture, 
+    //        tileBnds, 
+    //        objectTileInfo.Source, 
+    //        objectTile.Tint, 
+    //        0f, 
+    //        Vector2.Zero, 
+    //        SpriteEffects.None, 
+    //        mapTransform.Layer + 0.05f);
+
+    //    //if (WasPressed)
+    //    //{
+    //    //    //move ghost on tick
+    //    //    if (objectTile.Type == TileType.Ghost)
+    //    //    {
+    //    //        MoveGhost(objectTile, playerTransform.Position.ToPoint(), map);
+    //    //    }
+    //    //}
+
+    //}
+
+
+    ////Draw player
+    //var playerBnds = new Rectangle(
+    //    new Point(playerTransform.Bounds.X * Settings.TileSize, playerTransform.Bounds.Y * Settings.TileSize) +
+    //    offset.ToPoint(),
+    //    new Point(Settings.TileSize, Settings.TileSize));
+
+    //sb.Draw(playerTexture, playerBnds, player.Source, player.Tint, 0f, Vector2.Zero, SpriteEffects.None, playerTransform.Layer);
+
+    //sb.End();
+    //  }
 
     private void SwapObjectTiles(Tile objA, Tile objB)
     {
@@ -192,16 +374,16 @@ public class MapSystem : BaseSystem
         objB.X = tempX;
         objB.Y = tempY;
     }
-    private void MoveGhost(Tile ghost, Point target, Map map)
+    private void MoveGhost(MapObject ghost, MapObject target, Map map)
     {
-        if (Vector2.Distance(new Vector2(ghost.X, ghost.Y), target.ToVector2()) < 6)
-        {
-            if (GetPath(new Point(ghost.X, ghost.Y), target, map)?.FirstOrDefault() is Point nextPos)
+        if (Vector2.Distance(new Vector2(ghost.MapX, ghost.MapY), new Vector2(target.MapX, target.MapY)) < 6)
+        {             
+            if (GetPath(new Point(ghost.MapX, ghost.MapY), new Point(target.MapX, target.MapY), map)?.FirstOrDefault() is Point nextPos)
             {
-                if (nextPos != target)
+                if (nextPos != new Point(target.MapX, target.MapY))
                 {
-                    ghost.X = nextPos.X;
-                    ghost.Y = nextPos.Y;
+                    ghost.MapX = nextPos.X;
+                    ghost.MapY = nextPos.Y;
                 }
                 else
                 {

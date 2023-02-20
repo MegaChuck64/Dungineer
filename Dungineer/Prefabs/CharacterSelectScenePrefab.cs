@@ -47,8 +47,8 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
                 rnd = game.Rand.Next(0, 8);
             } while (randWiz.Contains(rnd));
             randWiz[i] = rnd;
-            var wizardNames = ContentLoader.LoadText("WizardNames.txt", game.Content);
-            var wizardDescriptions = ContentLoader.LoadText("WizardDescriptions.txt", game.Content);
+            var wizardNames = ContentLoader.LoadTextLines("WizardNames.txt", game.Content);
+            var wizardDescriptions = ContentLoader.LoadTextLines("WizardDescriptions.txt", game.Content);
             
             var wizardName = wizardNames[randWiz[i]];
             var wizardDescription = wizardDescriptions.FirstOrDefault(t => t.StartsWith(wizardName))[(wizardName.Length + 2)..];
@@ -157,9 +157,6 @@ public class CharacterSelectScenePrefab : IPrefab<List<Entity>>
                             potraitIndex)
                         .Instantiate(game));
 
-                    SceneManager.AddEntity( //add player to play scene with chosen character data
-                        "Play",
-                        new MapPrefab().Instantiate(game));
                 }
             })
             .With(new Text

@@ -9,6 +9,7 @@ namespace Dungineer.Prefabs;
 
 public class PlayScenePrefab : IPrefab<List<Entity>>
 {
+    
     public List<Entity> Instantiate(BaseGame game)
     {
         var ents = new List<Entity>();
@@ -154,7 +155,11 @@ public class PlayScenePrefab : IPrefab<List<Entity>>
         ents.Add(infoImage);
 
         //map
-        ents.Add(new MapPrefab().Instantiate(game));
+
+        var map = new MapPrefab().Instantiate(game);
+        ents.Add(map);
+
+        ents.AddRange(new MapItemsPrefab(map.GetComponent<Map>()).Instantiate(game));
 
 
         return ents;

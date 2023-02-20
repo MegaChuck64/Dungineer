@@ -1,4 +1,5 @@
 ﻿using Dungineer.Prefabs;
+using Dungineer.Prefabs.Scenes;
 using Dungineer.Systems;
 using Engine;
 using Engine.Systems;
@@ -12,9 +13,9 @@ namespace Dungineer;
 public class MainGame : BaseGame
 {
     public const string MenuScene = "Menu";
-    public const string CharacterSelectScene = "CharacterSelect";
+    public const string CharacterCreationScene = "CharacterCreation";
     public const string PlayScene = "Play";
-    public MainGame() : base(new System.Random().Next(), Settings.TileSize * 45, Settings.TileSize * 28)
+    public MainGame() : base(Settings.Seed, Settings.TileSize * 45, Settings.TileSize * 28)
     {
 
         BackgroundColor = new Color(10, 10, 10);
@@ -29,6 +30,8 @@ public class MainGame : BaseGame
     public override void Load(ContentManager content)
     {
         Settings.LoadTileAtlas(content);
+        Settings.LoadMapObjectAtlas(content);
+        Settings.LoadWardrobeAtlas(content);
 
         AddSystems();
 
@@ -44,6 +47,7 @@ public class MainGame : BaseGame
         //mouse input
         Systems.Add(new MouseInputSystem(this));
 
+        Systems.Add(new CharacterCreationSystem(this));
 
         Systems.Add(new MapSystem(this, Content));
 
@@ -59,7 +63,9 @@ public class MainGame : BaseGame
             "ui_box_select_32",
             "weapons_32",
             "WizardPortraits_512",
-            "cursor_16"
+            "cursor_16",
+            "symbols_32",
+            "robes_32",
         };
         Systems.Add(new SpriteRenderSystem(this, Content, textureNames));
 
@@ -93,13 +99,13 @@ public class MainGame : BaseGame
 
     private void BuildCharacterSelectScene()
     {
-        SceneManager.AddScene(CharacterSelectScene);
+        SceneManager.AddScene(CharacterCreationScene);
 
-        var scenePrefab = new CharacterSelectScenePrefab();
+        var scenePrefab = new CharacterCreationScene();
         var ents = scenePrefab.Instantiate(this);
         foreach (var ent in ents)
         {
-            SceneManager.AddEntity(CharacterSelectScene, ent);
+            SceneManager.AddEntity(CharacterCreationScene, ent);
         }
     }
 
