@@ -1,4 +1,4 @@
-﻿using Dungineer.Components;
+﻿using Dungineer.Components.GameWorld;
 using Engine;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

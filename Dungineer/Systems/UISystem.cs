@@ -1,4 +1,4 @@
-﻿using Dungineer.Components;
+﻿using Dungineer.Components.GameWorld;
 using Engine;
 using Engine.Components;
 using Microsoft.Xna.Framework;
@@ -37,13 +37,6 @@ public class UISystem : BaseSystem
                 }
             }
 
-            //if (ent.HasTag("Portrait"))
-            //{
-            //    if (ent.GetComponent<Sprite>() is Sprite spr)
-            //    {
-            //        spr.Source = new Rectangle(player.PotraitIndex * 512, 0, 512, 512);
-            //    }
-            //}
         }
 
 

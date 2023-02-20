@@ -1,11 +1,11 @@
-﻿using Dungineer.Components;
+﻿using Dungineer.Components.GameWorld;
 using Engine;
 using Engine.Components;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 
-namespace Dungineer.Prefabs;
+namespace Dungineer.Prefabs.Entities;
 
 public class MapPrefab : IPrefab<Entity>
 {
@@ -17,7 +17,7 @@ public class MapPrefab : IPrefab<Entity>
         var objectTiles = new List<Tile>();
         for (int x = 0; x < groundTiles.GetLength(0); x++)
         {
-            for (int y= 0; y < groundTiles.GetLength(1); y++)
+            for (int y = 0; y < groundTiles.GetLength(1); y++)
             {
                 groundTiles[x, y] = new Tile
                 {
@@ -26,7 +26,7 @@ public class MapPrefab : IPrefab<Entity>
                     Tint = Color.White,
                     Type = TileType.DungeonFloor
                 };
-                
+
 
                 //border
                 if (x == 0 || y == 0 || x == groundTiles.GetLength(0) - 1 || y == groundTiles.GetLength(1) - 1)

@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Dungineer.Components;
+namespace Dungineer.Components.GameWorld;
 
 public class Map : Component
 {
@@ -51,7 +51,7 @@ public class Map : Component
     }
     public List<(int x, int y)> GetAdjacentTiles(int x, int y, bool includeDiagonals = false)
     {
-        var adjacent = new List<(int , int )>();
+        var adjacent = new List<(int, int)>();
 
         if (y - 1 >= 0) adjacent.Add((x, y - 1));
         if (y + 1 < GroundTiles.GetLength(1)) adjacent.Add((x, y + 1));

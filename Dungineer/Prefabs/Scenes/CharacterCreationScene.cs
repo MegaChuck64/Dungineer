@@ -1,10 +1,10 @@
-﻿using Dungineer.Components;
+﻿using Dungineer.Components.GameWorld;
+using Dungineer.Prefabs.Entities;
 using Engine;
 using Engine.Components;
 using Engine.Prefabs;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Dungineer.Prefabs.Scenes;
 
@@ -21,22 +21,29 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
 
         ents.AddRange(CreateRobes(game, player));
 
-        var selectBtn = 
-            new ButtonPrefab(Color.Gray, Color.DarkSlateGray, Color.SlateGray, Color.Yellow, "consolas_22", "Play")
+        var startButton = new ButtonPrefab(
+             hoverColor: new Color(82, 82, 82),
+             pressedColor: new Color(49, 49, 49),
+             defaultColor: new Color(65, 65, 65),
+             txtColor: new Color(202, 62, 71),
+             fontName: "consolas_22",
+             text: "Start")
             .Instantiate(game);
 
-        selectBtn.GetComponent<MouseInput>().OnMouseReleased = (mb) =>
-        {
-            SceneManager.ChangeScene("Play");
-            SceneManager.AddEntity("Play", player);
-        };
+        startButton.GetComponent<MouseInput>()
+            .OnMouseReleased = (mb) =>
+            {
+                SceneManager.ChangeScene("Play");
+                SceneManager.AddEntity("Play", player);
+            };
 
-        var btnTran = selectBtn.GetComponent<Transform>();
-        btnTran.Position = new Vector2(game.Width / 2f - btnTran.Size.X / 2f, game.Height - (btnTran.Size.Y) - (10 * game.WindowRatio));
-        btnTran.Layer = 0.7f;
-        selectBtn.GetComponent<Text>().Offset = new Vector2(19, 12);
+        var startButtonTransform = startButton.GetComponent<Transform>();
+        startButtonTransform.Position = new Vector2((game.Width / 2) - 64, game.Height - (64 * 3));
+        startButtonTransform.Size = new Vector2(128, 64);
 
-        ents.Add(selectBtn);
+        var startButtonText = startButton.GetComponent<Text>();
+        startButtonText.Offset = new Vector2(24, 12);
+        ents.Add(startButton);
 
         return ents;
     }
@@ -52,7 +59,8 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
             .With(new Transform
             {
                 Position = new Vector2(game.Width / 2 + 100, game.Height / 2 - 100),
-                Size = new Vector2(64, 64)
+                Size = new Vector2(64, 64),
+                Layer = 0.6f
             })
             .With(new Sprite
             {
@@ -77,7 +85,8 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
             .With(new Transform
             {
                 Position = new Vector2(game.Width / 2 + 100, game.Height / 2),
-                Size = new Vector2(64, 64)
+                Size = new Vector2(64, 64),
+                Layer = 0.6f
             })
             .With(new Sprite
             {

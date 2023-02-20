@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dungineer.Components;
+namespace Dungineer.Components.GameWorld;
 
 public class Wardrobe : Component
 {

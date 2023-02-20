@@ -1,11 +1,11 @@
-﻿using Dungineer.Components;
+﻿using Dungineer.Components.GameWorld;
 using Engine;
 using Engine.Components;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Dungineer.Prefabs;
+namespace Dungineer.Prefabs.Entities;
 
 public class MapItemsPrefab : IPrefab<List<Entity>>
 {
@@ -14,7 +14,7 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
     {
         this.map = map;
     }
-    public List<Entity> Instantiate(BaseGame game )
+    public List<Entity> Instantiate(BaseGame game)
     {
         var ents = new List<Entity>
         {
@@ -25,7 +25,7 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
         {
             ents.Add(
                 CreateGhost(
-                    game, 
+                    game,
                     ents
                         .Where(t => t.Components.Any(g => g is MapObject))
                         .Select(b => b.GetComponent<MapObject>())
@@ -69,8 +69,8 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
         var ent = new Entity(game)
             .With(new MapObject
             {
-                MapX = map.GroundTiles.GetLength(0)/2,
-                MapY = map.GroundTiles.GetLength(1)/2,
+                MapX = map.GroundTiles.GetLength(0) / 2,
+                MapY = map.GroundTiles.GetLength(1) / 2,
                 Tint = Color.White,
                 Type = MapObjectType.Human,
             })

@@ -34,10 +34,10 @@ public class SpriteRenderSystem : BaseSystem
     public override void Draw(GameTime gameTime, IEnumerable<Entity> entities)
      {
         sb.Begin(
-            sortMode: SpriteSortMode.FrontToBack,
+            sortMode: SpriteSortMode.BackToFront,
             blendState: BlendState.NonPremultiplied,
             samplerState: SamplerState.PointClamp,
-            depthStencilState: DepthStencilState.DepthRead,
+            depthStencilState: DepthStencilState.Default,
             rasterizerState: RasterizerState.CullCounterClockwise,
             effect: null,
             transformMatrix: null); //camera here todo

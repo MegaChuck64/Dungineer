@@ -34,7 +34,7 @@ public class ButtonPrefab : IPrefab<Entity>
             {
                 Position = new Vector2(2, 2),
                 Size = new Vector2(100, 50),
-                Layer = 0.5f,
+                Layer = 0.9f,
             })
             .With(spr)
             .With(new Text

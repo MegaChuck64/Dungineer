@@ -28,7 +28,14 @@ public class FontRenderSystem : BaseSystem
 
     public override void Draw(GameTime gameTime, IEnumerable<Entity> entities)
     {
-        sb.Begin();
+        sb.Begin(
+            sortMode: SpriteSortMode.BackToFront,
+            blendState: BlendState.NonPremultiplied,
+            samplerState: SamplerState.PointClamp,
+            depthStencilState: DepthStencilState.Default,
+            rasterizerState: RasterizerState.CullCounterClockwise,
+            effect: null,
+            transformMatrix: null); //camera here todo
 
         foreach (var entity in entities)
         {
@@ -45,7 +52,7 @@ public class FontRenderSystem : BaseSystem
                 {
                     var line = lines[i];
                     var pos = transform.Position + text.Offset + new Vector2(0, lineHeight * i + 2);
-                    sb.DrawString(font, line, pos, text.Tint);
+                    sb.DrawString(font, line, pos, text.Tint, 0f, Vector2.Zero, 1f, SpriteEffects.None, transform.Layer);
                 }
             }
         }

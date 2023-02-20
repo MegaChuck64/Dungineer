@@ -12,13 +12,10 @@ namespace Dungineer;
 
 public class MainGame : BaseGame
 {
-    public const string MenuScene = "Menu";
-    public const string CharacterCreationScene = "CharacterCreation";
-    public const string PlayScene = "Play";
+    //1440x896
     public MainGame() : base(Settings.Seed, Settings.TileSize * 45, Settings.TileSize * 28)
     {
-
-        BackgroundColor = new Color(10, 10, 10);
+        BackgroundColor = new Color(20, 20, 20);
         IsMouseVisible = false;
     }
 
@@ -39,7 +36,7 @@ public class MainGame : BaseGame
         BuildCharacterSelectScene();
         BuildPlayScene();
 
-        SceneManager.ChangeScene(MenuScene);
+        SceneManager.ChangeScene("Menu");
     }
 
     private void AddSystems()
@@ -87,37 +84,37 @@ public class MainGame : BaseGame
     }
     private void BuildMenuScene()
     {
-        SceneManager.AddScene(MenuScene);
+        SceneManager.AddScene("Menu");
 
-        var scenePrefab = new MenuScenePrefab();
+        var scenePrefab = new MenuScene();
         var ents = scenePrefab.Instantiate(this);
         foreach (var ent in ents)
         {
-            SceneManager.AddEntity(MenuScene, ent);
+            SceneManager.AddEntity("Menu", ent);
         }
     }
 
     private void BuildCharacterSelectScene()
     {
-        SceneManager.AddScene(CharacterCreationScene);
+        SceneManager.AddScene("CharacterCreation");
 
         var scenePrefab = new CharacterCreationScene();
         var ents = scenePrefab.Instantiate(this);
         foreach (var ent in ents)
         {
-            SceneManager.AddEntity(CharacterCreationScene, ent);
+            SceneManager.AddEntity("CharacterCreation", ent);
         }
     }
 
     private void BuildPlayScene()
     {
-        SceneManager.AddScene(PlayScene);
+        SceneManager.AddScene("Play");
 
-        var scenePrefab = new PlayScenePrefab();
+        var scenePrefab = new PlayScene();
         var ents = scenePrefab.Instantiate(this);
         foreach (var ent in ents)
         {
-            SceneManager.AddEntity(PlayScene, ent);
+            SceneManager.AddEntity("Play", ent);
         }
     }
 
