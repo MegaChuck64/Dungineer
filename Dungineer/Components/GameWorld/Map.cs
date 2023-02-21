@@ -32,7 +32,7 @@ public class Map : Component
         if (ObjectTiles.Any(t => t.X == x && t.Y == y && Settings.TileAtlas[t.Type].Solid))
             return false;
 
-        if (mapObjects.Any(c => c.MapX == x && c.MapY == y))
+        if (mapObjects.Any(c => c.MapX == x && c.MapY == y && !Settings.MapObjectAtlas[c.Type].Collectable))
             return false;
 
         return true;
@@ -45,7 +45,7 @@ public class Map : Component
             .Where(t =>
             !Settings.TileAtlas[GroundTiles[t.x, t.y].Type].Solid &&
             !ObjectTiles.Any(v => v.X == t.x && v.Y == t.y && Settings.TileAtlas[v.Type].Solid) &&
-            !mapObjects.Any(g => g.MapX == t.x && g.MapY == t.y)).ToList();
+            !mapObjects.Any(g => g.MapX == t.x && g.MapY == t.y && !Settings.MapObjectAtlas[g.Type].Collectable)).ToList();
 
         return filterMapObjects;
     }

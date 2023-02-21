@@ -45,7 +45,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
                     var playerObj = player.GetComponent<MapObject>();
                     playerObj.Scale = 1f;
                     var map = SceneManager.Entities.First(t => t.HasTag("Map")).GetComponent<Map>();
-                    var mapObjs = SceneManager.Entities.Where(y => y.Components.Any(g => g is MapObject)).Select(n => n.GetComponent<MapObject>());
+                    var mapObjs = SceneManager.ComponentsOfType<MapObject>();
                     var playerPos = map.GetRandomEmptyTile(game, mapObjs.ToArray());
                     playerObj.MapX = playerPos.x;
                     playerObj.MapY = playerPos.y;

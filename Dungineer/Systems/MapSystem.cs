@@ -25,6 +25,7 @@ public class MapSystem : BaseSystem
     private readonly Texture2D tileSelectTexture;
     private readonly SpriteBatch sb;
 
+    private List<Entity> entitiesToRemove = new List<Entity>();
 
     public MapSystem(BaseGame game, ContentManager content) : base(game)
     {
@@ -52,10 +53,7 @@ public class MapSystem : BaseSystem
                 var playerObject = ent.GetComponent<MapObject>();
                 if (MouseWasClicked && MapPixelBounds.Contains(mouseState.Position))
                 {
-                    MovePlayer(playerObject, map, entities
-                                .Where(g => g.Components.Any(h => h is MapObject))
-                                .Select(n => n.GetComponent<MapObject>())
-                                .ToArray());
+                    MovePlayer(playerObject, map, SceneManager.ComponentsOfType<MapObject>().ToArray());
                 }
             }
             else if (ent.HasTag("Ghost"))
@@ -65,10 +63,7 @@ public class MapSystem : BaseSystem
                 if (MouseWasClicked && MapPixelBounds.Contains(mouseState.Position))
                 {
 
-                    MoveGhost(ghostObj, player, map, entities
-                            .Where(g => g.Components.Any(h => h is MapObject))
-                            .Select(n => n.GetComponent<MapObject>())
-                            .ToArray());
+                    MoveGhost(ghostObj, player, map, SceneManager.ComponentsOfType<MapObject>().ToArray());
                 }
             }
             else if (ent.HasTag("Cursor"))
@@ -76,6 +71,12 @@ public class MapSystem : BaseSystem
                 ent.GetComponent<UIElement>().IsActive = !MapPixelBounds.Contains(mouseState.Position);
             }
         }
+
+        foreach (var ent in entitiesToRemove)
+        {
+            SceneManager.RemoveEntity(SceneManager.CurrentScene, ent);
+        }
+        entitiesToRemove.Clear();
     }
 
 
@@ -257,6 +258,30 @@ public class MapSystem : BaseSystem
             var nextStep = path.First();
             player.MapX = nextStep.X;
             player.MapY = nextStep.Y;
+
+            if (mapObjects.Any(t=>t.MapX == player.MapX && t.MapY == player.MapY && Settings.MapObjectAtlas[t.Type].Collectable))
+            {
+                var collectables = mapObjects
+                    .Where(t => t.MapX == player.MapX && t.MapY == player.MapY && Settings.MapObjectAtlas[t.Type].Collectable)
+                    .ToList();
+
+                for (int i = 0; i < collectables.Count; i++)
+                {
+                    switch (collectables[i].Type)
+                    {
+                        case MapObjectType.Arcanium:
+                            var playerEntity = SceneManager.GetEntityWithComponent(player);
+                            if (playerEntity != null)
+                            {
+                                var stats = playerEntity.GetComponent<CreatureStats>();
+                                stats.Money += Game.Rand.Next(1, 10);
+
+                                entitiesToRemove.Add(SceneManager.GetEntityWithComponent(collectables[i]));
+                            }
+                            break;
+                    }
+                }
+            }
         }
     }
 
@@ -303,7 +328,7 @@ public class MapSystem : BaseSystem
 
                 var hasGroundCollision = groundTile.Solid;
                 var hasObjectCollision = objectTiles.Any(y => y.Solid);
-                var hasItemCollision = mapObjects.Any(g => g.MapX == x && g.MapY == y);
+                var hasItemCollision = mapObjects.Any(g => g.MapX == x && g.MapY == y && !Settings.MapObjectAtlas[g.Type].Collectable);
 
                 grid[x, y] = !hasGroundCollision && !hasObjectCollision && !hasItemCollision;
             }

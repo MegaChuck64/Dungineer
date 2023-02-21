@@ -31,12 +31,9 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
         {
             for (int y= 0; y < map.GroundTiles.GetLength(1); y++)
             {
-                var mapObjs = ents
-                    .Where(t => t.Components.Any(g => g is MapObject))
-                    .Select(b => b.GetComponent<MapObject>())
-                    .ToArray();
+                var mapObjs = SceneManager.ComponentsOfType<MapObject>();
 
-                if (map.IsEmpty(x,y,mapObjs))
+                if (map.IsEmpty(x, y, mapObjs.ToArray()))
                 {
                     if (game.Rand.NextSingle() <= itemSpawnRate)
                     {
@@ -46,10 +43,10 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
                             case MapObjectType.Human:
                                 break;
                             case MapObjectType.Ghost:
-                                ents.Add(CreateGhost(game, x, y));
+                                ents.Add(CreateGhost(x, y));
                                 break;
                             case MapObjectType.Arcanium:
-                                ents.Add(CreateAracanium(game, x, y));
+                                ents.Add(CreateAracanium(x, y));
                                 break;
                             default:
                                 break;
@@ -64,7 +61,7 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
     }
 
 
-    private Entity CreateGhost(BaseGame game, int x, int y)
+    private Entity CreateGhost(int x, int y)
     {
         var ent = new Entity()
             .With(new MapObject
@@ -93,7 +90,7 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
         return ent;
     }
 
-    private Entity CreateAracanium(BaseGame game, int x, int y)
+    private Entity CreateAracanium(int x, int y)
     {
         var ent = new Entity()
             .With(new MapObject

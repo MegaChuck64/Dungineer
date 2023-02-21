@@ -113,6 +113,7 @@ public struct MapObjectInfo
 
     public int LotteryValue { get; set; }
 
+    public bool Collectable { get; set; }
 }
 
 public enum MapObjectType

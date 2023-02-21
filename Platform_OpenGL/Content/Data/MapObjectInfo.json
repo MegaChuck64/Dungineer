@@ -10,7 +10,8 @@
       "Height": 32
     },
 
-    "LotteryValue":  5
+    "LotteryValue": 5,
+    "Collectable": false
   },
   {
     "Name": "Human",
@@ -23,7 +24,8 @@
       "Height": 32
     },
 
-    "LotteryValue": 1
+    "LotteryValue": 1,
+    "Collectable": false
   },
   {
     "Name": "Arcanium",
@@ -35,6 +37,7 @@
       "Width": 32,
       "Height": 32
     },
-    "LotteryValue": 4
+    "LotteryValue": 4,
+    "Collectable": true
   }
 ]
