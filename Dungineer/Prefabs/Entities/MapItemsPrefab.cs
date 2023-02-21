@@ -8,40 +8,69 @@ namespace Dungineer.Prefabs.Entities;
 
 public class MapItemsPrefab : IPrefab<List<Entity>>
 {
-    private Map map;
+    private readonly Map map;
     public MapItemsPrefab(Map map)
     {
         this.map = map;
     }
     public List<Entity> Instantiate(BaseGame game)
     {
-        var ents = new List<Entity>
-        {
-            //CreatePlayer(game)
-        };
+        var ents = new List<Entity>();
 
-        for (int i = 0; i < 3; i++)
+        var itemSpawnRate = 0.06f;
+        var mapItemLottery = new List<MapObjectType>();
+        foreach (var mapObj in Settings.MapObjectAtlas)
         {
-            ents.Add(
-                CreateGhost(
-                    game,
-                    ents
-                        .Where(t => t.Components.Any(g => g is MapObject))
-                        .Select(b => b.GetComponent<MapObject>())
-                        .ToArray()));
+            for (int i = 0; i < mapObj.Value.LotteryValue; i++)
+            {
+                mapItemLottery.Add(mapObj.Key);
+            }
         }
+
+        for (int x = 0; x < map.GroundTiles.GetLength(0); x++)
+        {
+            for (int y= 0; y < map.GroundTiles.GetLength(1); y++)
+            {
+                var mapObjs = ents
+                    .Where(t => t.Components.Any(g => g is MapObject))
+                    .Select(b => b.GetComponent<MapObject>())
+                    .ToArray();
+
+                if (map.IsEmpty(x,y,mapObjs))
+                {
+                    if (game.Rand.NextSingle() <= itemSpawnRate)
+                    {
+                        var itemType = mapItemLottery[game.Rand.Next(mapItemLottery.Count)];
+                        switch (itemType)
+                        {
+                            case MapObjectType.Human:
+                                break;
+                            case MapObjectType.Ghost:
+                                ents.Add(CreateGhost(game, x, y));
+                                break;
+                            case MapObjectType.Arcanium:
+                                ents.Add(CreateAracanium(game, x, y));
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                
+            }
+        }
+        
         return ents;
     }
 
 
-    private Entity CreateGhost(BaseGame game, params MapObject[] mapObjs)
+    private Entity CreateGhost(BaseGame game, int x, int y)
     {
-        var ghostPos = map.GetRandomEmptyTile(game, mapObjs);
         var ent = new Entity()
             .With(new MapObject
             {
-                MapX = ghostPos.x,
-                MapY = ghostPos.y,
+                MapX = x,
+                MapY = y,
                 Tint = Color.White,
                 Type = MapObjectType.Ghost
             })
@@ -54,34 +83,29 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
                 MaxStamina = 10,
 
                 MoveSpeed = 0.75f,
+
+                SightRange = 6,
+
+                Money = 0,
             })
             .WithTag("Ghost");
 
         return ent;
     }
-    private Entity CreatePlayer(BaseGame game)
-    {
 
+    private Entity CreateAracanium(BaseGame game, int x, int y)
+    {
         var ent = new Entity()
             .With(new MapObject
             {
-                MapX = map.GroundTiles.GetLength(0) / 2,
-                MapY = map.GroundTiles.GetLength(1) / 2,
+                MapX = x,
+                MapY = y,
                 Tint = Color.White,
-                Type = MapObjectType.Human,
+                Type = MapObjectType.Arcanium
             })
-            .With(new CreatureStats
-            {
-                Health = 20,
-                MaxHealth = 20,
-
-                Stamina = 20,
-                MaxStamina = 20,
-
-                MoveSpeed = 1f
-            })
-            .WithTag("Player");
+            .WithTag("Arcanium");
 
         return ent;
     }
+
 }

@@ -8,7 +8,9 @@
       "Y": 0,
       "Width": 32,
       "Height": 32
-    }
+    },
+
+    "LotteryValue":  5
   },
   {
     "Name": "Human",
@@ -19,7 +21,9 @@
       "Y": 0,
       "Width": 32,
       "Height": 32
-    }
+    },
+
+    "LotteryValue": 1
   },
   {
     "Name": "Arcanium",
@@ -30,6 +34,7 @@
       "Y": 0,
       "Width": 32,
       "Height": 32
-    }
+    },
+    "LotteryValue": 4
   }
 ]

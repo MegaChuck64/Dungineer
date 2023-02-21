@@ -111,6 +111,8 @@ public struct MapObjectInfo
     public Rectangle Source { get; set; }
     public string Description { get; set; }
 
+    public int LotteryValue { get; set; }
+
 }
 
 public enum MapObjectType
