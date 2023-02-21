@@ -11,11 +11,7 @@ public class MenuScene : IPrefab<List<Entity>>
 {
     public List<Entity> Instantiate(BaseGame game)
     {
-        var ents = new List<Entity>
-        {
-            //wizard picture
-            //play button          
-        };
+        var ents = new List<Entity>();
         /*
             Maybe a palette?
 
@@ -26,7 +22,7 @@ public class MenuScene : IPrefab<List<Entity>>
 
         */
 
-        //wizard image
+        //wizard imaged
         var imageEnt = new Entity()
             .With(new UIElement
             {

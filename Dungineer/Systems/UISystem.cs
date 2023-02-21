@@ -1,38 +1,28 @@
 ﻿using Dungineer.Components.UI;
 using Engine;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 
 namespace Dungineer.Systems;
 
 public class UISystem : BaseSystem
 {
-    //buttons
-    //panels
-    //input
-    //text
-    //images
 
-    /*
-     * Entity transform is the base panel
-     * each item has there own offset
-     */
+    private List<UIElement> entered = new();
+    private Dictionary<string, MouseTint> selected = new();
 
-    private List<UIElement> entered = new List<UIElement>();
-    private Dictionary<string, MouseTint> selected = new Dictionary<string, MouseTint>();
     private MouseState mouseState;
     private MouseState lastMouseState;
     private KeyboardState keyState;
     private KeyboardState lastKeyState;
+    
     private SpriteBatch sb;
 
     private Dictionary<string, Texture2D> textures = new ();
     private Dictionary<string, SpriteFont> fonts = new();
+    
     public UISystem(BaseGame game) : base(game)
     {
         sb = new SpriteBatch(game.GraphicsDevice);
