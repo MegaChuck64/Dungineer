@@ -1,6 +1,6 @@
 ﻿using Dungineer.Components.GameWorld;
+using Dungineer.Components.UI;
 using Engine;
-using Engine.Components;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -57,20 +57,14 @@ public class MapSystem : BaseSystem
     {
         if (SceneManager.CurrentScene != "Play") return;
 
-        var map = entities.First(t => t.Components.Any(v => v is Map)).GetComponent<Map>();
+        var map = entities.FirstOrDefault(t => t.Components.Any(v => v is Map))?.GetComponent<Map>();
 
         lastMouseState = mouseState;
         mouseState = Mouse.GetState();
 
         foreach (var ent in entities)
         {
-            if (ent.HasTag("Cursor"))
-            {
-                var cursorSprite = ent.GetComponent<Sprite>();
-
-                cursorSprite.IsActive = MapPixelBounds.Contains(mouseState.Position) == false;
-            }
-            else if (ent.HasTag("Player"))
+            if (ent.HasTag("Player"))
             {
                 var playerObject = ent.GetComponent<MapObject>();
                 if (WasPressed && MapPixelBounds.Contains(mouseState.Position))
@@ -94,6 +88,10 @@ public class MapSystem : BaseSystem
                             .ToArray());
                 }
             }
+            else if (ent.HasTag("Cursor"))
+            {
+                ent.GetComponent<UIElement>().IsActive = !MapPixelBounds.Contains(mouseState.Position);
+            }
         }
     }
 
@@ -104,6 +102,7 @@ public class MapSystem : BaseSystem
         var texture = Settings.TextureAtlas[mapObjectInfo.TextureName];
 
         var bnds = GetTileBounds(mapObject.MapX, mapObject.MapY);
+        bnds = new Rectangle(bnds.X, bnds.Y, (int)(bnds.Width * mapObject.Scale), (int)(bnds.Height * mapObject.Scale));
 
         sb.Draw(
             texture,
@@ -111,7 +110,7 @@ public class MapSystem : BaseSystem
             mapObjectInfo.Source,
             mapObject.Tint,
             0f,
-            Vector2.Zero,
+            mapObject.Scale == 1f ? Vector2.Zero : new Vector2(bnds.Width/2, bnds.Height/2),
             SpriteEffects.None,
             itemLayer);
 
@@ -125,6 +124,20 @@ public class MapSystem : BaseSystem
         var bnds = GetTileBounds(tile.X, tile.Y);
 
         sb.Draw(texture, bnds, tileInfo.Source, tile.Tint, 0f, Vector2.Zero, SpriteEffects.None, layer);
+
+        if (bnds.Contains(mouseState.Position))
+        {
+            sb.Draw(
+                tileSelectTexture,
+                bnds,
+                new Rectangle(0, 0, 32, 32),
+                Color.White,
+                0f,
+                Vector2.Zero,
+                SpriteEffects.None,
+                layer + 0.1f);
+        }
+        
     }
     private void DrawMap(Entity ent)
     {
@@ -150,7 +163,7 @@ public class MapSystem : BaseSystem
 
     public override void Draw(GameTime gameTime, IEnumerable<Entity> entities)
     {
-        if (SceneManager.CurrentScene != "Play") return;
+        //if (SceneManager.CurrentScene != "Play") return;
 
         //DRAWING
         sb.Begin(
@@ -162,30 +175,15 @@ public class MapSystem : BaseSystem
             effect: null,
             transformMatrix: null); //camera here todo
 
+
+
+
+
         foreach (var ent in entities)
         {
             if (ent.HasTag("Map"))
             {
                 DrawMap(ent);
-            }
-            else if (ent.HasTag("Cursor"))
-            {
-                var cursorTransform = ent.GetComponent<Transform>();
-                var cursorSprite = ent.GetComponent<Sprite>();
-
-                if (!cursorSprite.IsActive)
-                {
-                    sb.Draw(
-                        tileSelectTexture,
-                        GetTileBounds(MouseTilePosition),
-                        null,
-                        Color.White,
-                        0f,
-                        Vector2.Zero,
-                        SpriteEffects.None,
-                        effectLayer);
-                }
-
             }
             else if (ent.GetComponent<MapObject>() is MapObject mapObj)
             {
@@ -198,8 +196,16 @@ public class MapSystem : BaseSystem
                         var wtxt = Settings.TextureAtlas[winfo.TextureName];
 
                         var bnds = GetTileBounds(mapObj.MapX, mapObj.MapY);
-
-                        sb.Draw(wtxt, bnds, winfo.Source, mapObj.Tint, 0f, Vector2.Zero, SpriteEffects.None, itemLayer + 0.1f);
+                        bnds = new Rectangle(bnds.X, bnds.Y, (int)(bnds.Width * mapObj.Scale), (int)(bnds.Height * mapObj.Scale));
+                        sb.Draw(
+                            wtxt, 
+                            bnds, 
+                            winfo.Source, 
+                            mapObj.Tint, 
+                            0f, 
+                            mapObj.Scale == 1f ? Vector2.Zero : new Vector2(bnds.Width/2, bnds.Height/2), 
+                            SpriteEffects.None, 
+                            itemLayer + 0.1f);
                     }
                 }
             }

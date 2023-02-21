@@ -14,7 +14,7 @@ public class MapObject : Component
     public int MapY { get; set; }
     public MapObjectType Type { get; set; }
     public Color Tint { get; set; }
-
+    public float Scale { get; set; } = 1f;
     public MapObject(bool isActive = true) : base(isActive)
     {
 

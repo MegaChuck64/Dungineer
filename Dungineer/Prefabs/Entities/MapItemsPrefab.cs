@@ -1,6 +1,5 @@
 ﻿using Dungineer.Components.GameWorld;
 using Engine;
-using Engine.Components;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,10 +55,7 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
 
                 MoveSpeed = 0.75f,
             })
-            .With(new Tag
-            {
-                Value = "Ghost"
-            });
+            .WithTag("Ghost");
 
         return ent;
     }
@@ -84,10 +80,8 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
 
                 MoveSpeed = 1f
             })
-            .With(new Tag
-            {
-                Value = "Player"
-            });
+            .WithTag("Player");
+
         return ent;
     }
 }

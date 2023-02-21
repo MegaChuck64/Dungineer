@@ -7,6 +7,7 @@
     "HealthMod": 1.25,
     "StaminaMod": 1.1,
     "MoveSpeedMod": 1.1,
+    "Cost": 3,
     "Source": {
       "X": 0,
       "Y": 0,
@@ -23,6 +24,7 @@
     "HealthMod": 1.4,
     "StaminaMod": 1.4,
     "MoveSpeedMod": 1.4,
+    "Cost": 7,
     "Source": {
       "X": 32,
       "Y": 0,
@@ -38,6 +40,7 @@
     "HealthMod": 1.5,
     "StaminaMod": 1,
     "MoveSpeedMod": 1.75,
+    "Cost": 12,
     "Source": {
       "X": 64,
       "Y": 0,
@@ -53,6 +56,7 @@
     "HealthMod": 2,
     "StaminaMod": 2,
     "MoveSpeedMod": 12,
+    "Cost": 20,
     "Source": {
       "X": 96,
       "Y": 0,

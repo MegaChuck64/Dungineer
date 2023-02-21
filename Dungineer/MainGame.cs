@@ -1,12 +1,8 @@
-﻿using Dungineer.Prefabs;
-using Dungineer.Prefabs.Scenes;
+﻿using Dungineer.Prefabs.Scenes;
 using Dungineer.Systems;
 using Engine;
-using Engine.Systems;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
 
 namespace Dungineer;
 
@@ -41,44 +37,43 @@ public class MainGame : BaseGame
 
     private void AddSystems()
     {
-        //mouse input
-        Systems.Add(new MouseInputSystem(this));
+       // Systems.Add(new MouseInputSystem(this));
 
-        Systems.Add(new CharacterCreationSystem(this));
+       // Systems.Add(new CharacterCreationSystem(this));
 
         Systems.Add(new MapSystem(this, Content));
 
-        //sprites
-        var textureNames = new string[]
-        {
-            "ghost_32",
-            "GnomeMage_32",
-            "grounds_32",
-            "hand_32",
-            "HumanFighter_32",
-            "trees_32",
-            "ui_box_select_32",
-            "weapons_32",
-            "WizardPortraits_512",
-            "cursor_16",
-            "symbols_32",
-            "robes_32",
-        };
-        Systems.Add(new SpriteRenderSystem(this, Content, textureNames));
+        Systems.Add(new UISystem(this));
 
 
-        //fonts
-        var fontNames = new string[]
-        {
-            "consolas_12",
-            "consolas_14",
-            "consolas_22"
-        };
-        Systems.Add(new FontRenderSystem(this, Content, fontNames));
+        ////sprites
+        //var textureNames = new string[]
+        //{
+        //    "ghost_32",
+        //    "GnomeMage_32",
+        //    "grounds_32",
+        //    "hand_32",
+        //    "HumanFighter_32",
+        //    "trees_32",
+        //    "ui_box_select_32",
+        //    "weapons_32",
+        //    "WizardPortraits_512",
+        //    "cursor_16",
+        //    "symbols_32",
+        //    "robes_32",
+        //};
+        //Systems.Add(new SpriteRenderSystem(this, Content, textureNames));
 
-        Systems.Add(new UISystem(this, "consolas_14"));
 
-        //Systems.Add(new PlayerSystem(this));
+        ////fonts
+        //var fontNames = new string[]
+        //{
+        //    "consolas_12",
+        //    "consolas_14",
+        //    "consolas_22"
+        //};
+        //Systems.Add(new FontRenderSystem(this, Content, fontNames));
+
 
 
     }

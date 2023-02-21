@@ -1,5 +1,4 @@
-﻿using Engine.Components;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Engine;
@@ -9,6 +8,8 @@ public class Entity
     public BaseGame Game { get; private set; }
 
     public List<Component> Components { get; private set; }
+
+    public List<string> Tags { get; private set; } = new List<string>();
     public Entity(BaseGame game, params Component[] comps)
     {
         Game = game;
@@ -29,8 +30,14 @@ public class Entity
         return this;
     }
     
+    public Entity WithTag(string tag)
+    {
+        Tags.Add(tag);
+        return this;
+    }
+
     public bool HasTag(string val) => 
-        Components.Any(t => t is Tag tag && tag.Value == val);
+        Tags.Any(t=>t == val);
     
 }
 

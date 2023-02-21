@@ -14,4 +14,5 @@ public class CreatureStats : Component
     public int Stamina { get; set; }
     public int MaxStamina { get; set; }
     public float MoveSpeed { get; set; }
+    public int Money { get; set; }
 }

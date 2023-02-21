@@ -1,6 +1,5 @@
-﻿using Dungineer.Components;
+﻿using Dungineer.Components.UI;
 using Engine;
-using Engine.Components;
 using Microsoft.Xna.Framework;
 
 namespace Dungineer.Prefabs.Entities;
@@ -9,26 +8,23 @@ public class CursorPrefab : IPrefab<Entity>
 {
     public Entity Instantiate(BaseGame game)
     {
-        var entity = new Entity(game)
-            .With(new Transform
+        var cursor = new Entity(game)
+            .With(new UIElement
             {
-                Position = Vector2.Zero,
-                Size = new Vector2(16, 16),
-                Layer = 0.5f
+                Position = Point.Zero,
+                Size = new Point(16, 16),
             })
-            .With(new Sprite
+            .With(new Image
             {
-                TextureName = "cursor_16",
+                Layer = 0.9f,
+                Position = Point.Zero,
+                Size = new Point(1, 1),
                 Source = new Rectangle(0, 0, 16, 16),
-                Tint = Color.White,
-                Offset = Vector2.Zero
+                TextureName = "cursor_16",
+                Tint = Color.White
             })
-            .With(new Tag
-            {
-                Value = "Cursor"
-            });
+            .WithTag("Cursor");
 
-
-        return entity;
+        return cursor;
     }
 }

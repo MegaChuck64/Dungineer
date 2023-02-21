@@ -1,84 +1,253 @@
-﻿using Dungineer.Components.GameWorld;
+﻿using Dungineer.Components.UI;
 using Engine;
-using Engine.Components;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using System;
+using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace Dungineer.Systems;
 
 public class UISystem : BaseSystem
 {
-    private readonly SpriteBatch sb;
-    int frameRate = 0;
-    int frameCounter = 0;
-    TimeSpan elapsedTime = TimeSpan.Zero;
-    public SpriteFont Font { get; set; }
-    public UISystem(BaseGame game, string fontName) : base(game)
+    //buttons
+    //panels
+    //input
+    //text
+    //images
+
+    /*
+     * Entity transform is the base panel
+     * each item has there own offset
+     */
+
+    private List<UIElement> entered = new List<UIElement>();
+    private Dictionary<string, MouseTint> selected = new Dictionary<string, MouseTint>();
+    private MouseState mouseState;
+    private MouseState lastMouseState;
+    private KeyboardState keyState;
+    private KeyboardState lastKeyState;
+    private SpriteBatch sb;
+
+    private Dictionary<string, Texture2D> textures = new ();
+    private Dictionary<string, SpriteFont> fonts = new();
+    public UISystem(BaseGame game) : base(game)
     {
         sb = new SpriteBatch(game.GraphicsDevice);
-        Font = ContentLoader.LoadFont(fontName, game.Content);
+        LoadTextures(game);
+        LoadFonts(game);
+
+    }
+    private void LoadFonts(BaseGame game)
+    {
+        fonts.Add("consolas_12",
+            ContentLoader.LoadFont("consolas_12", game.Content));
+
+        fonts.Add("consolas_14",
+            ContentLoader.LoadFont("consolas_14", game.Content));
+
+        fonts.Add("consolas_22",
+            ContentLoader.LoadFont("consolas_22", game.Content));
+    }
+
+    private void LoadTextures(BaseGame game)
+    {
+
+        textures.Add(
+            "WizardPortraits_512",
+            ContentLoader.LoadTexture("WizardPortraits_512", game.Content));
+
+
+        var pxl = new Texture2D(game.GraphicsDevice, 1, 1);
+        pxl.SetData(new Color[] { Color.White });
+        textures.Add("_pixel", pxl);
+
+        textures.Add(
+            "cursor_16",
+            ContentLoader.LoadTexture("cursor_16", game.Content));
+
+        textures.Add(
+            "symbols_32",
+            ContentLoader.LoadTexture("symbols_32", game.Content));
+
+        textures.Add(
+            "robes_32",
+            ContentLoader.LoadTexture("robes_32", game.Content));
     }
 
     public override void Update(GameTime gameTime, IEnumerable<Entity> entities)
     {
-        var playerStats = entities.FirstOrDefault(t => t.HasTag("Player"))?.GetComponent<CreatureStats>();
-        if (playerStats == null) return;
+        lastMouseState = mouseState;
+        mouseState = Mouse.GetState();
 
-        foreach (var ent in entities)
-        {            
-            if (ent.HasTag("Stat Panel"))
+        lastKeyState = keyState;
+        keyState = Keyboard.GetState();
+
+
+        foreach (var entity in entities)
+        {
+            var ui = entity.GetComponent<UIElement>();
+
+            if (ui == null || !ui.IsActive)
+                continue;
+
+            var bounds = ui.Bounds;
+
+            if (entity.HasTag("Cursor"))
             {
-                if (ent.GetComponent<Text>() is Text text)
-                {
-                    text.Content = playerStats.Health + "/" + playerStats.MaxHealth;
-                }
+                ui.Position = mouseState.Position;
             }
 
-        }
 
+            if (bounds.Contains(mouseState.Position))
+            {
+                if (!entered.Contains(ui))
+                {
+                    entered.Add(ui);
+                    ui.OnMouseEnter?.Invoke();
+                }
 
-        elapsedTime += gameTime.ElapsedGameTime;
+                if (WasPressed(MouseButton.Left))
+                {
+                    ui.OnMousePressed?.Invoke(MouseButton.Left);
+                }
+                if (WasReleased(MouseButton.Left))
+                {
+                    ui.OnMouseReleased?.Invoke(MouseButton.Left);
+                }
 
-        if (elapsedTime > TimeSpan.FromSeconds(1))
-        {
-            elapsedTime -= TimeSpan.FromSeconds(1);
-            frameRate = frameCounter;
-            frameCounter = 0;
+            }
+            else
+            {
+                if (entered.Contains(ui))
+                {
+                    entered.Remove(ui);
+                    ui.OnMouseLeave?.Invoke();
+                }
+            }        
+
         }
     }
+
+
 
     public override void Draw(GameTime gameTime, IEnumerable<Entity> entities)
     {
         sb.Begin(
-            sortMode: SpriteSortMode.FrontToBack,
-            blendState: BlendState.NonPremultiplied,
-            samplerState: SamplerState.PointClamp,
-            depthStencilState: DepthStencilState.DepthRead,
-            rasterizerState: RasterizerState.CullCounterClockwise,
-            effect: null,
-            transformMatrix: null); //camera here todo... probably no ui camera needed actually
+          sortMode: SpriteSortMode.FrontToBack,
+          blendState: BlendState.NonPremultiplied,
+          samplerState: SamplerState.PointClamp,
+          depthStencilState: DepthStencilState.DepthRead,
+          rasterizerState: RasterizerState.CullCounterClockwise,
+          effect: null,
+          transformMatrix: null); //camera here todo
 
-        frameCounter++;
+        foreach (var entity in entities)
+        {
+            var ui = entity.GetComponent<UIElement>();
 
-        var fps = $"FPS: {frameRate}";
-        sb.DrawString(
-            Font, 
-            fps, 
-            new Vector2(
-                4 * Game.WindowRatio, 
-                Game.Height - Font.MeasureString(fps).Y - (4 * Game.WindowRatio)), 
-            Color.Yellow, 
-            0f, 
-            Vector2.Zero, 
-            1f, 
-            SpriteEffects.None, 
-            0.9f);
+            if (ui == null || !ui.IsActive)
+                continue;
 
+            var bounds = ui.Bounds;
 
+            foreach (var img in entity.GetComponents<Image>())
+            {
+
+                var tint = img.Tint;
+
+                if (entity.GetComponent<MouseTint>() is MouseTint mouseTint)
+                {
+                    tint = mouseTint.DefaultColor;
+
+                    if (selected.ContainsKey(mouseTint.SelectionGroup) && selected[mouseTint.SelectionGroup] == mouseTint)
+                    {
+                        tint = mouseTint.SelectedColor;
+                        mouseTint.Selected = true;
+                    }
+                    else
+                    {
+                        mouseTint.Selected = false;
+                    }
+                    
+                    if (bounds.Contains(mouseState.Position))
+                    {
+                        tint = mouseTint.HoverColor;
+
+                        if (mouseState.LeftButton == ButtonState.Pressed)
+                        {                            
+                            tint = mouseTint.PressedColor;
+                            selected[mouseTint.SelectionGroup] = mouseTint;
+                            mouseTint.Selected = true;                            
+                        }
+                    }
+     
+                }
+
+                DrawImage(img, ui, tint);
+            }
+
+            foreach (var txt in entity.GetComponents<TextBox>())
+            {
+                DrawText(txt, ui);
+            }
+
+        }
 
         sb.End();
     }
+
+
+    private void DrawText(TextBox text, UIElement ui)
+    {
+        var font = fonts[text.FontName];
+        var bounds = ui.Bounds;
+
+        var fontSize = font.MeasureString(text.Text);
+        var pos = new Vector2(bounds.X + (bounds.Width / 2) - (fontSize.X / 2), bounds.Y + (bounds.Height / 2) - (fontSize.Y / 2));
+        sb.DrawString(font, text.Text, pos, text.TextColor, 0f, Vector2.Zero, 1f, SpriteEffects.None, text.Layer);
+    }
+    private void DrawImage(Image image, UIElement ui, Color tint)
+    {
+        var txtr = textures[image.TextureName];
+        var bounds = new Rectangle(ui.Position + image.Position, ui.Size * image.Size);
+        sb.Draw(
+            txtr, 
+            bounds, 
+            image.Source, 
+            tint, 
+            0f, 
+            Vector2.Zero, 
+            SpriteEffects.None, 
+            image.Layer);
+    }
+
+    private bool WasPressed(MouseButton mb) => mb switch
+    {
+        MouseButton.Left => mouseState.LeftButton == ButtonState.Pressed && lastMouseState.LeftButton == ButtonState.Released,
+        MouseButton.Middle => mouseState.MiddleButton == ButtonState.Pressed && lastMouseState.MiddleButton == ButtonState.Released,
+        MouseButton.Right => mouseState.RightButton == ButtonState.Pressed && lastMouseState.RightButton == ButtonState.Released,
+        _ => false,
+    };
+
+    private bool WasReleased(MouseButton mb) => mb switch
+    {
+        MouseButton.Left => mouseState.LeftButton == ButtonState.Released && lastMouseState.LeftButton == ButtonState.Pressed,
+        MouseButton.Middle => mouseState.MiddleButton == ButtonState.Released && lastMouseState.MiddleButton == ButtonState.Pressed,
+        MouseButton.Right => mouseState.RightButton == ButtonState.Released && lastMouseState.RightButton == ButtonState.Pressed,
+        _ => false,
+    };
+
+
+}
+
+
+
+public enum MouseButton
+{
+    Left,
+    Middle,
+    Right
 }

@@ -1,7 +1,6 @@
-﻿using Dungineer.Prefabs.Entities;
+﻿using Dungineer.Components.UI;
+using Dungineer.Prefabs.Entities;
 using Engine;
-using Engine.Components;
-using Engine.Prefabs;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
@@ -15,8 +14,7 @@ public class MenuScene : IPrefab<List<Entity>>
         var ents = new List<Entity>
         {
             //wizard picture
-            //play button
-            new CursorPrefab().Instantiate(game)
+            //play button          
         };
         /*
             Maybe a palette?
@@ -27,29 +25,64 @@ public class MenuScene : IPrefab<List<Entity>>
             #CA3E47         rgb(202, 62, 71) /red
 
         */
-        var playButton = new ButtonPrefab(
-             hoverColor: new Color(82, 82, 82),
-             pressedColor: new Color(49, 49, 49),
-             defaultColor: new Color(65, 65, 65),
-             txtColor: new Color(202, 62, 71),
-             fontName: "consolas_22",
-             text: "Play")
-            .Instantiate(game);
 
-        playButton.GetComponent<MouseInput>()
-            .OnMouseReleased = (mb) =>
+        //wizard image
+        var imageEnt = new Entity(game)
+            .With(new UIElement
             {
-                SceneManager.ChangeScene("CharacterCreation");
-            };
+                Position = new Point((game.Width / 2) - 128, game.Height / 2 - 128),
+                Size = new Point(256, 256),
+            })
+            .With(new Image
+            {
+                Position = Point.Zero,
+                Size = new Point(1, 1),
+                Source = new Rectangle(512 * game.Rand.Next(0, 8), 0, 512, 512),
+                TextureName = "WizardPortraits_512",
+                Tint = Color.White
+            });
+        ents.Add(imageEnt);
 
-        var playTransform = playButton.GetComponent<Transform>();
-        playTransform.Position = new Vector2((game.Width / 2) - 64, game.Height - (64 * 3));
-        playTransform.Size = new Vector2(128, 64);
 
-        var playTxt = playButton.GetComponent<Text>();
-        playTxt.Offset = new Vector2(32, 12);
-        ents.Add(playButton);
+        //play button
+        var btn = new Entity(game)
+            .With(new UIElement
+            {
+                Position = new Point((game.Width / 2) - 64, game.Height - (64 * 3)),
+                Size = new Point(128, 64),
+                OnMouseReleased = (mb) =>
+                {
+                    SceneManager.ChangeScene("CharacterCreation");
+                }
+            })
+            .With(new MouseTint
+            {
+                DefaultColor = new Color(82, 82, 82),
+                HoverColor = new Color(65, 65, 65),
+                PressedColor = new Color(49, 49, 49),
+            })
+            .With(new Image
+            {
+                Layer = 0.8f,
+                Position = Point.Zero,
+                Size = new Point(1, 1),
+                Source = new Rectangle(0, 0, 1, 1),
+                TextureName = "_pixel",
+                Tint = Color.White,
+            })
+            .With(new TextBox
+            {
+                FontName = "consolas_22",
+                Text = "Play",
+                TextColor = new Color(202, 62, 71),
+                Layer = 0.8f,
+            });
+        ents.Add(btn);
+
+        //cursor
+        ents.Add(new CursorPrefab().Instantiate(game));
 
         return ents;
     }
+
 }

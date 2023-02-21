@@ -129,7 +129,7 @@ public struct WardrobeInfo
     public WardrobeSlot Slot { get; set; }
 
     public string Description { get; set; }
-
+    public int Cost { get; set; }
     public float HealthMod { get; set; }
     public float StaminaMod { get; set; }
     public float MoveSpeedMod { get; set; }

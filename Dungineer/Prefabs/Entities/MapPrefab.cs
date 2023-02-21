@@ -1,8 +1,6 @@
 ﻿using Dungineer.Components.GameWorld;
 using Engine;
-using Engine.Components;
 using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
 
 namespace Dungineer.Prefabs.Entities;
@@ -64,31 +62,7 @@ public class MapPrefab : IPrefab<Entity>
                         });
                     }
                 }
-                //}
-                //if (rand > 0.97f)
-                //    objectTiles.Add(new Tile
-                //    {
-                //        X = x,
-                //        Y = y,
-                //        Tint = Color.White,
-                //        Type = TileType.DungeonFloorHole
-                //    });
-                //else if (rand > 0.6f || )
-                //    objectTiles.Add(new Tile
-                //    {
-                //        X = x,
-                //        Y = y,
-                //        Tint = Color.White,
-                //        Type = TileType.DungeonWall
-                //    });
-                //else if (rand > 0.57f)
-                //    objectTiles.Add(new Tile
-                //    {
-                //        X = x,
-                //        Y = y,
-                //        Tint = Color.White,
-                //        Type = TileType.Ghost
-                //    });
+
 
             }
         }
@@ -98,21 +72,10 @@ public class MapPrefab : IPrefab<Entity>
             ObjectTiles = objectTiles
         };
 
-        //var trn = new Transform
-        //{
-        //    Position = new Vector2(),
-        //    Layer = 0.5f,
-        //};
-
-        var tag = new Tag()
-        {
-            Value = "Map"
-        };
-
 
         var ent = new Entity(game)
             .With(map)
-            .With(tag);
+            .WithTag("Map");
 
         return ent;
     }

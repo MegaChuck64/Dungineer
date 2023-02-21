@@ -1,10 +1,11 @@
 ﻿using Dungineer.Components.GameWorld;
+using Dungineer.Components.UI;
 using Dungineer.Prefabs.Entities;
 using Engine;
-using Engine.Components;
-using Engine.Prefabs;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 
 namespace Dungineer.Prefabs.Scenes;
 
@@ -12,103 +13,117 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
 {
     public List<Entity> Instantiate(BaseGame game)
     {
-        var ents = new List<Entity>
-        {
-            new CursorPrefab().Instantiate(game),
-        };
+        var ents = new List<Entity>();
+
+        var cursor = new CursorPrefab().Instantiate(game);
+        ents.Add(cursor);
+
         var player = CreatePlayer(game);
         ents.Add(player);
 
-        ents.AddRange(CreateRobes(game, player));
 
-        var startButton = new ButtonPrefab(
-             hoverColor: new Color(82, 82, 82),
-             pressedColor: new Color(49, 49, 49),
-             defaultColor: new Color(65, 65, 65),
-             txtColor: new Color(202, 62, 71),
-             fontName: "consolas_22",
-             text: "Start")
-            .Instantiate(game);
+        ents.Add(CreateRobe(game, player, "symbols_32", new Rectangle(0, 0, 32, 32), -100, null));
+        ents.Add(CreateRobe(game, player, "robes_32", new Rectangle(0, 0, 32, 32), 0, WardrobeType.BasicRobe));
 
-        startButton.GetComponent<MouseInput>()
-            .OnMouseReleased = (mb) =>
-            {
-                SceneManager.ChangeScene("Play");
-                SceneManager.AddEntity("Play", player);
-            };
 
-        var startButtonTransform = startButton.GetComponent<Transform>();
-        startButtonTransform.Position = new Vector2((game.Width / 2) - 64, game.Height - (64 * 3));
-        startButtonTransform.Size = new Vector2(128, 64);
-
-        var startButtonText = startButton.GetComponent<Text>();
-        startButtonText.Offset = new Vector2(24, 12);
-        ents.Add(startButton);
+        ents.Add(CreateStartButton(game, player));
 
         return ents;
     }
 
-    private static List<Entity> CreateRobes(BaseGame game, Entity player)
+    private static Entity CreateStartButton(BaseGame game, Entity player)
     {
-        var ents = new List<Entity>();
 
-        var basicRobe = new Entity(game);
-        var clearRobe = new Entity(game);
-        
-        clearRobe = new Entity(game)
-            .With(new Transform
+        var btn = new Entity(game)
+            .With(new UIElement
             {
-                Position = new Vector2(game.Width / 2 + 100, game.Height / 2 - 100),
-                Size = new Vector2(64, 64),
-                Layer = 0.6f
+                Position = new Point((game.Width / 2) - 64, game.Height - (64 * 3)),
+                Size = new Point(128, 64),
+                OnMouseReleased = (mb) =>
+                {
+                    SceneManager.ChangeScene("Play");
+                    var playerObj = player.GetComponent<MapObject>();
+                    playerObj.Scale = 1f;
+                    var map = SceneManager.Entities.First(t => t.HasTag("Map")).GetComponent<Map>();
+                    var mapObjs = SceneManager.Entities.Where(y => y.Components.Any(g => g is MapObject)).Select(n => n.GetComponent<MapObject>());
+                    var playerPos = map.GetRandomEmptyTile(game, mapObjs.ToArray());
+                    playerObj.MapX = playerPos.x;
+                    playerObj.MapY = playerPos.y;
+
+                    SceneManager.AddEntity("Play", player);
+                }
             })
-            .With(new Sprite
+            .With(new MouseTint
             {
-                Source = new Rectangle(0, 0, 32, 32),
-                TextureName = "symbols_32",
+                DefaultColor = new Color(82, 82, 82),
+                HoverColor = new Color(65, 65, 65),
+                PressedColor = new Color(49, 49, 49),
+            })
+            .With(new Image
+            {
+                Layer = 0.8f,
+                Position = Point.Zero,
+                Size = new Point(1, 1),
+                Source = new Rectangle(0, 0, 1, 1),
+                TextureName = "_pixel",
                 Tint = Color.White,
             })
-            .With(new MouseInput
+            .With(new TextBox
             {
-                OnMousePressed = (mb) =>
-                {
-                    var wardrobe = player.GetComponent<Wardrobe>();
-                    wardrobe.BodySlot = null;
-                    basicRobe.GetComponent<Sprite>().Tint = Color.White;
-                    clearRobe.GetComponent<Sprite>().Tint = new Color(100, 250, 200);
-                }
-            });
-        ents.Add(clearRobe);
-
-
-        basicRobe = new Entity(game)
-            .With(new Transform
-            {
-                Position = new Vector2(game.Width / 2 + 100, game.Height / 2),
-                Size = new Vector2(64, 64),
-                Layer = 0.6f
-            })
-            .With(new Sprite
-            {
-                Source = new Rectangle(0,0, 32, 32),
-                TextureName = "robes_32",
-                Tint = Color.White
-            })
-            .With(new MouseInput
-            {
-                OnMousePressed = (mb) =>
-                {
-                    var wardrbobe = player.GetComponent<Wardrobe>();
-                    wardrbobe.BodySlot = WardrobeType.BasicRobe;
-                    clearRobe.GetComponent<Sprite>().Tint = Color.White;
-                    basicRobe.GetComponent<Sprite>().Tint = new Color(100, 250, 200);
-                }
+                FontName = "consolas_22",
+                Text = "Start",
+                TextColor = new Color(202, 62, 71),
+                Layer = 0.8f,
             });
 
-        ents.Add(basicRobe);
+        return btn;
 
-        return ents;
     }
+    private static Entity CreateRobe(BaseGame game, Entity player, string textureName, Rectangle source, int yOffset, WardrobeType? wardrobeType)
+    {
+        var robe = new Entity(game)
+            .With(new UIElement
+            {
+                Position = new Point(game.Width/2 + 100, game.Height/ 2 + yOffset),
+                Size = new Point(64, 64),     
+                OnMousePressed = (mb) =>
+                {
+                    var stats = player.GetComponent<CreatureStats>();
+                    var wardrobe = player.GetComponent<Wardrobe>();
+                    
+                    if (wardrobe.BodySlot != null)
+                        stats.Money += Settings.WardrobeAtlas[wardrobe.BodySlot.Value].Cost;
+
+                    wardrobe.BodySlot = wardrobeType;
+
+                    if (wardrobe.BodySlot != null) 
+                        stats.Money -= Settings.WardrobeAtlas[wardrobe.BodySlot.Value].Cost;
+                },
+            })
+            .With(new Image
+            {
+                Layer = 0.8f,
+                Position = Point.Zero,
+                Size = new Point(1,1),
+                TextureName = textureName,
+                Source = source,
+                Tint = Color.White
+            }) 
+            .With(new MouseTint
+            {
+
+                DefaultColor = Color.White,
+                SelectedColor = new Color(50, 200, 100),
+                SelectionGroup = "Robes",
+                HoverColor = Color.White,
+                PressedColor = Color.White,
+            });
+
+
+
+        return robe;
+    }
+   
     
     private static Entity CreatePlayer(BaseGame game)
     {
@@ -116,9 +131,10 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
             .With(new MapObject
             {
                 MapX = 5,
-                MapY = 5,
+                MapY = 16,
                 Tint = Color.White,
                 Type = MapObjectType.Human,
+                Scale = 2,
             })
             .With(new CreatureStats
             {
@@ -133,10 +149,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
                 BodySlot = null,
                 HatSlot = null,
             })
-            .With(new Tag 
-            { 
-                Value = "Player" 
-            });
+            .WithTag("Player");
 
 
 

@@ -10,27 +10,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)BaseGame.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Components\Tag.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Components\Text.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PathFinder.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Prefabs\ButtonPrefab.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Component.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Components\MouseInput.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Components\Sprite.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Components\Transform.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Entity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ContentLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IPrefab.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BaseSystem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SceneManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Systems\FontRenderSystem.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Systems\MouseInputSystem.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Systems\SpriteRenderSystem.cs" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="$(MSBuildThisFileDirectory)Content\Content.mgcb" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Prefabs\" />
   </ItemGroup>
 </Project>
