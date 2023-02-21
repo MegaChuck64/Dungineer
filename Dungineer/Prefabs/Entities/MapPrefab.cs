@@ -73,7 +73,7 @@ public class MapPrefab : IPrefab<Entity>
         };
 
 
-        var ent = new Entity(game)
+        var ent = new Entity()
             .With(map)
             .WithTag("Map");
 

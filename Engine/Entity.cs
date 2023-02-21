@@ -5,14 +5,11 @@ namespace Engine;
 
 public class Entity
 {
-    public BaseGame Game { get; private set; }
-
     public List<Component> Components { get; private set; }
 
     public List<string> Tags { get; private set; } = new List<string>();
-    public Entity(BaseGame game, params Component[] comps)
+    public Entity(params Component[] comps)
     {
-        Game = game;
         Components = 
             comps == null ? 
             new List<Component>() : comps.ToList();

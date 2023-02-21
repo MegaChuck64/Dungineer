@@ -37,7 +37,7 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
     private Entity CreateGhost(BaseGame game, params MapObject[] mapObjs)
     {
         var ghostPos = map.GetRandomEmptyTile(game, mapObjs);
-        var ent = new Entity(game)
+        var ent = new Entity()
             .With(new MapObject
             {
                 MapX = ghostPos.x,
@@ -62,7 +62,7 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
     private Entity CreatePlayer(BaseGame game)
     {
 
-        var ent = new Entity(game)
+        var ent = new Entity()
             .With(new MapObject
             {
                 MapX = map.GroundTiles.GetLength(0) / 2,

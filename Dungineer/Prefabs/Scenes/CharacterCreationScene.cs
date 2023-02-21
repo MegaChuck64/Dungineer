@@ -34,7 +34,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
     private static Entity CreateStartButton(BaseGame game, Entity player)
     {
 
-        var btn = new Entity(game)
+        var btn = new Entity()
             .With(new UIElement
             {
                 Position = new Point((game.Width / 2) - 64, game.Height - (64 * 3)),
@@ -81,7 +81,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
     }
     private static Entity CreateRobe(BaseGame game, Entity player, string textureName, Rectangle source, int yOffset, WardrobeType? wardrobeType)
     {
-        var robe = new Entity(game)
+        var robe = new Entity()
             .With(new UIElement
             {
                 Position = new Point(game.Width/2 + 100, game.Height/ 2 + yOffset),
@@ -127,7 +127,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
     
     private static Entity CreatePlayer(BaseGame game)
     {
-        var ent = new Entity(game)
+        var ent = new Entity()
             .With(new MapObject
             {
                 MapX = 5,

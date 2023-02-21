@@ -27,7 +27,7 @@ public class MenuScene : IPrefab<List<Entity>>
         */
 
         //wizard image
-        var imageEnt = new Entity(game)
+        var imageEnt = new Entity()
             .With(new UIElement
             {
                 Position = new Point((game.Width / 2) - 128, game.Height / 2 - 128),
@@ -45,7 +45,7 @@ public class MenuScene : IPrefab<List<Entity>>
 
 
         //play button
-        var btn = new Entity(game)
+        var btn = new Entity()
             .With(new UIElement
             {
                 Position = new Point((game.Width / 2) - 64, game.Height - (64 * 3)),

@@ -8,7 +8,7 @@ public class CursorPrefab : IPrefab<Entity>
 {
     public Entity Instantiate(BaseGame game)
     {
-        var cursor = new Entity(game)
+        var cursor = new Entity()
             .With(new UIElement
             {
                 Position = Point.Zero,
