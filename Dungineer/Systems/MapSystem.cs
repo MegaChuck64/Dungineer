@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -212,7 +213,10 @@ public class MapSystem : BaseSystem
 
     private void MoveGhost(MapObject ghost, MapObject target, Map map, params MapObject[] mapObjects)
     {
-        if (Vector2.Distance(new Vector2(ghost.MapX, ghost.MapY), new Vector2(target.MapX, target.MapY)) < 6)
+        var ent = SceneManager.GetEntityWithComponent(ghost);
+        var stats = ent.GetComponent<CreatureStats>();
+
+        if (Vector2.Distance(new Vector2(ghost.MapX, ghost.MapY), new Vector2(target.MapX, target.MapY)) <= stats.SightRange)
         {
             var targAdj = map.GetAdjacentEmptyTiles(target.MapX, target.MapY, true, mapObjects);
 
@@ -235,9 +239,16 @@ public class MapSystem : BaseSystem
                         ghost.MapX = nextStep.X;
                         ghost.MapY = nextStep.Y;
                     }
-                    else
-                    {
-                        //attack
+
+
+
+                    //attack
+                    if (Vector2.Distance(new Vector2(ghost.MapX, ghost.MapY), new Vector2(target.MapX, target.MapY)) <= stats.AttackRange) 
+                    {                        
+                        var otherEnt = SceneManager.GetEntityWithComponent(target);
+                        var otherStats = otherEnt.GetComponent<CreatureStats>();
+
+                        otherStats.Health -= stats.Strength;
                     }
                 }
             }

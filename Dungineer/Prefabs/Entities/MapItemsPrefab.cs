@@ -82,9 +82,13 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
 
                 MoveSpeed = 0.75f,
 
-                SightRange = 6,
+                Strength = 1,
+
+                SightRange = 4,
+                AttackRange = 1,
 
                 Money = 0,
+
             })
             .WithTag("Ghost");
 
