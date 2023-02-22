@@ -1,11 +1,11 @@
 ﻿using Dungineer.Components.GameWorld;
 using Dungineer.Components.UI;
+using Dungineer.Models;
 using Dungineer.Prefabs.Entities;
 using Engine;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 
 namespace Dungineer.Prefabs.Scenes;
 
@@ -53,7 +53,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
                     SceneManager.AddEntity("Play", player);
                 }
             })
-            .With(new MouseTint
+            .With(new SelectItem
             {
                 DefaultColor = new Color(82, 82, 82),
                 HoverColor = new Color(65, 65, 65),
@@ -109,7 +109,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
                 Source = source,
                 Tint = Color.White
             }) 
-            .With(new MouseTint
+            .With(new SelectItem
             {
 
                 DefaultColor = Color.White,

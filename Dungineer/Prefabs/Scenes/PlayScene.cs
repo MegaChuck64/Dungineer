@@ -1,11 +1,7 @@
 ﻿using Dungineer.Components.GameWorld;
 using Dungineer.Prefabs.Entities;
 using Engine;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dungineer.Prefabs.Scenes;
 

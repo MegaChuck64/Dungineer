@@ -1,5 +1,6 @@
 ﻿using Dungineer.Components.GameWorld;
 using Dungineer.Components.UI;
+using Dungineer.Models;
 using Engine;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -24,8 +25,7 @@ public class MapSystem : BaseSystem
 
     private readonly Texture2D tileSelectTexture;
     private readonly SpriteBatch sb;
-
-    private List<Entity> entitiesToRemove = new List<Entity>();
+    private readonly List<Entity> entitiesToRemove = new ();
 
     public MapSystem(BaseGame game, ContentManager content) : base(game)
     {
@@ -86,8 +86,6 @@ public class MapSystem : BaseSystem
 
     public override void Draw(GameTime gameTime, IEnumerable<Entity> entities)
     {
-        //if (SceneManager.CurrentScene != "Play") return;
-
         //DRAWING
         sb.Begin(
             sortMode: SpriteSortMode.FrontToBack,
@@ -98,10 +96,6 @@ public class MapSystem : BaseSystem
             effect: null,
             transformMatrix: null); //camera here todo
 
-
-
-
-
         foreach (var ent in entities)
         {
             if (ent.HasTag("Map"))
@@ -111,6 +105,7 @@ public class MapSystem : BaseSystem
             else if (ent.GetComponent<MapObject>() is MapObject mapObj)
             {
                 DrawMapObject(mapObj);
+
                 if (ent.GetComponent<Wardrobe>() is Wardrobe wardrobe)
                 {
                     if (wardrobe.BodySlot.HasValue)
@@ -219,12 +214,13 @@ public class MapSystem : BaseSystem
 
             if (targAdj.Any())
             {
-                var targ = targAdj.First();
+                var (x, y) = targAdj.First();
+
                 var path = GetPath(
-                new Point(ghost.MapX, ghost.MapY),
-                new Point(targ.x, targ.y),
-                    map,
-                    mapObjects);
+                    new Point(ghost.MapX, ghost.MapY),
+                    new Point(x, y),
+                        map,
+                        mapObjects);
 
                 if (path != null && path.Count > 0)
                 {
@@ -297,7 +293,7 @@ public class MapSystem : BaseSystem
     private Rectangle GetTileBounds(Point pos) => GetTileBounds(pos.X, pos.Y);
 
     private Rectangle GetTileBounds(int x, int y) =>
-        new Rectangle(
+        new(
             offset.ToPoint() + new Point(x * Settings.TileSize, y * Settings.TileSize),
             new Point(Settings.TileSize, Settings.TileSize));
 
@@ -313,7 +309,7 @@ public class MapSystem : BaseSystem
     }
 
 
-    public List<Point> GetPath(Point start, Point end, Map map, params MapObject[] mapObjects)
+    public static List<Point> GetPath(Point start, Point end, Map map, params MapObject[] mapObjects)
     {
 
         var grid = new bool[map.GroundTiles.GetLength(0), map.GroundTiles.GetLength(1)];
@@ -335,7 +331,7 @@ public class MapSystem : BaseSystem
 
         }
 
-        var pathFinder = new PathFinder(new PathFinderSearchParams(start, end, grid));
+        var pathFinder = new PathFinder(new(start, end, grid));
 
         return pathFinder.FindPath();
 

@@ -51,7 +51,7 @@ public class MenuScene : IPrefab<List<Entity>>
                     SceneManager.ChangeScene("CharacterCreation");
                 }
             })
-            .With(new MouseTint
+            .With(new SelectItem
             {
                 DefaultColor = new Color(82, 82, 82),
                 HoverColor = new Color(65, 65, 65),

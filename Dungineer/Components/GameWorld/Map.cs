@@ -1,4 +1,5 @@
-﻿using Engine;
+﻿using Dungineer.Models;
+using Engine;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,10 +74,7 @@ public class Map : Component
 
         return adjacent;
     }
-    public Map(bool isActive = true) : base(isActive)
-    {
 
-    }
 }
 
 public class Tile

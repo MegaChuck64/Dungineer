@@ -3,6 +3,7 @@ using Dungineer.Systems;
 using Engine;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
+using System.Collections.Generic;
 
 namespace Dungineer;
 
@@ -28,91 +29,34 @@ public class MainGame : BaseGame
 
         AddSystems();
 
-        BuildMenuScene();
-        BuildCharacterSelectScene();
-        BuildPlayScene();
+        BuildScenes();
 
         SceneManager.ChangeScene("Menu");
     }
 
     private void AddSystems()
-    {
-       // Systems.Add(new MouseInputSystem(this));
-
-       // Systems.Add(new CharacterCreationSystem(this));
-
+    {       
         Systems.Add(new MapSystem(this, Content));
 
         Systems.Add(new UISystem(this));
-
-
-        ////sprites
-        //var textureNames = new string[]
-        //{
-        //    "ghost_32",
-        //    "GnomeMage_32",
-        //    "grounds_32",
-        //    "hand_32",
-        //    "HumanFighter_32",
-        //    "trees_32",
-        //    "ui_box_select_32",
-        //    "weapons_32",
-        //    "WizardPortraits_512",
-        //    "cursor_16",
-        //    "symbols_32",
-        //    "robes_32",
-        //};
-        //Systems.Add(new SpriteRenderSystem(this, Content, textureNames));
-
-
-        ////fonts
-        //var fontNames = new string[]
-        //{
-        //    "consolas_12",
-        //    "consolas_14",
-        //    "consolas_22"
-        //};
-        //Systems.Add(new FontRenderSystem(this, Content, fontNames));
-
-
-
     }
-    private void BuildMenuScene()
-    {
-        SceneManager.AddScene("Menu");
 
-        var scenePrefab = new MenuScene();
-        var ents = scenePrefab.Instantiate(this);
+    private void BuildScenes()
+    {
+        BuildScene("Menu", new MenuScene());
+        BuildScene("CharacterCreation", new CharacterCreationScene());
+        BuildScene("Play", new PlayScene());
+    }
+    private void BuildScene(string sceneName, IPrefab<List<Entity>> scene)
+    {
+        SceneManager.AddScene(sceneName);
+
+        var ents = scene.Instantiate(this);
         foreach (var ent in ents)
         {
-            SceneManager.AddEntity("Menu", ent);
+            SceneManager.AddEntity(sceneName, ent);
         }
     }
-
-    private void BuildCharacterSelectScene()
-    {
-        SceneManager.AddScene("CharacterCreation");
-
-        var scenePrefab = new CharacterCreationScene();
-        var ents = scenePrefab.Instantiate(this);
-        foreach (var ent in ents)
-        {
-            SceneManager.AddEntity("CharacterCreation", ent);
-        }
-    }
-
-    private void BuildPlayScene()
-    {
-        SceneManager.AddScene("Play");
-
-        var scenePrefab = new PlayScene();
-        var ents = scenePrefab.Instantiate(this);
-        foreach (var ent in ents)
-        {
-            SceneManager.AddEntity("Play", ent);
-        }
-    }
-
 
     public override void OnUpdate(GameTime gameTime)
     {

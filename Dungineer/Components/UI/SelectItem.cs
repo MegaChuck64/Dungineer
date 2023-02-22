@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 
 namespace Dungineer.Components.UI;
 
-public class MouseTint : Component
+public class SelectItem : Component
 {
     public Color DefaultColor { get; set; }
     public Color HoverColor { get; set; }
@@ -13,7 +13,7 @@ public class MouseTint : Component
     public string SelectionGroup { get; set; }
     public bool Selected { get; set; }
 
-    public MouseTint(bool isActive = true) : base (isActive)
+    public SelectItem(bool isActive = true) : base (isActive)
     {
         DefaultColor = Color.White;
         HoverColor = Color.White;

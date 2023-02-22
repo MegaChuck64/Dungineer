@@ -1,4 +1,5 @@
 ﻿using Dungineer.Components.GameWorld;
+using Dungineer.Models;
 using Engine;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;

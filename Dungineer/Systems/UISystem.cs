@@ -11,7 +11,7 @@ public class UISystem : BaseSystem
 {
 
     private List<UIElement> entered = new();
-    private Dictionary<string, MouseTint> selected = new();
+    private Dictionary<string, SelectItem> selected = new();
 
     private MouseState mouseState;
     private MouseState lastMouseState;
@@ -67,6 +67,7 @@ public class UISystem : BaseSystem
             ContentLoader.LoadTexture("robes_32", game.Content));
     }
 
+    
     public override void Update(GameTime gameTime, IEnumerable<Entity> entities)
     {
         lastMouseState = mouseState;
@@ -121,8 +122,6 @@ public class UISystem : BaseSystem
         }
     }
 
-
-
     public override void Draw(GameTime gameTime, IEnumerable<Entity> entities)
     {
         sb.Begin(
@@ -145,35 +144,12 @@ public class UISystem : BaseSystem
 
             foreach (var img in entity.GetComponents<Image>())
             {
-
+                //by default tint is the image tint
                 var tint = img.Tint;
 
-                if (entity.GetComponent<MouseTint>() is MouseTint mouseTint)
+                if (entity.GetComponent<SelectItem>() is SelectItem selectItem)
                 {
-                    tint = mouseTint.DefaultColor;
-
-                    if (selected.ContainsKey(mouseTint.SelectionGroup) && selected[mouseTint.SelectionGroup] == mouseTint)
-                    {
-                        tint = mouseTint.SelectedColor;
-                        mouseTint.Selected = true;
-                    }
-                    else
-                    {
-                        mouseTint.Selected = false;
-                    }
-                    
-                    if (bounds.Contains(mouseState.Position))
-                    {
-                        tint = mouseTint.HoverColor;
-
-                        if (mouseState.LeftButton == ButtonState.Pressed)
-                        {                            
-                            tint = mouseTint.PressedColor;
-                            selected[mouseTint.SelectionGroup] = mouseTint;
-                            mouseTint.Selected = true;                            
-                        }
-                    }
-     
+                    HandleSelection(selectItem, bounds, out tint);
                 }
 
                 DrawImage(img, ui, tint);
@@ -183,10 +159,41 @@ public class UISystem : BaseSystem
             {
                 DrawText(txt, ui);
             }
-
         }
 
         sb.End();
+    }
+
+
+    private void HandleSelection(SelectItem selectItem, Rectangle bounds, out Color tint)
+    {
+        //if we have a select item component, override img tint with default color
+        tint = selectItem.DefaultColor;
+
+        //handle selected item
+        if (selected.ContainsKey(selectItem.SelectionGroup) && selected[selectItem.SelectionGroup] == selectItem)
+        {
+            tint = selectItem.SelectedColor;
+            selectItem.Selected = true;
+        }
+        else
+        {
+            selectItem.Selected = false;
+        }
+
+        //hovering
+        if (bounds.Contains(mouseState.Position))
+        {
+            tint = selectItem.HoverColor;
+
+            //select item on pressed
+            if (mouseState.LeftButton == ButtonState.Pressed)
+            {
+                tint = selectItem.PressedColor;
+                selected[selectItem.SelectionGroup] = selectItem;
+                selectItem.Selected = true;
+            }
+        }
     }
 
 
@@ -213,6 +220,8 @@ public class UISystem : BaseSystem
             SpriteEffects.None, 
             image.Layer);
     }
+
+
 
     private bool WasPressed(MouseButton mb) => mb switch
     {
