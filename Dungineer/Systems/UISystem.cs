@@ -1,4 +1,5 @@
-﻿using Dungineer.Components.UI;
+﻿using Dungineer.Components.GameWorld;
+using Dungineer.Components.UI;
 using Engine;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -65,6 +66,10 @@ public class UISystem : BaseSystem
         textures.Add(
             "robes_32",
             ContentLoader.LoadTexture("robes_32", game.Content));
+
+        textures.Add(
+            "treasure_32",
+            ContentLoader.LoadTexture("treasure_32", game.Content));
     }
 
     
@@ -137,29 +142,37 @@ public class UISystem : BaseSystem
         {
             var ui = entity.GetComponent<UIElement>();
 
-            if (ui == null || !ui.IsActive)
-                continue;
+            if (ui != null && ui.IsActive)
+            { 
+                var bounds = ui.Bounds;
 
-            var bounds = ui.Bounds;
-
-            foreach (var img in entity.GetComponents<Image>())
-            {
-                //by default tint is the image tint
-                var tint = img.Tint;
-
-                if (entity.GetComponent<SelectItem>() is SelectItem selectItem)
+                foreach (var img in entity.GetComponents<Image>())
                 {
-                    HandleSelection(selectItem, bounds, out tint);
+                    //by default tint is the image tint
+                    var tint = img.Tint;
+
+                    if (entity.GetComponent<SelectItem>() is SelectItem selectItem)
+                    {
+                        //if is a select item, image tint gets overriden
+                        HandleSelection(selectItem, bounds, out tint);
+                    }
+
+                    DrawImage(img, ui, tint);
                 }
 
-                DrawImage(img, ui, tint);
+                foreach (var txt in entity.GetComponents<TextBox>())
+                {
+                    DrawText(txt, ui);
+                }
             }
 
-            foreach (var txt in entity.GetComponents<TextBox>())
+            if (entity.HasTag("Player"))
             {
-                DrawText(txt, ui);
+                var stats = entity.GetComponent<CreatureStats>();
+                DrawStats(stats);
             }
         }
+
 
         sb.End();
     }
@@ -221,6 +234,34 @@ public class UISystem : BaseSystem
             image.Layer);
     }
 
+    private void DrawStats(CreatureStats stats)
+    {
+        var font = fonts["consolas_14"];
+
+        //health
+        var healthTexture = textures["symbols_32"];
+        var healthSource = new Rectangle(32, 0, 32, 32);
+        var healthBounds = new Rectangle(16, 32 * 3, 32, 32);
+
+        var healthStr = $"{stats.Health}/{stats.MaxHealth}";
+        var healthStrSize = font.MeasureString(healthStr);
+
+        sb.Draw(healthTexture, healthBounds, healthSource, Color.White);
+        sb.DrawString(font, healthStr, new Vector2(healthBounds.X + 32 + 8, healthBounds.Y + (healthStrSize.Y/2)), Color.White);
+
+        //money
+        var moneyTexture = textures["treasure_32"];
+        var moneySource = new Rectangle(0, 0, 32, 32);
+        var moneyBounds = new Rectangle(16, 32 * 4 + 8, 32, 32);
+
+        var moneyStr = stats.Money.ToString();
+        var moneyStrSize = font.MeasureString(healthStr);
+
+        sb.Draw(moneyTexture, moneyBounds, moneySource, Color.White);
+        sb.DrawString(font, moneyStr, new Vector2(moneyBounds.X + 32 + 8, moneyBounds.Y + (moneyStrSize.Y / 2)), Color.White);
+
+
+    }
 
 
     private bool WasPressed(MouseButton mb) => mb switch

@@ -14,9 +14,8 @@ public struct WardrobeInfo
 
     public string Description { get; set; }
     public int Cost { get; set; }
-    public float HealthMod { get; set; }
-    public float StaminaMod { get; set; }
-    public float MoveSpeedMod { get; set; }
+    public int HealthMod { get; set; }
+
 
 
     [JsonConverter(typeof(ContentLoader.RectangleJsonConverter))]

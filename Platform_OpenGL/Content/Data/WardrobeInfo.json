@@ -4,9 +4,7 @@
     "TextureName": "robes_32",
     "Slot": "Body",
     "Description": "Basic wizard's robe with some basic modifiers.",
-    "HealthMod": 1.25,
-    "StaminaMod": 1.1,
-    "MoveSpeedMod": 1.1,
+    "HealthMod": 1,
     "Cost": 3,
     "Source": {
       "X": 0,
@@ -21,9 +19,7 @@
     "TextureName": "robes_32",
     "Slot": "Body",
     "Description": "A Proper Wizard's Robe is a long, flowing garment made of enchanted cloth that provides protection and boosts the wizard's magical abilities.",
-    "HealthMod": 1.4,
-    "StaminaMod": 1.4,
-    "MoveSpeedMod": 1.4,
+    "HealthMod": 3,
     "Cost": 7,
     "Source": {
       "X": 32,
@@ -37,9 +33,7 @@
     "TextureName": "robes_32",
     "Slot": "Body",
     "Description": "The Grim Wizard's Robe is a dark, tattered garment that imbues the wizard with powerful necromantic abilities at the cost of their own life force.",
-    "HealthMod": 1.5,
-    "StaminaMod": 1,
-    "MoveSpeedMod": 1.75,
+    "HealthMod": 4,
     "Cost": 12,
     "Source": {
       "X": 64,
@@ -53,9 +47,7 @@
     "TextureName": "robes_32",
     "Slot": "Body",
     "Description": "The Master's Wizard's Robe is a prestigious garment crafted from rare materials, it enhances the wizard's magical skills and provides unmatched protection.",
-    "HealthMod": 2,
-    "StaminaMod": 2,
-    "MoveSpeedMod": 12,
+    "HealthMod": 6,
     "Cost": 20,
     "Source": {
       "X": 96,

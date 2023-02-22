@@ -73,7 +73,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
                 FontName = "consolas_22",
                 Text = "Start",
                 TextColor = new Color(202, 62, 71),
-                Layer = 0.8f,
+                Layer = 0.9f,
             });
 
         return btn;
@@ -90,14 +90,22 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
                 {
                     var stats = player.GetComponent<CreatureStats>();
                     var wardrobe = player.GetComponent<Wardrobe>();
-                    
-                    if (wardrobe.BodySlot != null)
-                        stats.Money += Settings.WardrobeAtlas[wardrobe.BodySlot.Value].Cost;
 
+                    if (wardrobe.BodySlot != null)
+                    {
+                        var wardrobeInfo = Settings.WardrobeAtlas[wardrobe.BodySlot.Value];
+                        stats.Money += wardrobeInfo.Cost;
+                        stats.MaxHealth -= wardrobeInfo.HealthMod;
+                    }
                     wardrobe.BodySlot = wardrobeType;
 
-                    if (wardrobe.BodySlot != null) 
-                        stats.Money -= Settings.WardrobeAtlas[wardrobe.BodySlot.Value].Cost;
+                    if (wardrobe.BodySlot != null)
+                    {
+                        var wardrobeInfo = Settings.WardrobeAtlas[wardrobe.BodySlot.Value];
+                        stats.Money -= wardrobeInfo.Cost;
+                        stats.MaxHealth += wardrobeInfo.HealthMod;
+                    }
+
                 },
             })
             .With(new Image
@@ -138,11 +146,17 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
             })
             .With(new CreatureStats
             {
-                Health = 20,
-                MaxHealth = 20,
+                Health = 12,
+                MaxHealth = 12,
+
                 Stamina = 20,
                 MaxStamina = 20,
-                MoveSpeed = 1
+
+                MoveSpeed = 1,
+                
+                Money = 5,
+                
+                SightRange = 5f
             })
             .With(new Wardrobe
             {
