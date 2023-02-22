@@ -108,23 +108,7 @@ public class MapSystem : BaseSystem
 
                 if (ent.GetComponent<Wardrobe>() is Wardrobe wardrobe)
                 {
-                    if (wardrobe.BodySlot.HasValue)
-                    {
-                        var winfo = Settings.WardrobeAtlas[wardrobe.BodySlot.Value];
-                        var wtxt = Settings.TextureAtlas[winfo.TextureName];
-
-                        var bnds = GetTileBounds(mapObj.MapX, mapObj.MapY);
-                        bnds = new Rectangle(bnds.X, bnds.Y, (int)(bnds.Width * mapObj.Scale), (int)(bnds.Height * mapObj.Scale));
-                        sb.Draw(
-                            wtxt, 
-                            bnds, 
-                            winfo.Source, 
-                            mapObj.Tint, 
-                            0f, 
-                            mapObj.Scale == 1f ? Vector2.Zero : new Vector2(bnds.Width/2, bnds.Height/2), 
-                            SpriteEffects.None, 
-                            itemLayer + 0.1f);
-                    }
+                    DrawWardrobe(wardrobe, mapObj);
                 }
             }
         }
@@ -133,6 +117,26 @@ public class MapSystem : BaseSystem
 
     }
 
+    private void DrawWardrobe(Wardrobe wardrobe, MapObject mapObj)
+    {
+        if (wardrobe.BodySlot.HasValue)
+        {
+            var winfo = Settings.WardrobeAtlas[wardrobe.BodySlot.Value];
+            var wtxt = Settings.TextureAtlas[winfo.TextureName];
+
+            var bnds = GetTileBounds(mapObj.MapX, mapObj.MapY);
+            bnds = new Rectangle(bnds.X, bnds.Y, (int)(bnds.Width * mapObj.Scale), (int)(bnds.Height * mapObj.Scale));
+            sb.Draw(
+                wtxt,
+                bnds,
+                winfo.Source,
+                mapObj.Tint,
+                0f,
+                mapObj.Scale == 1f ? Vector2.Zero : new Vector2(bnds.Width / 2, bnds.Height / 2),
+                SpriteEffects.None,
+                itemLayer + 0.1f);
+        }
+    }
 
     private void DrawMap(Entity ent)
     {
@@ -293,27 +297,19 @@ public class MapSystem : BaseSystem
     private Rectangle GetTileBounds(Point pos) => GetTileBounds(pos.X, pos.Y);
 
     private Rectangle GetTileBounds(int x, int y) =>
-        new(
-            offset.ToPoint() + new Point(x * Settings.TileSize, y * Settings.TileSize),
+        new (offset.ToPoint() + new Point(x * Settings.TileSize, y * Settings.TileSize),
             new Point(Settings.TileSize, Settings.TileSize));
 
 
-    private Point MouseTilePosition
-    {
-        get
-        {
-            return new Point(
-                (int)(mouseState.X - offset.ToPoint().X) / Settings.TileSize,
-                (int)(mouseState.Y - offset.ToPoint().Y) / Settings.TileSize);
-        }
-    }
+    private Point MouseTilePosition => 
+        new ((int)(mouseState.X - offset.ToPoint().X) / Settings.TileSize,
+            (int)(mouseState.Y - offset.ToPoint().Y) / Settings.TileSize);
+    
 
 
     public static List<Point> GetPath(Point start, Point end, Map map, params MapObject[] mapObjects)
     {
-
         var grid = new bool[map.GroundTiles.GetLength(0), map.GroundTiles.GetLength(1)];
-
 
         for (int x = 0; x < map.GroundTiles.GetLength(0); x++)
         {
@@ -328,7 +324,6 @@ public class MapSystem : BaseSystem
 
                 grid[x, y] = !hasGroundCollision && !hasObjectCollision && !hasItemCollision;
             }
-
         }
 
         var pathFinder = new PathFinder(new(start, end, grid));
