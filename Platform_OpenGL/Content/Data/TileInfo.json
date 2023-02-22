@@ -1,0 +1,72 @@
+﻿[
+  {
+    "Name": "Grass",
+    "TextureName": "grounds_32",
+    "Source": {
+      "X": 0,
+      "Y": 32,
+      "Width": 32,
+      "Height": 32
+    },
+    "Solid": false
+  },
+  {
+    "Name": "Pine Tree",
+    "TextureName": "trees_32",
+    "Source": {
+      "X": 96,
+      "Y": 0,
+      "Width": 32,
+      "Height": 32
+    },
+    "Solid": true
+  },
+  {
+    "Name": "Water",
+    "TextureName": "grounds_32",
+    "Source": {
+      "X": 0,
+      "Y": 64,
+      "Width": 32,
+      "Height": 32
+    },
+    "Solid": true
+  },
+  {
+    "Name": "Dungeon Floor",
+    "TextureName": "dungeon_32",
+    "Source": {
+      "X": 32,
+      "Y": 0,
+      "Width": 32,
+      "Height": 32
+    },
+    "Solid": false
+  },
+  {
+    "Name": "Dungeon Wall",
+    "TextureName": "dungeon_32",
+    "Source": {
+      "X": 0,
+      "Y": 0,
+      "Width": 32,
+      "Height": 32
+    },
+    "Solid": true
+  },
+  {
+    "Name": "Dungeon Floor Hole",
+    "TextureName": "floorHoles_32",
+    "Source": {
+      "X": 32,
+      "Y": 0,
+      "Width": 32,
+      "Height": 32
+    },
+    "Solid": true
+  }
+]
+
+
+
+

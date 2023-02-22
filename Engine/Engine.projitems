@@ -10,11 +10,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)BaseGame.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)BaseScreen.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Button.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PathFinder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Component.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Entity.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)EntityManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ContentLoader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IPrefab.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BaseSystem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SceneManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="$(MSBuildThisFileDirectory)Content\Content.mgcb" />

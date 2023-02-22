@@ -1,0 +1,43 @@
+﻿[
+  {
+    "Name": "Ghost",
+    "Description": "Ethereal and forgotten, ghostly beings seek to fulfill unfinished business or wander aimlessly, haunting the living realm.",
+    "TextureName": "ghost_32",
+    "Source": {
+      "X": 32,
+      "Y": 0,
+      "Width": 32,
+      "Height": 32
+    },
+
+    "LotteryValue": 5,
+    "Collectable": false
+  },
+  {
+    "Name": "Human",
+    "Description": "Versatile and adaptable, humans possess an unyielding spirit and boundless curiosity. They value freedom and individuality above all.",
+    "TextureName": "human_32",
+    "Source": {
+      "X": 0,
+      "Y": 0,
+      "Width": 32,
+      "Height": 32
+    },
+
+    "LotteryValue": 1,
+    "Collectable": false
+  },
+  {
+    "Name": "Arcanium",
+    "Description": "Magically infused gems imbued with the power of the arcane, used for payment of magical services and goods in the wizard realm.",
+    "TextureName": "treasure_32",
+    "Source": {
+      "X": 0,
+      "Y": 0,
+      "Width": 32,
+      "Height": 32
+    },
+    "LotteryValue": 4,
+    "Collectable": true
+  }
+]

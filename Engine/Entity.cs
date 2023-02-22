@@ -1,54 +1,40 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Engine;
 
 public class Entity
 {
-    public bool IsDestroyed { get; private set; }
-    public BaseGame Game { get; private set; }
-
     public List<Component> Components { get; private set; }
-    public Entity(BaseGame game)
+
+    public List<string> Tags { get; private set; } = new List<string>();
+    public Entity(params Component[] comps)
     {
-        IsDestroyed = false;
-        Game = game;
-        Components = new List<Component>();
+        Components = 
+            comps == null ? 
+            new List<Component>() : comps.ToList();
     }
 
-    public void Update(float dt)
+    public T GetComponent<T>() where T : Component => 
+        Components.OfType<T>().FirstOrDefault();
+
+    public IEnumerable<T> GetComponents<T>() where T : Component =>
+        Components.OfType<T>();
+
+    public Entity With<T>(T comp) where T : Component
     {
-        foreach (var comp in Components)
-        {
-            comp.Update(dt);
-        }
+        Components.Add(comp);
+        return this;
+    }
+    
+    public Entity WithTag(string tag)
+    {
+        Tags.Add(tag);
+        return this;
     }
 
-    public void Draw(SpriteBatch sb)
-    {
-        foreach (var comp in Components)
-        {
-            comp.Draw(sb);
-        }
-    }
-    public void Destroy()
-    {
-        IsDestroyed = true;
-    }
+    public bool HasTag(string val) => 
+        Tags.Any(t=>t == val);
+    
 }
 
-public abstract class Component
-{
-    public Entity Owner { get; set; }
-    public bool IsActive { get; set; }
-
-    public Component(Entity owner, bool isActive = true)
-    {
-        Owner = owner;
-        IsActive = isActive;
-    }
-
-    public abstract void Update(float dt);
-
-    public abstract void Draw(SpriteBatch sb);
-}

@@ -1,7 +1,11 @@
 ﻿using Engine;
+using Engine.Components;
+using Engine.Prefabs;
 using GameCode.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input;
 using MonoGame.Extended.Screens.Transitions;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +16,7 @@ public class CharacterSelectScreen : BaseScreen
 {
     public List<Character> PlayableCharacters { get; set; }
     public int selected = 0;
-    public Button selectButton;
+    public Entity selectButton;
     public List<CharacterInfoCard> CharacterCards { get; set; }
 
     public CharacterSelectScreen(Game game) : base(game, "consolas_14")
@@ -28,24 +32,28 @@ public class CharacterSelectScreen : BaseScreen
         cursor.Components.Add(new Cursor(cursor));        
         EntityManager.Entities.Add(cursor);
 
-        var selectButton = new Entity(BGame);
-        var selectButtonComp = new Button(selectButton)
-        {
-            Color = Color.Orange,
-            HighlightColor = Color.DarkGray,
-            TextColor = Color.Red,
-            HighlightTextColor = Color.White,
-            Filled = true,
-            Font = Font,
-            Text = "Choose",
-            TextScale = 1f,
-            Rect = new Rectangle(Game.GraphicsDevice.Viewport.Width / 2 - 50, 150, 100, 40),
-            TextOffset = new Point(18, 12),
-        };
-        selectButtonComp.OnClick += SelectButton_OnClick;
-        selectButton.Components.Add(selectButtonComp);
-        EntityManager.Entities.Add(selectButton);
+        //var selectButton = new Entity(BGame);
+        //var selectButtonComp = new Button(selectButton)
+        //{
+        //    Color = Color.Orange,
+        //    HighlightColor = Color.DarkGray,
+        //    TextColor = Color.Red,
+        //    HighlightTextColor = Color.White,
+        //    Filled = true,
+        //    Font = Font,
+        //    Text = "Choose",
+        //    TextScale = 1f,
+        //    Rect = new Rectangle(Game.GraphicsDevice.Viewport.Width / 2 - 50, 150, 100, 40),
+        //    TextOffset = new Point(18, 12),
+        //};
+        //selectButtonComp.OnClick += SelectButton_OnClick;
+        //selectButton.Components.Add(selectButtonComp);
+        //EntityManager.Entities.Add(selectButton);
 
+        var selectButtonPrefab = new ButtonPrefab(Color.Yellow, Color.Purple, Color.Tan);
+        selectButton = selectButtonPrefab.Instantiate(BGame);
+        selectButton.GetComponent<MouseInput>().OnMouseReleased = SelectButton_OnClick;
+        EntityManager.Entities.Add(selectButton);
 
         PlayableCharacters =
             TileLoader.GetTileObjects(t =>
@@ -74,7 +82,7 @@ public class CharacterSelectScreen : BaseScreen
         }
     }
 
-    private void SelectButton_OnClick(object sender, ClickEventArgs e)
+    private void SelectButton_OnClick(MouseButton mb)
     {
         ScreenManager.LoadScreen(new PlayScreen(Game, PlayableCharacters[selected]), new FadeTransition(GraphicsDevice, Color.Black, 2f));
     }
