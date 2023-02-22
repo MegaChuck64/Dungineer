@@ -1,6 +1,8 @@
 ﻿using Dungineer.Components.GameWorld;
+using Dungineer.Components.UI;
 using Dungineer.Prefabs.Entities;
 using Engine;
+using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
 namespace Dungineer.Prefabs.Scenes;
@@ -21,7 +23,49 @@ public class PlayScene : IPrefab<List<Entity>>
         ents.Add(map);
         ents.AddRange(new MapItemsPrefab(map.GetComponent<Map>()).Instantiate(game));
 
+        ents.Add(CreateExitButton(game));
 
         return ents;
+    }
+
+    private static Entity CreateExitButton(BaseGame game)
+    {
+
+        var btn = new Entity()
+            .With(new UIElement
+            {
+                Position = new Point(game.Width - 128 - 32, game.Height - 64 - 32),
+                Size = new Point(128, 64),
+                OnMouseReleased = (mb) =>
+                {
+                    game.Exit();
+                }
+            })
+            .With(new SelectItem
+            {
+                PressedColor = new Color(82, 82, 82),
+                HoverColor = new Color(65, 65, 65),
+                DefaultColor = new Color(49, 49, 49),
+                SelectedColor = new Color(49, 49, 49),
+            })
+            .With(new Image
+            {
+                Layer = 0.8f,
+                Position = Point.Zero,
+                Size = new Point(1, 1),
+                Source = new Rectangle(0, 0, 1, 1),
+                TextureName = "_pixel",
+                Tint = Color.White,
+            })
+            .With(new TextBox
+            {
+                FontName = "consolas_22",
+                Text = "Exit",
+                TextColor = new Color(202, 62, 71),
+                Layer = 0.9f,
+            });
+
+        return btn;
+
     }
 }

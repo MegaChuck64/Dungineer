@@ -53,9 +53,10 @@ public class MenuScene : IPrefab<List<Entity>>
             })
             .With(new SelectItem
             {
-                DefaultColor = new Color(82, 82, 82),
+                PressedColor = new Color(82, 82, 82),
                 HoverColor = new Color(65, 65, 65),
-                PressedColor = new Color(49, 49, 49),
+                DefaultColor = new Color(49, 49, 49),
+                SelectedColor = new Color(49, 49, 49),
             })
             .With(new Image
             {
