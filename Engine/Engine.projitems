@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)IPrefab.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BaseSystem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SceneManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ShadowCaster.cs" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="$(MSBuildThisFileDirectory)Content\Content.mgcb" />

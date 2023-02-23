@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 
 namespace Dungineer.Systems;
 
@@ -64,7 +65,7 @@ public class MapSystem : BaseSystem
                 if (MouseWasClicked && MapPixelBounds.Contains(mouseState.Position))
                 {
 
-                    MoveGhost(ghostObj, player, map, SceneManager.ComponentsOfType<MapObject>().ToArray());
+                    MoveGhost(ent, ghostObj, player, map, SceneManager.ComponentsOfType<MapObject>().ToArray());
                 }
             }
             else if (ent.HasTag("Cursor"))
@@ -97,15 +98,18 @@ public class MapSystem : BaseSystem
             effect: null,
             transformMatrix: null); //camera here todo
 
+
+        var viewMap = UpdatePlayerViewMap();
+
         foreach (var ent in entities)
         {
             if (ent.HasTag("Map"))
             {
-                DrawMap(ent);
+                DrawMap(ent, viewMap);
             }
             else if (ent.GetComponent<MapObject>() is MapObject mapObj)
             {
-                DrawMapObject(mapObj);
+                DrawMapObject(mapObj, viewMap);
 
                 if (ent.GetComponent<Wardrobe>() is Wardrobe wardrobe)
                 {
@@ -117,7 +121,21 @@ public class MapSystem : BaseSystem
         sb.End();
 
     }
+    private float[,] UpdatePlayerViewMap()
+    {
+        var mapEnt = SceneManager.Entities.FirstOrDefault(t => t.HasTag("Map"));
+        if (mapEnt == null)
+            return new float[0,0];
 
+        var map = mapEnt.GetComponent<Map>();
+
+        var playerEnt = SceneManager.Entities.FirstOrDefault(t => t.HasTag("Player"));
+        var player = playerEnt.GetComponent<MapObject>();
+        var playerStats = playerEnt.GetComponent<CreatureStats>();
+        var viewMap = GetViewMap(new Point(player.MapX, player.MapY), map, playerStats.SightRange);
+
+        return viewMap;
+    }
     private void DrawWardrobe(Wardrobe wardrobe, MapObject mapObj)
     {
         if (wardrobe.BodySlot.HasValue)
@@ -139,31 +157,35 @@ public class MapSystem : BaseSystem
         }
     }
 
-    private void DrawMap(Entity ent)
+    private void DrawMap(Entity ent, float[,] viewMap)
     {
         var map = ent.GetComponent<Map>();
         if (map == null) throw new System.Exception("Entity tagged with 'Map' must have map component");
-
 
         //ground tiles
         for (int x = 0; x < map.GroundTiles.GetLength(0); x++)
         {
             for (int y = 0; y < map.GroundTiles.GetLength(1); y++)
             {
-                DrawTile(map.GroundTiles[x, y], groundLayer);
+                if (viewMap[x, y] != float.MaxValue)
+                    DrawTile(map.GroundTiles[x, y], groundLayer);
             }
         }
 
         //object tiles
         for (int i = 0; i < map.ObjectTiles.Count; i++)
         {
-            DrawTile(map.ObjectTiles[i], objectLayer);
+            if (viewMap[map.ObjectTiles[i].X, map.ObjectTiles[i].Y] != float.MaxValue)
+                DrawTile(map.ObjectTiles[i], objectLayer);
         }
     }
 
     //items that will move around our map
-    private void DrawMapObject(MapObject mapObject)
+    private void DrawMapObject(MapObject mapObject, float[,] viewMap)
     {
+        if (viewMap.GetLength(0) != 0 && viewMap[mapObject.MapX, mapObject.MapY] == float.MaxValue) return;
+
+
         var mapObjectInfo = Settings.MapObjectAtlas[mapObject.Type];
         var texture = Settings.TextureAtlas[mapObjectInfo.TextureName];
 
@@ -211,49 +233,58 @@ public class MapSystem : BaseSystem
     
     #region Creature Movement
 
-    private void MoveGhost(MapObject ghost, MapObject target, Map map, params MapObject[] mapObjects)
+    private void MoveGhost(Entity ent, MapObject ghost, MapObject target, Map map, params MapObject[] mapObjects)
     {
-        var ent = SceneManager.GetEntityWithComponent(ghost);
+        //is the target visible
+        var dist = Vector2.Distance(new Vector2(ghost.MapX, ghost.MapY), new Vector2(target.MapX, target.MapY));
+
         var stats = ent.GetComponent<CreatureStats>();
 
-        if (Vector2.Distance(new Vector2(ghost.MapX, ghost.MapY), new Vector2(target.MapX, target.MapY)) <= stats.SightRange)
+        if (dist > stats.SightRange)
+            return;
+        
+
+        //are there any tiles adjacent to target to stand on
+        var targAdj = map.GetAdjacentEmptyTiles(target.MapX, target.MapY, true, mapObjects);
+
+        if (!targAdj.Any())
+            return;
+   
+
+        //is there a valid path to the target
+        var (x, y) = targAdj.First();
+
+        var path = GetPath(
+            new Point(ghost.MapX, ghost.MapY),
+            new Point(x, y),
+                map,
+                mapObjects);
+
+        if (path == null || path.Count == 0)
+            return;
+        
+
+        //Attack or move 
+        if (Game.Rand.NextSingle() < 0.4 && dist <= stats.AttackRange)
         {
-            var targAdj = map.GetAdjacentEmptyTiles(target.MapX, target.MapY, true, mapObjects);
+            //attack
+            var otherEnt = SceneManager.GetEntityWithComponent(target);
+            var otherStats = otherEnt.GetComponent<CreatureStats>();
 
-            if (targAdj.Any())
-            {
-                var (x, y) = targAdj.First();
-
-                var path = GetPath(
-                    new Point(ghost.MapX, ghost.MapY),
-                    new Point(x, y),
-                        map,
-                        mapObjects);
-
-                if (path != null && path.Count > 0)
-                {
-                    var nextStep = path.First();
-
-                    if (nextStep != new Point(target.MapX, target.MapY))
-                    {
-                        ghost.MapX = nextStep.X;
-                        ghost.MapY = nextStep.Y;
-                    }
-
-
-
-                    //attack
-                    if (Vector2.Distance(new Vector2(ghost.MapX, ghost.MapY), new Vector2(target.MapX, target.MapY)) <= stats.AttackRange) 
-                    {                        
-                        var otherEnt = SceneManager.GetEntityWithComponent(target);
-                        var otherStats = otherEnt.GetComponent<CreatureStats>();
-
-                        otherStats.Health -= stats.Strength;
-                    }
-                }
-            }
-
+            otherStats.Health -= stats.Strength;
         }
+        else 
+        {
+            //step
+            var nextStep = path.First();
+
+            if (nextStep != new Point(target.MapX, target.MapY))
+            {
+                ghost.MapX = nextStep.X;
+                ghost.MapY = nextStep.Y;
+            }
+        }
+        
     }
 
     private void MovePlayer(MapObject player, Map map, params MapObject[] mapObjects)
@@ -341,6 +372,37 @@ public class MapSystem : BaseSystem
 
         return pathFinder.FindPath();
 
+    }
+
+    public static float[,] GetViewMap(Point start, Map map, float viewRadius, params MapObject[] mapObjects)
+    {
+        var grid = new bool[map.GroundTiles.GetLength(0), map.GroundTiles.GetLength(1)];
+
+        for (int x = 0; x < map.GroundTiles.GetLength(0); x++)
+        {
+            for (int y = 0; y < map.GroundTiles.GetLength(1); y++)
+            {
+                //var groundTile = Settings.TileAtlas[map.GroundTiles[x, y].Type];
+                var objectTiles = map.ObjectTiles.Where(t => t.X == x && t.Y == y).Select(v => Settings.TileAtlas[v.Type]);
+
+
+                //not checking ground collisions. Because solid ground tiles should be like impassible obstacles at ground level
+                //like water, or a hole in the floor. Walls and things on top of the ground that would block light belong
+                //as a mapobject or an object tile
+
+                //todo: the above comment should be the standard. But right now we are using holes in the floor as an object tile,
+                //because it relys on the background of the tile underneath it. Might need to consider a new list of decals, or a height property
+
+                //var hasGroundCollision = groundTile.Solid;
+                var hasObjectCollision = objectTiles.Any(y => y.Solid);
+                var hasItemCollision = mapObjects.Any(g => g.MapX == x && g.MapY == y && !Settings.MapObjectAtlas[g.Type].Collectable);
+
+                grid[x, y] = hasObjectCollision || hasItemCollision;
+            }
+        }
+
+        var viewMap = ShadowCast.GetViewMap(grid, start, viewRadius);
+        return viewMap;
     }
     #endregion
 }

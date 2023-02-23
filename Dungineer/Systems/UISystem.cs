@@ -4,6 +4,7 @@ using Engine;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 
 namespace Dungineer.Systems;
@@ -23,7 +24,11 @@ public class UISystem : BaseSystem
 
     private Dictionary<string, Texture2D> textures = new ();
     private Dictionary<string, SpriteFont> fonts = new();
-    
+
+    private int frameRate = 0;
+    private int frameCounter = 0;
+    private TimeSpan elapsedTime = TimeSpan.Zero;
+
     public UISystem(BaseGame game) : base(game)
     {
         sb = new SpriteBatch(game.GraphicsDevice);
@@ -75,6 +80,16 @@ public class UISystem : BaseSystem
     
     public override void Update(GameTime gameTime, IEnumerable<Entity> entities)
     {
+
+        elapsedTime += gameTime.ElapsedGameTime;
+
+        if (elapsedTime > TimeSpan.FromSeconds(1))
+        {
+            elapsedTime -= TimeSpan.FromSeconds(1);
+            frameRate = frameCounter;
+            frameCounter = 0;
+        }
+
         lastMouseState = mouseState;
         mouseState = Mouse.GetState();
 
@@ -173,6 +188,17 @@ public class UISystem : BaseSystem
             }
         }
 
+        frameCounter++;
+        sb.DrawString(
+            fonts["consolas_12"], 
+            $"FPS: {frameRate}", 
+            new Vector2(4, Game.Height - 20), 
+            Color.Yellow, 
+            0f, 
+            Vector2.Zero, 
+            1f, 
+            SpriteEffects.None, 
+            0.9f);
 
         sb.End();
     }
