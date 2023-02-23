@@ -11,7 +11,7 @@ public class MapPrefab : IPrefab<Entity>
     public Entity Instantiate(BaseGame game)
     {
         int mapWidth = 27;
-        int mapHeight = 28;
+        int mapHeight = 24;
         var groundTiles = new Tile[mapWidth, mapHeight];
         var objectTiles = new List<Tile>();
         for (int x = 0; x < groundTiles.GetLength(0); x++)

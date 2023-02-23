@@ -9,8 +9,6 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.NetworkInformation;
-
 namespace Dungineer.Systems;
 
 public class MapSystem : BaseSystem
@@ -29,6 +27,12 @@ public class MapSystem : BaseSystem
     private readonly SpriteBatch sb;
     private readonly List<Entity> entitiesToRemove = new ();
 
+    private float sightRangeBreathSpeed = 2f;
+    private float sightRangeBreathTimer = 0f;
+    private float sightRangeBreath;
+    private float sightBreathOffset = 3f;
+    private bool sightRangeBreathOut = false;
+    private float lastSightRange = 0f;
     public MapSystem(BaseGame game, ContentManager content) : base(game)
     {
         offset = new Vector2(game.Width / 5, 0);
@@ -42,6 +46,41 @@ public class MapSystem : BaseSystem
     public override void Update(GameTime gameTime, IEnumerable<Entity> entities)
     {
         if (SceneManager.CurrentScene != "Play") return;
+
+        sightRangeBreathTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        if (sightRangeBreathTimer >= 1f/sightRangeBreathSpeed)
+        {
+            sightRangeBreathTimer = 0f;
+
+            if (sightRangeBreath == 0)
+            {
+                if (sightRangeBreathOut)
+                    sightRangeBreath++;
+                else
+                    sightRangeBreath--;
+            }
+            else if (sightRangeBreath > 0)
+            {
+                if (sightRangeBreath < sightBreathOffset && !sightRangeBreathOut)
+                    sightRangeBreath++;
+                else
+                {
+                    sightRangeBreathOut = false;
+                    sightRangeBreath--;
+                }
+            }
+            else if (sightRangeBreath < 0)
+            {
+                if (sightRangeBreath > -sightBreathOffset && !sightRangeBreathOut)
+                    sightRangeBreath--;
+                else
+                { 
+                    sightRangeBreathOut = true;
+                    sightRangeBreath++;
+                }
+            }
+        }
 
         var map = entities.FirstOrDefault(t => t.Components.Any(v => v is Map))?.GetComponent<Map>();
 
@@ -64,7 +103,6 @@ public class MapSystem : BaseSystem
                 var ghostObj = ent.GetComponent<MapObject>();
                 if (MouseWasClicked && MapPixelBounds.Contains(mouseState.Position))
                 {
-
                     MoveGhost(ent, ghostObj, player, map, SceneManager.ComponentsOfType<MapObject>().ToArray());
                 }
             }
@@ -101,6 +139,7 @@ public class MapSystem : BaseSystem
 
         var viewMap = UpdatePlayerViewMap();
 
+
         foreach (var ent in entities)
         {
             if (ent.HasTag("Map"))
@@ -109,7 +148,14 @@ public class MapSystem : BaseSystem
             }
             else if (ent.GetComponent<MapObject>() is MapObject mapObj)
             {
-                DrawMapObject(mapObj, viewMap);
+
+                float tintMod = 1f;
+                if (viewMap.GetLength(0) > 0 && viewMap.GetLength(1) > 0)
+                {
+                    var distSqr = (float)Math.Sqrt(viewMap[mapObj.MapX, mapObj.MapY]) / lastSightRange;
+                    tintMod = MathHelper.Lerp(lastSightRange, 0f, distSqr);
+                }
+                DrawMapObject(mapObj, viewMap, tintMod);
 
                 if (ent.GetComponent<Wardrobe>() is Wardrobe wardrobe)
                 {
@@ -121,6 +167,7 @@ public class MapSystem : BaseSystem
         sb.End();
 
     }
+
     private float[,] UpdatePlayerViewMap()
     {
         var mapEnt = SceneManager.Entities.FirstOrDefault(t => t.HasTag("Map"));
@@ -132,7 +179,8 @@ public class MapSystem : BaseSystem
         var playerEnt = SceneManager.Entities.FirstOrDefault(t => t.HasTag("Player"));
         var player = playerEnt.GetComponent<MapObject>();
         var playerStats = playerEnt.GetComponent<CreatureStats>();
-        var viewMap = GetViewMap(new Point(player.MapX, player.MapY), map, playerStats.SightRange);
+        lastSightRange = playerStats.SightRange;
+        var viewMap = GetViewMap(new Point(player.MapX, player.MapY), map, playerStats.SightRange + sightRangeBreath);
 
         return viewMap;
     }
@@ -159,8 +207,11 @@ public class MapSystem : BaseSystem
 
     private void DrawMap(Entity ent, float[,] viewMap)
     {
+
         var map = ent.GetComponent<Map>();
         if (map == null) throw new System.Exception("Entity tagged with 'Map' must have map component");
+
+
 
         //ground tiles
         for (int x = 0; x < map.GroundTiles.GetLength(0); x++)
@@ -168,7 +219,12 @@ public class MapSystem : BaseSystem
             for (int y = 0; y < map.GroundTiles.GetLength(1); y++)
             {
                 if (viewMap[x, y] != float.MaxValue)
-                    DrawTile(map.GroundTiles[x, y], groundLayer);
+                {
+                    var distSqr = (float)Math.Sqrt(viewMap[x, y])/lastSightRange;
+                    var tintMod = MathHelper.Lerp(lastSightRange, 0f, distSqr);
+                    DrawTile(map.GroundTiles[x, y], groundLayer, tintMod/lastSightRange);
+
+                }
             }
         }
 
@@ -176,12 +232,16 @@ public class MapSystem : BaseSystem
         for (int i = 0; i < map.ObjectTiles.Count; i++)
         {
             if (viewMap[map.ObjectTiles[i].X, map.ObjectTiles[i].Y] != float.MaxValue)
-                DrawTile(map.ObjectTiles[i], objectLayer);
+            {
+                var distSqr = (float)Math.Sqrt(viewMap[map.ObjectTiles[i].X, map.ObjectTiles[i].Y]) / lastSightRange;
+                var tintMod = MathHelper.Lerp(lastSightRange, 0f, distSqr);
+                DrawTile(map.ObjectTiles[i], objectLayer, tintMod/lastSightRange);
+            }
         }
     }
 
     //items that will move around our map
-    private void DrawMapObject(MapObject mapObject, float[,] viewMap)
+    private void DrawMapObject(MapObject mapObject, float[,] viewMap, float tint)
     {
         if (viewMap.GetLength(0) != 0 && viewMap[mapObject.MapX, mapObject.MapY] == float.MaxValue) return;
 
@@ -196,7 +256,7 @@ public class MapSystem : BaseSystem
             texture,
             bnds,
             mapObjectInfo.Source,
-            mapObject.Tint,
+            mapObject.Tint * tint,
             0f,
             mapObject.Scale == 1f ? Vector2.Zero : new Vector2(bnds.Width / 2, bnds.Height / 2),
             SpriteEffects.None,
@@ -204,14 +264,14 @@ public class MapSystem : BaseSystem
 
 
     }
-    private void DrawTile(Tile tile, float layer)
+    private void DrawTile(Tile tile, float layer, float tintMod)
     {
         var tileInfo = Settings.TileAtlas[tile.Type];
         var texture = Settings.TextureAtlas[tileInfo.TextureName];
 
         var bnds = GetTileBounds(tile.X, tile.Y);
 
-        sb.Draw(texture, bnds, tileInfo.Source, tile.Tint, 0f, Vector2.Zero, SpriteEffects.None, layer);
+        sb.Draw(texture, bnds, tileInfo.Source, tile.Tint * tintMod, 0f, Vector2.Zero, SpriteEffects.None, layer);
 
         if (bnds.Contains(mouseState.Position))
         {
@@ -401,7 +461,7 @@ public class MapSystem : BaseSystem
             }
         }
 
-        var viewMap = ShadowCast.GetViewMap(grid, start, viewRadius);
+        var viewMap = ShadowCaster.GetViewMap(grid, start, viewRadius);
         return viewMap;
     }
     #endregion

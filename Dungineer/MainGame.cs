@@ -10,7 +10,7 @@ namespace Dungineer;
 public class MainGame : BaseGame
 {
     //1440x896
-    public MainGame() : base(Settings.Seed, Settings.TileSize * 45, Settings.TileSize * 28)
+    public MainGame() : base(Settings.Seed, Settings.TileSize * 45, Settings.TileSize * 24)
     {
         BackgroundColor = new Color(20, 20, 20);
         IsMouseVisible = false;
