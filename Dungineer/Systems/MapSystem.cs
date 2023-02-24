@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 namespace Dungineer.Systems;
 
 public class MapSystem : BaseSystem
@@ -33,6 +34,8 @@ public class MapSystem : BaseSystem
     private float sightBreathOffset = 3f;
     private bool sightRangeBreathOut = false;
     private float lastSightRange = 0f;
+
+    private Camera camera;
     public MapSystem(BaseGame game, ContentManager content) : base(game)
     {
         offset = new Vector2(game.Width / 5, 0);
@@ -40,6 +43,8 @@ public class MapSystem : BaseSystem
         sb = new SpriteBatch(game.GraphicsDevice);
 
         tileSelectTexture = ContentLoader.LoadTexture("ui_box_select_32", content);
+
+        camera = new Camera();
     }
 
 
@@ -96,6 +101,8 @@ public class MapSystem : BaseSystem
                 {
                     MovePlayer(playerObject, map, SceneManager.ComponentsOfType<MapObject>().ToArray());
                 }
+
+                
             }
             else if (ent.HasTag("Ghost"))
             {
@@ -134,7 +141,7 @@ public class MapSystem : BaseSystem
             depthStencilState: DepthStencilState.DepthRead,
             rasterizerState: RasterizerState.CullCounterClockwise,
             effect: null,
-            transformMatrix: null); //camera here todo
+            transformMatrix: camera.Transform(Game.GraphicsDevice)); //camera here todo
 
 
         var viewMap = UpdatePlayerViewMap();
@@ -155,7 +162,7 @@ public class MapSystem : BaseSystem
                     var distSqr = (float)Math.Sqrt(viewMap[mapObj.MapX, mapObj.MapY]) / lastSightRange;
                     tintMod = MathHelper.Lerp(lastSightRange, 0f, distSqr);
                 }
-                DrawMapObject(mapObj, viewMap, tintMod);
+                DrawMapObject(mapObj, viewMap, tintMod, ent.HasTag("Player"));
 
                 if (ent.GetComponent<Wardrobe>() is Wardrobe wardrobe)
                 {
@@ -241,10 +248,9 @@ public class MapSystem : BaseSystem
     }
 
     //items that will move around our map
-    private void DrawMapObject(MapObject mapObject, float[,] viewMap, float tint)
+    private void DrawMapObject(MapObject mapObject, float[,] viewMap, float tint, bool isPlayer)
     {
         if (viewMap.GetLength(0) != 0 && viewMap[mapObject.MapX, mapObject.MapY] == float.MaxValue) return;
-
 
         var mapObjectInfo = Settings.MapObjectAtlas[mapObject.Type];
         var texture = Settings.TextureAtlas[mapObjectInfo.TextureName];
@@ -262,6 +268,11 @@ public class MapSystem : BaseSystem
             SpriteEffects.None,
             itemLayer);
 
+
+        if (isPlayer)
+        {
+            camera.Position = bnds.Location.ToVector2();
+        }
 
     }
     private void DrawTile(Tile tile, float layer, float tintMod)
