@@ -46,9 +46,9 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
                     playerObj.Scale = 1f;
                     var map = SceneManager.Entities.First(t => t.HasTag("Map")).GetComponent<Map>();
                     var mapObjs = SceneManager.ComponentsOfType<MapObject>();
-                    var playerPos = map.GetRandomEmptyTile(game, mapObjs.ToArray());
-                    playerObj.MapX = playerPos.x;
-                    playerObj.MapY = playerPos.y;
+                    var (x, y) = map.GetRandomEmptyTile(game, mapObjs.ToArray());
+                    playerObj.MapX = x;
+                    playerObj.MapY = y;
 
                     SceneManager.AddEntity("Play", player);
                 }
@@ -158,7 +158,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
                 Money = 5,
                 
                 SightRange = 8f,
-                AttackRange = 2f,
+                AttackRange = 4f,
 
                 Strength = 3,
             })

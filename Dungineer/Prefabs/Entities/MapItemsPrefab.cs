@@ -62,7 +62,7 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
     }
 
 
-    private Entity CreateGhost(int x, int y)
+    private static Entity CreateGhost(int x, int y)
     {
         var ent = new Entity()
             .With(new MapObject
@@ -95,7 +95,7 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
         return ent;
     }
 
-    private Entity CreateAracanium(int x, int y)
+    private static Entity CreateAracanium(int x, int y)
     {
         var ent = new Entity()
             .With(new MapObject

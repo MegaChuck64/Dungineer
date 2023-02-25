@@ -26,7 +26,7 @@ public class MapSystem : BaseSystem
 
     private readonly Texture2D tileSelectTexture;
     private readonly SpriteBatch sb;
-    private readonly List<Entity> entitiesToRemove = new ();
+    private readonly List<Entity> entitiesToRemove = new();
 
     private float sightRangeBreathSpeed = 2f;
     private float sightRangeBreathTimer = 0f;
@@ -36,6 +36,8 @@ public class MapSystem : BaseSystem
     private float lastSightRange = 0f;
 
     private Camera camera;
+
+    private float[,] lastViewMap;
     public MapSystem(BaseGame game, ContentManager content) : base(game)
     {
         offset = new Vector2(game.Width / 5, 0);
@@ -54,7 +56,7 @@ public class MapSystem : BaseSystem
 
         sightRangeBreathTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (sightRangeBreathTimer >= 1f/sightRangeBreathSpeed)
+        if (sightRangeBreathTimer >= 1f / sightRangeBreathSpeed)
         {
             sightRangeBreathTimer = 0f;
 
@@ -80,7 +82,7 @@ public class MapSystem : BaseSystem
                 if (sightRangeBreath > -sightBreathOffset && !sightRangeBreathOut)
                     sightRangeBreath--;
                 else
-                { 
+                {
                     sightRangeBreathOut = true;
                     sightRangeBreath++;
                 }
@@ -97,21 +99,34 @@ public class MapSystem : BaseSystem
             if (ent.HasTag("Player"))
             {
                 var playerObject = ent.GetComponent<MapObject>();
-                if (MouseWasClicked && MapPixelBounds.Contains(mouseState.Position))
+                if (MapPixelBounds.Contains(mouseState.Position))
                 {
-                    MovePlayer(playerObject, map, SceneManager.ComponentsOfType<MapObject>().ToArray());
+                    if (MouseWasClicked(MouseButton.Left))
+                    {
+                        MovePlayer(playerObject, map, SceneManager.ComponentsOfType<MapObject>().ToArray());
+                    }
+                    else if (MouseWasClicked(MouseButton.Right))
+                    {
+                        PlayerAttack(playerObject, ent);
+                    }
                 }
-
                 
             }
             else if (ent.HasTag("Ghost"))
             {
-                var player = entities.First(t => t.HasTag("Player")).GetComponent<MapObject>();
-                var ghostObj = ent.GetComponent<MapObject>();
-                if (MouseWasClicked && MapPixelBounds.Contains(mouseState.Position))
+                var player = entities.FirstOrDefault(t => t.HasTag("Player"))?.GetComponent<MapObject>();
+                if (player != null)
                 {
-                    MoveGhost(ent, ghostObj, player, map, SceneManager.ComponentsOfType<MapObject>().ToArray());
+                    var ghostObj = ent.GetComponent<MapObject>();
+                    if (MapPixelBounds.Contains(mouseState.Position))
+                    {
+                        if (MouseWasClicked(MouseButton.Left) || MouseWasClicked(MouseButton.Right))
+                        {
+                            MoveGhost(ent, ghostObj, player, map, SceneManager.ComponentsOfType<MapObject>().ToArray());
+                        }
+                    }
                 }
+                
             }
             else if (ent.HasTag("Cursor"))
             {
@@ -128,7 +143,6 @@ public class MapSystem : BaseSystem
 
 
 
-    
     #region Drawing
 
     public override void Draw(GameTime gameTime, IEnumerable<Entity> entities)
@@ -179,17 +193,22 @@ public class MapSystem : BaseSystem
     {
         var mapEnt = SceneManager.Entities.FirstOrDefault(t => t.HasTag("Map"));
         if (mapEnt == null)
-            return new float[0,0];
+            return new float[0, 0];
 
         var map = mapEnt.GetComponent<Map>();
 
         var playerEnt = SceneManager.Entities.FirstOrDefault(t => t.HasTag("Player"));
-        var player = playerEnt.GetComponent<MapObject>();
-        var playerStats = playerEnt.GetComponent<CreatureStats>();
-        lastSightRange = playerStats.SightRange;
-        var viewMap = GetViewMap(new Point(player.MapX, player.MapY), map, playerStats.SightRange + sightRangeBreath);
+        if (playerEnt != null)
+        {
+            var player = playerEnt.GetComponent<MapObject>();
+            var playerStats = playerEnt.GetComponent<CreatureStats>();
+            lastSightRange = playerStats.SightRange;
+            var viewMap = GetViewMap(new Point(player.MapX, player.MapY), map, playerStats.SightRange + sightRangeBreath);
+            lastViewMap = viewMap;
+            return viewMap;
+        }
 
-        return viewMap;
+        return new float[0,0];
     }
     private void DrawWardrobe(Wardrobe wardrobe, MapObject mapObj)
     {
@@ -225,12 +244,14 @@ public class MapSystem : BaseSystem
         {
             for (int y = 0; y < map.GroundTiles.GetLength(1); y++)
             {
-                if (viewMap[x, y] != float.MaxValue)
-                {
-                    var distSqr = (float)Math.Sqrt(viewMap[x, y])/lastSightRange;
-                    var tintMod = MathHelper.Lerp(lastSightRange, 0f, distSqr);
-                    DrawTile(map.GroundTiles[x, y], groundLayer, tintMod/lastSightRange);
+                if (viewMap.GetLength(0) == 0)
+                    viewMap = lastViewMap;
 
+                if (viewMap.GetLength(0) > 0 && viewMap[x, y] != float.MaxValue)
+                {
+                    var distSqr = (float)Math.Sqrt(viewMap[x, y]) / lastSightRange;
+                    var tintMod = MathHelper.Lerp(lastSightRange, 0f, distSqr);
+                    DrawTile(map.GroundTiles[x, y], groundLayer, tintMod / lastSightRange);
                 }
             }
         }
@@ -242,7 +263,7 @@ public class MapSystem : BaseSystem
             {
                 var distSqr = (float)Math.Sqrt(viewMap[map.ObjectTiles[i].X, map.ObjectTiles[i].Y]) / lastSightRange;
                 var tintMod = MathHelper.Lerp(lastSightRange, 0f, distSqr);
-                DrawTile(map.ObjectTiles[i], objectLayer, tintMod/lastSightRange);
+                DrawTile(map.ObjectTiles[i], objectLayer, tintMod / lastSightRange);
             }
         }
     }
@@ -301,8 +322,32 @@ public class MapSystem : BaseSystem
 
     #endregion
 
-    
+
     #region Creature Movement
+
+    private void PlayerAttack(MapObject player, Entity playerEnt)
+    {
+        var mouseTile = MouseTilePosition;
+        var mapObj = SceneManager.ComponentsOfType<MapObject>().FirstOrDefault(t => t.MapX == mouseTile.X && t.MapY == mouseTile.Y);
+        var targetEnt = SceneManager.GetEntityWithComponent(mapObj);
+        var stats = playerEnt.GetComponent<CreatureStats>();
+        if (mapObj != null)
+        {
+            if (Vector2.Distance(new Vector2(player.MapX, player.MapY), new Vector2(mapObj.MapX, mapObj.MapY)) <= stats.AttackRange)
+            {
+                if (targetEnt.GetComponent<CreatureStats>() is CreatureStats targetStats)
+                {
+                    targetStats.Health -= stats.Strength;
+                    if (targetStats.Health < 0)
+                    {
+                        targetStats.Health = 0;
+                        entitiesToRemove.Add(targetEnt);
+                    }
+                }
+            }
+        }
+    }
+
 
     private void MoveGhost(Entity ent, MapObject ghost, MapObject target, Map map, params MapObject[] mapObjects)
     {
@@ -313,14 +358,14 @@ public class MapSystem : BaseSystem
 
         if (dist > stats.SightRange)
             return;
-        
+
 
         //are there any tiles adjacent to target to stand on
         var targAdj = map.GetAdjacentEmptyTiles(target.MapX, target.MapY, true, mapObjects);
 
         if (!targAdj.Any())
             return;
-   
+
 
         //is there a valid path to the target
         var (x, y) = targAdj.First();
@@ -333,7 +378,7 @@ public class MapSystem : BaseSystem
 
         if (path == null || path.Count == 0)
             return;
-        
+
 
         //Attack or move 
         if (Game.Rand.NextSingle() < 0.4 && dist <= stats.AttackRange)
@@ -343,8 +388,23 @@ public class MapSystem : BaseSystem
             var otherStats = otherEnt.GetComponent<CreatureStats>();
 
             otherStats.Health -= stats.Strength;
+            if (otherStats.Health <= 0)
+            {
+                otherStats.Health = 0;
+                if (otherEnt.HasTag("Player"))
+                {
+                    //todo GameOver
+                    entitiesToRemove.Add(otherEnt);
+
+                    //GameOver();
+                }
+                else
+                {
+                    entitiesToRemove.Add(otherEnt);
+                }
+            }
         }
-        else 
+        else
         {
             //step
             var nextStep = path.First();
@@ -355,7 +415,7 @@ public class MapSystem : BaseSystem
                 ghost.MapY = nextStep.Y;
             }
         }
-        
+
     }
 
     private void MovePlayer(MapObject player, Map map, params MapObject[] mapObjects)
@@ -372,7 +432,7 @@ public class MapSystem : BaseSystem
             player.MapX = nextStep.X;
             player.MapY = nextStep.Y;
 
-            if (mapObjects.Any(t=>t.MapX == player.MapX && t.MapY == player.MapY && Settings.MapObjectAtlas[t.Type].Collectable))
+            if (mapObjects.Any(t => t.MapX == player.MapX && t.MapY == player.MapY && Settings.MapObjectAtlas[t.Type].Collectable))
             {
                 var collectables = mapObjects
                     .Where(t => t.MapX == player.MapX && t.MapY == player.MapY && Settings.MapObjectAtlas[t.Type].Collectable)
@@ -403,7 +463,13 @@ public class MapSystem : BaseSystem
 
     #region Helpers 
 
-    private bool MouseWasClicked => lastMouseState.LeftButton == ButtonState.Released && mouseState.LeftButton == ButtonState.Pressed;
+    private bool MouseWasClicked(MouseButton mb) => mb switch
+    {
+        MouseButton.Left => lastMouseState.LeftButton == ButtonState.Released && mouseState.LeftButton == ButtonState.Pressed,
+        MouseButton.Right => lastMouseState.RightButton == ButtonState.Released && mouseState.RightButton == ButtonState.Pressed,
+        MouseButton.Middle => lastMouseState.MiddleButton == ButtonState.Released && mouseState.MiddleButton == ButtonState.Pressed,
+        _ => false
+    };
 
     private Rectangle MapPixelBounds => new(Game.Width / 5, 0, (Game.Width / 5) * 3, Game.Height);
 

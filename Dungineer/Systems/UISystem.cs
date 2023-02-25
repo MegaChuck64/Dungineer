@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Dungineer.Systems;
 
@@ -28,6 +29,9 @@ public class UISystem : BaseSystem
     private int frameRate = 0;
     private int frameCounter = 0;
     private TimeSpan elapsedTime = TimeSpan.Zero;
+    private Point MouseTilePosition =>
+    new((mouseState.X - (Game.Width / 5)) / Settings.TileSize,
+        mouseState.Y / Settings.TileSize);
 
     public UISystem(BaseGame game) : base(game)
     {
@@ -181,10 +185,19 @@ public class UISystem : BaseSystem
                 }
             }
 
-            if (entity.HasTag("Player"))
+            if (entity.GetComponent<MapObject>() is MapObject mapObj)
             {
-                var stats = entity.GetComponent<CreatureStats>();
-                DrawStats(stats);
+                if (entity.HasTag("Player"))
+                {
+                    var stats = entity.GetComponent<CreatureStats>();
+                    DrawPlayerStats(stats);
+                }
+                else if (mapObj.MapX == MouseTilePosition.X && mapObj.MapY == MouseTilePosition.Y)
+                {
+                    
+                    if (entity.GetComponent<CreatureStats>() is CreatureStats stats)
+                        DrawItemStats(stats, mapObj);
+                }
             }
         }
 
@@ -200,6 +213,20 @@ public class UISystem : BaseSystem
             SpriteEffects.None, 
             0.9f);
 
+
+        if (SceneManager.CurrentScene == "Play" && !SceneManager.Entities.Any(t=>t.HasTag("Player")))
+        {
+            sb.DrawString(
+                fonts["consolas_22"],
+                $"Game Over",
+                new Vector2(Game.Width/2 - 62, Game.Height/2),
+                Color.Red,
+                0f,
+                Vector2.Zero,
+                1f,
+                SpriteEffects.None,
+                0.9f);
+        }
         sb.End();
     }
 
@@ -260,7 +287,7 @@ public class UISystem : BaseSystem
             image.Layer);
     }
 
-    private void DrawStats(CreatureStats stats)
+    private void DrawPlayerStats(CreatureStats stats)
     {
         var font = fonts["consolas_14"];
 
@@ -285,8 +312,37 @@ public class UISystem : BaseSystem
 
         sb.Draw(moneyTexture, moneyBounds, moneySource, Color.White);
         sb.DrawString(font, moneyStr, new Vector2(moneyBounds.X + 32 + 8, moneyBounds.Y + (moneyStrSize.Y / 2)), Color.White);
+    }
 
+    private void DrawItemStats(CreatureStats stats, MapObject mapObj)
+    {
+        var font = fonts["consolas_14"];
 
+        //health
+        var healthStr = $"{stats.Health}/{stats.MaxHealth}";
+        var healthStrSize = font.MeasureString(healthStr);
+
+        var healthTexture = textures["symbols_32"];
+        var healthSource = new Rectangle(32, 0, 32, 32);
+        var healthBounds = new Rectangle(Game.Width - 16 - (int)healthStrSize.X - 32 - 16, 32 * 3, 32, 32);
+
+        var itemInfo = Settings.MapObjectAtlas[mapObj.Type];
+
+        sb.Draw(healthTexture, healthBounds, healthSource, Color.White);
+        sb.DrawString(font, healthStr, new Vector2(healthBounds.X + 32 + 8, healthBounds.Y + (healthStrSize.Y / 2)), Color.White);
+
+        sb.DrawString(font, itemInfo.Name, new Vector2(healthBounds.X + 32, healthBounds.Y - healthStrSize.Y), Color.White);
+
+        ////money
+        //var moneyTexture = textures["treasure_32"];
+        //var moneySource = new Rectangle(0, 0, 32, 32);
+        //var moneyBounds = new Rectangle(16, 32 * 4 + 8, 32, 32);
+
+        //var moneyStr = stats.Money.ToString();
+        //var moneyStrSize = font.MeasureString(healthStr);
+
+        //sb.Draw(moneyTexture, moneyBounds, moneySource, Color.White);
+        //sb.DrawString(font, moneyStr, new Vector2(moneyBounds.X + 32 + 8, moneyBounds.Y + (moneyStrSize.Y / 2)), Color.White);
     }
 
 
