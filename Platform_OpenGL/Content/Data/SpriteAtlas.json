@@ -1,0 +1,51 @@
+﻿[
+  {
+    "Name": "Ghost",
+    "Texture": "ghost_32",
+    "Tint": {
+      "R": 1.0,
+      "G": 1.0,
+      "B": 1.0,
+      "A": 1.0
+    },
+    "Source": {
+      "X": 32,
+      "Y": 0,
+      "Width": 32,
+      "Height": 32
+    }
+  },
+  {
+    "Name": "BasicRobe",
+    "Texture": "robes_32",
+    "Tint": {
+      "R": 1.0,
+      "G": 1.0,
+      "B": 1.0,
+      "A": 1.0
+    },
+    "Source": {
+      "X": 0,
+      "Y": 0,
+      "Width": 32,
+      "Height": 32
+    }
+  },
+  {
+    "Name": "Human",
+    "Texture": "human_32",
+    "Tint": {
+      "R": 1.0,
+      "G": 1.0,
+      "B": 1.0,
+      "A": 1.0
+    },
+    "Source", {
+      "X": 0,
+      "Y": 0,
+      "Width": 32,
+      "Height": 32
+    }
+
+
+]

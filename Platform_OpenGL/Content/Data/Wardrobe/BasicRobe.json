@@ -1,0 +1,8 @@
+﻿{
+  "Name": "Basic Robe",
+  "Slot": "Body",
+  "Description": "Basic wizard's robe with some basic modifiers.",
+  "HealthMod": 1,
+  "Cost": 3,
+  "Sprite": "BasicRobe"
+}

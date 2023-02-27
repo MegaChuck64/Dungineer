@@ -1,0 +1,15 @@
+﻿{
+  "Name": "Ghostly Grasp",
+  "Description": "A haunting attack that allows ghosts to drain the stamina of their opponents as well as their life.",
+  "Range": "1",
+  "Effects": [
+    {
+      "Type": "Stamina Reduction",
+      "Value": "1d3"
+    },
+    {
+      "Type": "Damage",
+      "Value": "1d3"
+    }      
+  ]
+}

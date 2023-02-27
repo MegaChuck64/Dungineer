@@ -1,0 +1,17 @@
+﻿{
+  "Name": "Ghost",
+  "MaxHealth": "2d4",
+  "MaxStamina": "2d3",
+  "MoveSpeed": "1d3",
+  "SightRange": "2d3",
+  "Flags": [
+    "Undead"
+  ],
+  "Behaviors": [
+    "Target Player"
+  ],
+  "Attacks": [
+    "Ghostly Grasp"
+  ],
+  "Sprite": "Ghost"
+}

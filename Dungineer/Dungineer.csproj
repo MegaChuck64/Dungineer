@@ -7,5 +7,8 @@
 			<PrivateAssets>All</PrivateAssets>
 		</PackageReference>
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Loaders\" />
+	</ItemGroup>
 	<Import Project="..\Engine\Engine.projitems" Label="Shared" />
 </Project>
