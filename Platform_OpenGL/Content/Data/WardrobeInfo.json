@@ -3,7 +3,7 @@
     "Name": "Basic Robe",
     "TextureName": "robes_32",
     "Slot": "Body",
-    "Description": "Basic wizard's robe with some basic modifiers.",
+    "Description": "Basic wizard's robe with a +1 modifer to max health.",
     "HealthMod": 1,
     "Cost": 3,
     "Source": {

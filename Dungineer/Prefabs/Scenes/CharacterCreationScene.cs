@@ -22,7 +22,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
         ents.Add(player);
 
 
-        ents.Add(CreateRobe(game, player, "symbols_32", new Rectangle(0, 0, 32, 32), -100, null));
+        ents.Add(CreateRobe(game, player, "symbols_32", new Rectangle(0, 0, 32, 32), -100, null));        
         ents.Add(CreateRobe(game, player, "robes_32", new Rectangle(0, 0, 32, 32), 0, WardrobeType.BasicRobe));
 
 
@@ -85,8 +85,8 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
         var robe = new Entity()
             .With(new UIElement
             {
-                Position = new Point(game.Width/2 + 100, game.Height/ 2 + yOffset),
-                Size = new Point(64, 64),     
+                Position = new Point(game.Width / 2 + 100, game.Height / 2 + yOffset),
+                Size = new Point(64, 64),
                 OnMousePressed = (mb) =>
                 {
                     var stats = player.GetComponent<CreatureStats>();
@@ -113,20 +113,40 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
             {
                 Layer = 0.8f,
                 Position = Point.Zero,
-                Size = new Point(1,1),
+                Size = new Point(1, 1),
                 TextureName = textureName,
                 Source = source,
                 Tint = Color.White
-            }) 
+            })
             .With(new SelectItem
             {
-
                 DefaultColor = Color.White,
-                SelectedColor = new Color(50, 200, 100),
+                SelectedColor = Color.Yellow,
                 SelectionGroup = "Robes",
-                HoverColor = Color.White,
+                HoverColor = new Color(100, 100, 100),
                 PressedColor = Color.White,
             });
+
+        if (wardrobeType.HasValue)
+        {
+            robe = robe
+                .With(new TextBox
+                {
+                    FontName = "consolas_22",
+                    Text = Settings.WardrobeAtlas[wardrobeType.Value].Cost.ToString(),
+                    TextColor = Color.Green,
+                    Layer = 0.8f,
+                    Offset = new Vector2(Settings.TileSize + 8, 0)
+                })
+                .With(new TextBox
+                {
+                    FontName = "consolas_14",
+                    Text = Settings.WardrobeAtlas[wardrobeType.Value].Description,
+                    TextColor = Color.White,
+                    Layer = 0.8f,
+                    Offset = new Vector2(Settings.TileSize * 10, 0)
+                });
+        }
 
 
 

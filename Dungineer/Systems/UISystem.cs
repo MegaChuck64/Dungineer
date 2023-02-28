@@ -270,6 +270,7 @@ public class UISystem : BaseSystem
 
         var fontSize = font.MeasureString(text.Text);
         var pos = new Vector2(bounds.X + (bounds.Width / 2) - (fontSize.X / 2), bounds.Y + (bounds.Height / 2) - (fontSize.Y / 2));
+        pos += text.Offset;
         sb.DrawString(font, text.Text, pos, text.TextColor, 0f, Vector2.Zero, 1f, SpriteEffects.None, text.Layer);
     }
     private void DrawImage(Image image, UIElement ui, Color tint)
