@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 
 namespace Dungineer;
 
@@ -14,8 +15,20 @@ public static class Settings
     public static Dictionary<TileType, TileInfo> TileAtlas { get; private set; }
     public static Dictionary<MapObjectType, MapObjectInfo> MapObjectAtlas { get; private set; }
     public static Dictionary<WardrobeType, WardrobeInfo> WardrobeAtlas { get; private set; }
+
     public static Dictionary<string, Texture2D> TextureAtlas { get; private set; }
 
+    public static void Load(BaseGame game, ContentManager content, int? seed = null)
+    {
+        SetSeed(seed);
+        LoadMapObjectAtlas(content);
+        LoadTileAtlas(content);
+        LoadWardrobeAtlas(content);
+
+        var pixelTexture = new Texture2D(game.GraphicsDevice, 1, 1);
+        pixelTexture.SetData(new Color[] { Color.White });
+        TextureAtlas.Add("_pixel", pixelTexture);
+    }
 
     public static void SetSeed(int? seed = null)
     {

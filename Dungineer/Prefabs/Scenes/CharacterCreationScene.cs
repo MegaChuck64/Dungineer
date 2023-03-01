@@ -178,7 +178,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
                 Money = 5,
                 
                 SightRange = 8f,
-                AttackRange = 4f,
+                AttackRange = 3f,
 
                 Strength = 3,
             })

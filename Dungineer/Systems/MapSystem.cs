@@ -113,48 +113,50 @@ public class MapSystem : BaseSystem
                 {
                     if (MouseWasClicked(MouseButton.Left))
                     {
+                        //move
                         var movement = new TargetMovement(MouseTilePosition);
                         movement.Perform(ent);
 
-                        var mapObjs = SceneManager
+                        //collect
+                        var collectables = SceneManager
                             .ComponentsOfType<MapObject>()
                             .Where(t => t.MapX == playerObject.MapX && t.MapY == playerObject.MapY && Settings.MapObjectAtlas[t.Type].Collectable)
                             .ToArray();
 
-                        if (mapObjs.Any())
+                        if (collectables.Any())
                         {
-                            var collect = new Collect(mapObjs.First(), Game);
+                            var collect = new Collect(collectables.First(), Game);
                             collect.Perform(ent);
-                            entitiesToRemove.Add(SceneManager.GetEntityWithComponent(mapObjs[0]));
-                            for (int i = 1; i < mapObjs.Length; i++)
+                            entitiesToRemove.Add(SceneManager.GetEntityWithComponent(collectables[0]));
+                            for (int i = 1; i < collectables.Length; i++)
                             {
-                                collect.MapObject = mapObjs[i];
+                                collect.MapObject = collectables[i];
                                 collect.Perform(ent);
-                                entitiesToRemove.Add(SceneManager.GetEntityWithComponent(mapObjs[i]));
+                                entitiesToRemove.Add(SceneManager.GetEntityWithComponent(collectables[i]));
                             }
                         }
-                        //MovePlayer(playerObject, map, SceneManager.ComponentsOfType<MapObject>().ToArray());
                     }
                     else if (MouseWasClicked(MouseButton.Right))
                     {
                         var mouseTile = MouseTilePosition;
                         var mapObj = SceneManager.ComponentsOfType<MapObject>().FirstOrDefault(t => t.MapX == mouseTile.X && t.MapY == mouseTile.Y);
                         var targetEnt = SceneManager.GetEntityWithComponent(mapObj);
-                        if (targetEnt != null)
+                        var stats = ent.GetComponent<CreatureStats>();
+                        if (targetEnt != null && 
+                            Vector2.Distance(new Vector2(playerObject.MapX, playerObject.MapY), mouseTile.ToVector2()) <= stats.AttackRange)
                         {
                             var attack = new BasicAttack(targetEnt);
                             attack.Perform(ent);
-                        }
-                        
-                        //PlayerAttack(playerObject, ent);
+                        }                        
                     }
                 }
                 
             }
-            else if (ent.HasTag("Ghost"))
+            else if (ent.GetComponent<MapObject>() is MapObject mapObj)
             {
-                var player = entities.FirstOrDefault(t => t.HasTag("Player"))?.GetComponent<MapObject>();
-                
+                var mapObjInfo = Settings.MapObjectAtlas[mapObj.Type];
+
+                var player = entities.FirstOrDefault(t => t.HasTag("Player"))?.GetComponent<MapObject>();             
                 if (player == null)
                     continue;
                 
@@ -164,41 +166,44 @@ public class MapSystem : BaseSystem
                 if (MapPixelBounds.Contains(mouseState.Position) == false)
                     continue;
 
-                var ghostObj = ent.GetComponent<MapObject>();
-                var stats = ent.GetComponent<CreatureStats>();
+                if (mapObjInfo.Behaviors == null || mapObjInfo.Behaviors.Count == 0)
+                    continue;
 
-                var dist = Vector2.Distance(new Vector2(player.MapX, player.MapY), new Vector2(ghostObj.MapX, ghostObj.MapY));
-                var ghostInfo = Settings.MapObjectAtlas[ghostObj.Type];
-                
-                var rand = Game.Rand.Next(0, ghostInfo.Behaviors.Count);
-                var behavior = ghostInfo.Behaviors[rand];
-                if (behavior == "TargetPlayer")
+                if (ent.GetComponent<CreatureStats>() is CreatureStats stats)
                 {
-                    if (dist <= stats.SightRange)
-                    {
-                        var targAdj =
-                            map.GetAdjacentEmptyTiles(
-                                player.MapX,
-                                player.MapY,
-                                true,
-                                SceneManager.ComponentsOfType<MapObject>().ToArray());
+                    var dist = Vector2.Distance(new Vector2(player.MapX, player.MapY), new Vector2(mapObj.MapX, mapObj.MapY));
 
-                        if (targAdj.Any())
+                    var rand = Game.Rand.Next(0, mapObjInfo.Behaviors.Count);
+                    var behavior = mapObjInfo.Behaviors[rand];
+
+                    if (behavior == "TargetPlayer")
+                    {
+                        if (dist <= stats.SightRange)
                         {
-                            var (x, y) = targAdj.First();
-                            var movement = new TargetMovement(new Point(x, y));
-                            movement.Perform(ent);
+                            var targAdj =
+                                map.GetAdjacentEmptyTiles(
+                                    player.MapX,
+                                    player.MapY,
+                                    true,
+                                    SceneManager.ComponentsOfType<MapObject>().ToArray());
+
+                            if (targAdj.Any())
+                            {
+                                var (x, y) = targAdj.First();
+                                var movement = new TargetMovement(new Point(x, y));
+                                movement.Perform(ent);
+                            }
+                        }
+                    }
+                    else if (behavior == "BasicAttack")
+                    {
+                        if (dist <= stats.AttackRange)
+                        {
+                            var attack = new BasicAttack(SceneManager.GetEntityWithComponent(player));
+                            attack.Perform(ent);
                         }
                     }
                 }
-                else if (behavior == "BasicAttack")
-                {
-                    if (dist <= stats.AttackRange)
-                    {
-                        var attack = new BasicAttack(SceneManager.GetEntityWithComponent(player));
-                        attack.Perform(ent);
-                    }
-                }                        
 
             }
             else if (ent.HasTag("Cursor"))
@@ -310,7 +315,13 @@ public class MapSystem : BaseSystem
         var map = ent.GetComponent<Map>();
         if (map == null) throw new System.Exception("Entity tagged with 'Map' must have map component");
 
-
+        MapObject hoverObj = null;
+        if (MapPixelBounds.Contains(mouseState.Position))
+        {
+            hoverObj = SceneManager.ComponentsOfType<MapObject>()
+                .Where(t => t.MapX == MouseTilePosition.X && t.MapY == MouseTilePosition.Y)
+                .FirstOrDefault();
+        }
 
         //ground tiles
         for (int x = 0; x < map.GroundTiles.GetLength(0); x++)
@@ -320,11 +331,39 @@ public class MapSystem : BaseSystem
                 if (viewMap.GetLength(0) == 0)
                     viewMap = lastViewMap;
 
+                //draw tile if visible
                 if (viewMap.GetLength(0) > 0 && viewMap[x, y] != float.MaxValue)
                 {
                     var distSqr = (float)Math.Sqrt(viewMap[x, y]) / lastSightRange;
                     var tintMod = MathHelper.Lerp(lastSightRange, 0f, distSqr);
-                    DrawTile(map.GroundTiles[x, y], groundLayer, tintMod / lastSightRange);
+
+                    var tileBounds = DrawTile(map.GroundTiles[x, y], groundLayer, tintMod / lastSightRange);
+
+                    //draw highlight on hover
+                    if (hoverObj != null && hoverObj.MapX == x && hoverObj.MapY == y)
+                    {
+                        Color? tint = null;
+                        //new Color(255, 200, 0, 100)
+                        var hoverEnt = SceneManager.GetEntityWithComponent(hoverObj);
+                        if (hoverEnt.HasTag("Player") == false)
+                        {
+                            if (SceneManager.Entities.FirstOrDefault(t => t.HasTag("Player")) is Entity playerEnt)
+                            {
+                                var playerObj = playerEnt.GetComponent<MapObject>();
+                                var playerStats = playerEnt.GetComponent<CreatureStats>();
+                                if (hoverEnt.GetComponent<CreatureStats>() is CreatureStats monsterStats &&
+                                    Vector2.Distance(
+                                        new Vector2(playerObj.MapX, playerObj.MapY), 
+                                        new Vector2(hoverObj.MapX, hoverObj.MapY)) <= playerStats.AttackRange)
+                                {
+                                    tint = new Color(1f, 0f, 0f, 0.5f);
+                                }
+                            }
+                            
+                        }
+                        if (tint.HasValue)
+                            DrawTileHighlight(tint.Value, tileBounds, groundLayer + 0.1f);
+                    }
                 }
             }
         }
@@ -369,7 +408,7 @@ public class MapSystem : BaseSystem
         }
 
     }
-    private void DrawTile(Tile tile, float layer, float tintMod)
+    private Rectangle DrawTile(Tile tile, float layer, float tintMod)
     {
         var tileInfo = Settings.TileAtlas[tile.Type];
         var texture = Settings.TextureAtlas[tileInfo.TextureName];
@@ -391,6 +430,12 @@ public class MapSystem : BaseSystem
                 layer + 0.1f);
         }
 
+        return bnds;
+    }
+
+    private void DrawTileHighlight(Color tint, Rectangle bounds, float layer)
+    {
+        sb.Draw(Settings.TextureAtlas["_pixel"], bounds, null, tint, 0f, Vector2.Zero, SpriteEffects.None, layer);
     }
 
     #endregion

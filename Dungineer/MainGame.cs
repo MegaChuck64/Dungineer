@@ -23,9 +23,7 @@ public class MainGame : BaseGame
 
     public override void Load(ContentManager content)
     {
-        Settings.LoadTileAtlas(content);
-        Settings.LoadMapObjectAtlas(content);
-        Settings.LoadWardrobeAtlas(content);
+        Settings.Load(this, content);
 
         AddSystems();
 
