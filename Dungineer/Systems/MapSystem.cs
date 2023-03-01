@@ -154,49 +154,52 @@ public class MapSystem : BaseSystem
             else if (ent.HasTag("Ghost"))
             {
                 var player = entities.FirstOrDefault(t => t.HasTag("Player"))?.GetComponent<MapObject>();
-                if (player != null)
-                {
-                    var ghostObj = ent.GetComponent<MapObject>();
-                    if (MapPixelBounds.Contains(mouseState.Position))
-                    {
-                        if (MouseWasClicked(MouseButton.Left) || MouseWasClicked(MouseButton.Right))
-                        {
-                            var stats = ent.GetComponent<CreatureStats>();
-                            var rand = Game.Rand.Next(0, 2);
-                            var dist = Vector2.Distance(new Vector2(player.MapX, player.MapY), new Vector2(ghostObj.MapX, ghostObj.MapY));
-                            if (rand == 0)
-                            {
-                                if (dist <= stats.SightRange)
-                                {
-                                    var targAdj =
-                                        map.GetAdjacentEmptyTiles(
-                                            player.MapX,
-                                            player.MapY,
-                                            true,
-                                            SceneManager.ComponentsOfType<MapObject>().ToArray());
+                
+                if (player == null)
+                    continue;
+                
+                if (MouseWasClicked(MouseButton.Left) == false && MouseWasClicked(MouseButton.Right) == false)
+                    continue;
 
-                                    if (targAdj.Any())
-                                    {
-                                        var (x, y) = targAdj.First();
-                                        var movement = new TargetMovement(new Point(x, y));
-                                        movement.Perform(ent);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (dist <= stats.AttackRange)
-                                {
-                                    var attack = new BasicAttack(SceneManager.GetEntityWithComponent(player));
-                                    attack.Perform(ent);
-                                }
-                            }
-                                
-                            //MoveGhost(ent, ghostObj, player, map, SceneManager.ComponentsOfType<MapObject>().ToArray());
+                if (MapPixelBounds.Contains(mouseState.Position) == false)
+                    continue;
+
+                var ghostObj = ent.GetComponent<MapObject>();
+                var stats = ent.GetComponent<CreatureStats>();
+
+                var dist = Vector2.Distance(new Vector2(player.MapX, player.MapY), new Vector2(ghostObj.MapX, ghostObj.MapY));
+                var ghostInfo = Settings.MapObjectAtlas[ghostObj.Type];
+                
+                var rand = Game.Rand.Next(0, ghostInfo.Behaviors.Count);
+                var behavior = ghostInfo.Behaviors[rand];
+                if (behavior == "TargetPlayer")
+                {
+                    if (dist <= stats.SightRange)
+                    {
+                        var targAdj =
+                            map.GetAdjacentEmptyTiles(
+                                player.MapX,
+                                player.MapY,
+                                true,
+                                SceneManager.ComponentsOfType<MapObject>().ToArray());
+
+                        if (targAdj.Any())
+                        {
+                            var (x, y) = targAdj.First();
+                            var movement = new TargetMovement(new Point(x, y));
+                            movement.Perform(ent);
                         }
                     }
                 }
-                
+                else if (behavior == "BasicAttack")
+                {
+                    if (dist <= stats.AttackRange)
+                    {
+                        var attack = new BasicAttack(SceneManager.GetEntityWithComponent(player));
+                        attack.Perform(ent);
+                    }
+                }                        
+
             }
             else if (ent.HasTag("Cursor"))
             {

@@ -11,7 +11,12 @@
     },
 
     "LotteryValue": 5,
-    "Collectable": false
+    "Collectable": false,
+
+    "Behaviors": [
+      "BasicAttack",
+      "TargetPlayer"
+    ]
   },
   {
     "Name": "Human",

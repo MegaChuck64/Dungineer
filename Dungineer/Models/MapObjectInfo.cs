@@ -1,5 +1,6 @@
 ﻿using Engine;
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Dungineer.Models;
@@ -18,6 +19,9 @@ public struct MapObjectInfo
     public int LotteryValue { get; set; }
 
     public bool Collectable { get; set; }
+
+    public List<string> Behaviors { get; set; }
+
 }
 public enum MapObjectType
 {
