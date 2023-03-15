@@ -213,6 +213,19 @@ public class UISystem : BaseSystem
             SpriteEffects.None, 
             0.9f);
 
+        if (SceneManager.CurrentScene == "Play")
+            sb.DrawString(
+                fonts["consolas_12"],
+                $"Left click to move towards tile \r\n" +
+                $"1 to aim and click to attack",
+                new Vector2(8, Game.Height - 200),
+                Color.Tan,
+                0f,
+                Vector2.Zero,
+                1f,
+                SpriteEffects.None,
+                0.9f);
+
 
         if (SceneManager.CurrentScene == "Play" && !SceneManager.Entities.Any(t=>t.HasTag("Player")))
         {

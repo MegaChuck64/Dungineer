@@ -388,7 +388,7 @@ public class MapSystem : BaseSystem
                         }
                         else
                         {
-                            DrawTileHighlight(new Color(0f, 1f, 0f, 0.5f), tileBounds, groundLayer + 0.1f);
+                            DrawTileHighlight(new Color(0f, 1f, 0f, 0.25f), tileBounds, groundLayer + 0.1f);
                         }
                     }
                 
