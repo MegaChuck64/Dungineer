@@ -16,8 +16,6 @@ public struct WardrobeInfo
     public int Cost { get; set; }
     public int HealthMod { get; set; }
 
-
-
     [JsonConverter(typeof(ContentLoader.RectangleJsonConverter))]
     public Rectangle Source { get; set; }
 }

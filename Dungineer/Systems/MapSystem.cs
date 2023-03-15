@@ -19,6 +19,9 @@ public class MapSystem : BaseSystem
     private MouseState mouseState;
     private MouseState lastMouseState;
 
+    private KeyboardState keyState;
+    private KeyboardState lastKeyState;
+
     private const float groundLayer = 0.5f;
     private const float objectLayer = 0.6f;
     private const float effectLayer = 0.7f;
@@ -27,6 +30,7 @@ public class MapSystem : BaseSystem
     private readonly Texture2D tileSelectTexture;
     private readonly SpriteBatch sb;
     private readonly List<Entity> entitiesToRemove = new();
+    private readonly List<Point> aimingPath = new();
 
     private float sightRangeBreathSpeed = 2f;
     private float sightRangeBreathTimer = 0f;
@@ -89,10 +93,14 @@ public class MapSystem : BaseSystem
             }
         }
 
-        var map = entities.FirstOrDefault(t => t.Components.Any(v => v is Map))?.GetComponent<Map>();
+        var map = entities.FirstOrDefault(t => t.HasTag("Map"))?.GetComponent<Map>();
+
 
         lastMouseState = mouseState;
         mouseState = Mouse.GetState();
+
+        lastKeyState = keyState;
+        keyState = Keyboard.GetState();
 
         foreach (var ent in entities.Reverse()) //todo, reversing for now because we add the player last to the scene, but we want to process it first
         {
@@ -113,6 +121,8 @@ public class MapSystem : BaseSystem
                 {
                     if (MouseWasClicked(MouseButton.Left))
                     {
+                        aimingPath.Clear();
+
                         //move
                         var movement = new TargetMovement(MouseTilePosition);
                         movement.Perform(ent);
@@ -136,8 +146,16 @@ public class MapSystem : BaseSystem
                             }
                         }
                     }
+                    else if (KeyWasClicked(Keys.D1))
+                    {
+                        //aiming
+                        var attack = new BasicAttack(null);
+                        aimingPath.AddRange(attack.Aim(ent));
+                    }
                     else if (MouseWasClicked(MouseButton.Right))
                     {
+                        aimingPath.Clear();
+
                         var mouseTile = MouseTilePosition;
                         var mapObj = SceneManager.ComponentsOfType<MapObject>().FirstOrDefault(t => t.MapX == mouseTile.X && t.MapY == mouseTile.Y);
                         var targetEnt = SceneManager.GetEntityWithComponent(mapObj);
@@ -247,7 +265,6 @@ public class MapSystem : BaseSystem
             }
             else if (ent.GetComponent<MapObject>() is MapObject mapObj)
             {
-
                 float tintMod = 1f;
                 if (viewMap.GetLength(0) > 0 && viewMap.GetLength(1) > 0)
                 {
@@ -361,8 +378,14 @@ public class MapSystem : BaseSystem
                             }
                             
                         }
+
                         if (tint.HasValue)
-                            DrawTileHighlight(tint.Value, tileBounds, groundLayer + 0.1f);
+                            DrawTileHighlight(tint.Value, tileBounds, groundLayer + 0.1f);                        
+                    }
+                    else
+                    {
+                        if (aimingPath.Contains(new Point(x, y)))
+                            DrawTileHighlight(new Color(0f, 1f, 0f, 0.5f), tileBounds, groundLayer + 0.1f);
                     }
                 }
             }
@@ -450,6 +473,8 @@ public class MapSystem : BaseSystem
         MouseButton.Middle => lastMouseState.MiddleButton == ButtonState.Released && mouseState.MiddleButton == ButtonState.Pressed,
         _ => false
     };
+
+    private bool KeyWasClicked(Keys key) => lastKeyState.IsKeyUp(key) && keyState.IsKeyDown(key);
 
     private Rectangle MapPixelBounds => new(Game.Width / 5, 0, (Game.Width / 5) * 3, Game.Height);
 
