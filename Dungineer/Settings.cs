@@ -89,5 +89,3 @@ public static class Settings
     }
 
 }
-
-
