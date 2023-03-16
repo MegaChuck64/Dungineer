@@ -16,7 +16,9 @@
     "Behaviors": [
       "BasicAttack",
       "TargetPlayer"
-    ]
+    ],
+
+    "DropChance": 0.25
   },
   {
     "Name": "Human",

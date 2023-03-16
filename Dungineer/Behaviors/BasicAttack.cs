@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Dungineer.Behaviors;
 
-public class BasicAttack : ISpell, IBehavior
+public class BasicAttack : IAimable, IBehavior
 {
     public Entity Target { get; set; }
     public BasicAttack(Entity target)
@@ -39,7 +39,7 @@ public class BasicAttack : ISpell, IBehavior
             {
                 for (int y= mapObj.MapY - (int)stats.AttackRange; y < mapObj.MapY + (int)stats.AttackRange; y++)
                 {
-                    if (Vector2.Distance(new Vector2(x, y), new Vector2(mapObj.MapX, mapObj.MapY)) <= stats.AttackRange)
+                    if (Vector2.Distance(new Vector2(x, y), new Vector2(mapObj.MapX, mapObj.MapY)) < stats.AttackRange)
                     {
                         points.Add(new Point(x,y));
                     }    

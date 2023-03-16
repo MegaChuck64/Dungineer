@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Dungineer.Behaviors;
 
-public interface ISpell
+public interface IAimable
 {
     public IEnumerable<Point> Aim(Entity ent);
 }

@@ -1,6 +1,7 @@
 ﻿using Dungineer.Behaviors;
 using Dungineer.Components.GameWorld;
 using Dungineer.Components.UI;
+using Dungineer.Models;
 using Engine;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -42,6 +43,13 @@ public class MapSystem : BaseSystem
     private Camera camera;
 
     private float[,] lastViewMap;
+
+    private readonly MapObjectType[] dropLottery = new MapObjectType[]
+    {
+        MapObjectType.Arcanium
+    };
+
+
     public MapSystem(BaseGame game, ContentManager content) : base(game)
     {
         offset = new Vector2(game.Width / 5, 0);
@@ -110,6 +118,18 @@ public class MapSystem : BaseSystem
                 {
                     creatureStats.Health = 0;
                     entitiesToRemove.Add(ent);
+
+                    if (ent.GetComponent<MapObject>() is MapObject mapObj)
+                    {
+                        var info = Settings.MapObjectAtlas[mapObj.Type];
+                        var rand = Game.Rand.NextDouble();
+                        if (rand <= info.DropChance)
+                        {
+                            var drop = new DropOnDeath(Game.Rand, dropLottery);
+                            drop.Perform(ent);
+                        }
+                    }
+
                     continue;
                 }
             }
@@ -127,8 +147,8 @@ public class MapSystem : BaseSystem
                             var mapObj = SceneManager.ComponentsOfType<MapObject>().FirstOrDefault(t => t.MapX == mouseTile.X && t.MapY == mouseTile.Y);
                             var targetEnt = SceneManager.GetEntityWithComponent(mapObj);
                             var stats = ent.GetComponent<CreatureStats>();
-                            if (targetEnt != null &&
-                                Vector2.Distance(new Vector2(playerObject.MapX, playerObject.MapY), mouseTile.ToVector2()) <= stats.AttackRange)
+                            if (targetEnt != null && aimingPath.Contains(mouseTile))
+                                //Vector2.Distance(new Vector2(playerObject.MapX, playerObject.MapY), mouseTile.ToVector2()) <= stats.AttackRange)
                             {
                                 var attack = new BasicAttack(targetEnt);
                                 attack.Perform(ent);
@@ -372,10 +392,10 @@ public class MapSystem : BaseSystem
                                 {
                                     var playerObj = playerEnt.GetComponent<MapObject>();
                                     var playerStats = playerEnt.GetComponent<CreatureStats>();
-                                    if (hoverEnt.GetComponent<CreatureStats>() is CreatureStats monsterStats &&
-                                        Vector2.Distance(
-                                            new Vector2(playerObj.MapX, playerObj.MapY),
-                                            new Vector2(hoverObj.MapX, hoverObj.MapY)) <= playerStats.AttackRange)
+                                    if (hoverEnt.GetComponent<CreatureStats>() is CreatureStats monsterStats)//&&
+                                        //Vector2.Distance(
+                                        //    new Vector2(playerObj.MapX, playerObj.MapY),
+                                        //    new Vector2(hoverObj.MapX, hoverObj.MapY)) <= playerStats.AttackRange)
                                     {
                                         tint = new Color(1f, 0f, 0f, 0.5f);
                                     }

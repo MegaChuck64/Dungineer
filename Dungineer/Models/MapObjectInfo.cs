@@ -22,6 +22,7 @@ public struct MapObjectInfo
 
     public List<string> Behaviors { get; set; }
 
+    public float DropChance { get; set; }
 }
 public enum MapObjectType
 {

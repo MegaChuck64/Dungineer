@@ -95,7 +95,7 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
         return ent;
     }
 
-    private static Entity CreateAracanium(int x, int y)
+    public static Entity CreateAracanium(int x, int y)
     {
         var ent = new Entity()
             .With(new MapObject
