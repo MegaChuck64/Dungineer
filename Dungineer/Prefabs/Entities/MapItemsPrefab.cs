@@ -77,8 +77,8 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
                 Health = 10,
                 MaxHealth = 10,
 
-                Stamina = 10,
-                MaxStamina = 10,
+                Mana = 10,
+                MaxMana = 10,
 
                 MoveSpeed = 0.75f,
 

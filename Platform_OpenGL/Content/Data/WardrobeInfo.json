@@ -18,8 +18,9 @@
     "Name": "Proper Robe",
     "TextureName": "robes_32",
     "Slot": "Body",
-    "Description": "A Proper Wizard's Robe is a long, flowing garment made of enchanted cloth that provides protection and boosts the wizard's magical abilities.",
-    "HealthMod": 3,
+    "Description": "Proper Wizard's robe with a +2 modifer to max health \nand +2 modifer to max mana.",
+    "HealthMod": 2,
+    "ManaMod": 2,
     "Cost": 7,
     "Source": {
       "X": 32,

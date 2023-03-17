@@ -201,6 +201,7 @@ public class UISystem : BaseSystem
             }
         }
 
+        //fps
         frameCounter++;
         sb.DrawString(
             fonts["consolas_12"], 
@@ -213,6 +214,7 @@ public class UISystem : BaseSystem
             SpriteEffects.None, 
             0.9f);
 
+        //instructions
         if (SceneManager.CurrentScene == "Play")
             sb.DrawString(
                 fonts["consolas_12"],
@@ -226,7 +228,7 @@ public class UISystem : BaseSystem
                 SpriteEffects.None,
                 0.9f);
 
-
+        //game over
         if (SceneManager.CurrentScene == "Play" && !SceneManager.Entities.Any(t=>t.HasTag("Player")))
         {
             sb.DrawString(
@@ -316,10 +318,21 @@ public class UISystem : BaseSystem
         sb.Draw(healthTexture, healthBounds, healthSource, Color.White);
         sb.DrawString(font, healthStr, new Vector2(healthBounds.X + 32 + 8, healthBounds.Y + (healthStrSize.Y/2)), Color.White);
 
+        //mana
+        var manaTexture = textures["symbols_32"];
+        var manaSource = new Rectangle(64, 0, 32, 32);
+        var manaBounds = new Rectangle(16, 32 * 4 + 8, 32, 32);
+
+        var manaStr = $"{stats.Mana}/{stats.MaxMana}";
+        var manaStrSize = font.MeasureString(manaStr);
+
+        sb.Draw(manaTexture, manaBounds, manaSource, Color.White);
+        sb.DrawString(font, manaStr, new Vector2(manaBounds.X + 32 + 8, manaBounds.Y + (manaStrSize.Y / 2)), Color.White);
+
         //money
         var moneyTexture = textures["treasure_32"];
         var moneySource = new Rectangle(0, 0, 32, 32);
-        var moneyBounds = new Rectangle(16, 32 * 4 + 8, 32, 32);
+        var moneyBounds = new Rectangle(16, 32 * 5 + 8, 32, 32);
 
         var moneyStr = stats.Money.ToString();
         var moneyStrSize = font.MeasureString(healthStr);

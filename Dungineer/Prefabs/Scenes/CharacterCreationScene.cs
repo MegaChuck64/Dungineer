@@ -24,6 +24,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
 
         ents.Add(CreateRobe(game, player, "symbols_32", new Rectangle(0, 0, 32, 32), -100, null));        
         ents.Add(CreateRobe(game, player, "robes_32", new Rectangle(0, 0, 32, 32), 0, WardrobeType.BasicRobe));
+        ents.Add(CreateRobe(game, player, "robes_32", new Rectangle(32, 0, 32, 32), 100, WardrobeType.ProperRobe));
 
 
         ents.Add(CreateStartButton(game, player));
@@ -97,14 +98,22 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
                         var wardrobeInfo = Settings.WardrobeAtlas[wardrobe.BodySlot.Value];
                         stats.Money += wardrobeInfo.Cost;
                         stats.MaxHealth -= wardrobeInfo.HealthMod;
+                        stats.MaxMana -= wardrobeInfo.ManaMod;
                     }
-                    wardrobe.BodySlot = wardrobeType;
 
-                    if (wardrobe.BodySlot != null)
+                    wardrobe.BodySlot = null;
+
+                    if (wardrobeType != null)
                     {
-                        var wardrobeInfo = Settings.WardrobeAtlas[wardrobe.BodySlot.Value];
-                        stats.Money -= wardrobeInfo.Cost;
-                        stats.MaxHealth += wardrobeInfo.HealthMod;
+                        var wardrobeInfo = Settings.WardrobeAtlas[wardrobeType.Value];
+
+                        if (wardrobeInfo.Cost <= stats.Money)
+                        {
+                            stats.Money -= wardrobeInfo.Cost;
+                            stats.MaxHealth += wardrobeInfo.HealthMod;
+                            stats.MaxMana += wardrobeInfo.ManaMod;
+                            wardrobe.BodySlot = wardrobeType;
+                        }
                     }
 
                 },
@@ -170,12 +179,12 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
                 Health = 12,
                 MaxHealth = 12,
 
-                Stamina = 20,
-                MaxStamina = 20,
+                Mana = 20,
+                MaxMana = 20,
 
                 MoveSpeed = 1,
                 
-                Money = 5,
+                Money = 7,
                 
                 SightRange = 8f,
                 AttackRange = 3f,
