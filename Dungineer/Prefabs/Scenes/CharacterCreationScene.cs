@@ -1,4 +1,5 @@
-﻿using Dungineer.Components.GameWorld;
+﻿using Dungineer.Behaviors;
+using Dungineer.Components.GameWorld;
 using Dungineer.Components.UI;
 using Dungineer.Models;
 using Dungineer.Prefabs.Entities;
@@ -195,6 +196,13 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
             {
                 BodySlot = null,
                 HatSlot = null,
+            })
+            .With(new SpellBook
+            {
+                Spells = new List<Behaviors.ISpell>
+                {
+                    new BasicAttack(),
+                }
             })
             .WithTag("Player");
 

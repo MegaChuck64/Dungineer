@@ -5,13 +5,15 @@ using System.Collections.Generic;
 
 namespace Dungineer.Behaviors;
 
-public class BasicAttack : IAimable, IBehavior
+public class BasicAttack : ISpell
 {
-    public Entity Target { get; set; }
-    public BasicAttack(Entity target)
+    public Entity Target { get; private set; }
+    
+    public void SetTarget(Entity target)
     {
         Target = target;
     }
+
     public void Perform(Entity ent)
     {
         var performerStats = ent.GetComponent<CreatureStats>();
