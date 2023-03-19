@@ -1,4 +1,5 @@
 ﻿using Dungineer.Components.GameWorld;
+using Dungineer.Models;
 using Engine;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
@@ -7,19 +8,20 @@ namespace Dungineer.Behaviors;
 
 public class BasicAttack : ISpell
 {
-    public Entity Target { get; private set; }
-    
-    public void SetTarget(Entity target)
+    public Point Target { get; private set; }
+
+    public SpellType GetSpellType() => SpellType.BasicAttack;
+
+    public void SetTarget(Point target)
     {
         Target = target;
     }
 
-    public void Perform(Entity ent)
+    public void Perform(Entity performer, Entity inflicted)
     {
-        var performerStats = ent.GetComponent<CreatureStats>();
-
-
-        if (Target.GetComponent<CreatureStats>() is CreatureStats targetStats)
+        var performerStats = performer.GetComponent<CreatureStats>();
+        
+        if (inflicted.GetComponent<CreatureStats>() is CreatureStats targetStats)
         {
             targetStats.Health -= performerStats.Strength;
             if (targetStats.Health < 0)
@@ -27,6 +29,7 @@ public class BasicAttack : ISpell
                 targetStats.Health = 0;
             }
         }
+        
 
     }
 
@@ -35,17 +38,20 @@ public class BasicAttack : ISpell
         var points = new List<Point>();
 
         var mapObj = ent.GetComponent<MapObject>();
-        if (ent.GetComponent<CreatureStats>() is CreatureStats stats)
+
+        var spellInfo = Settings.SpellAtlas[GetSpellType()];
+
+        for (int x = mapObj.MapX - spellInfo.Range; x < mapObj.MapX + spellInfo.Range + 1; x++)
         {
-            for (int x = mapObj.MapX - (int)stats.AttackRange; x < mapObj.MapX + (int)stats.AttackRange; x++)
+            for (int y= mapObj.MapY - spellInfo.Range; y < mapObj.MapY + spellInfo.Range + 1; y++)
             {
-                for (int y= mapObj.MapY - (int)stats.AttackRange; y < mapObj.MapY + (int)stats.AttackRange; y++)
+                if (x == mapObj.MapX && y == mapObj.MapY)
+                    continue;
+
+                if (Vector2.Distance(new Vector2(x, y), new Vector2(mapObj.MapX, mapObj.MapY)) <= spellInfo.Range)
                 {
-                    if (Vector2.Distance(new Vector2(x, y), new Vector2(mapObj.MapX, mapObj.MapY)) < stats.AttackRange)
-                    {
-                        points.Add(new Point(x,y));
-                    }    
-                }
+                    points.Add(new Point(x,y));
+                }    
             }
         }
 

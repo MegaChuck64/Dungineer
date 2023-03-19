@@ -100,9 +100,6 @@ public class MapSystem : BaseSystem
                 if (MapPixelBounds.Contains(mouseState.Position) == false)
                     continue;
 
-                if (mapObjInfo.Behaviors == null || mapObjInfo.Behaviors.Count == 0)
-                    continue;
-
                 UpdateMapObject(ent, mapObj, player, mapObjInfo, map);
             }
             else if (ent.HasTag("Cursor"))
@@ -168,11 +165,11 @@ public class MapSystem : BaseSystem
                 if (ent.GetComponent<MapObject>() is MapObject mapObj)
                 {
                     var info = Settings.MapObjectAtlas[mapObj.Type];
-                    var rand = Game.Rand.NextDouble();
+                    var rand = MainGame.Rand.NextDouble();
                     if (rand <= info.DropChance)
                     {
-                        var drop = new DropOnDeath(Game.Rand, dropLottery);
-                        drop.Perform(ent);
+                        var drop = new DropOnDeath(MainGame.Rand, dropLottery);
+                        drop.Perform(ent, null);
                     }
                 }
 
@@ -202,18 +199,24 @@ public class MapSystem : BaseSystem
                         if (ent.GetComponent<SpellBook>() is SpellBook spellBook && spellBook.selectedSpell >= 0)
                         {
                             var spell = spellBook.Spells[spellBook.selectedSpell];
-                            spell.SetTarget(targetEnt);
-                            spell.Perform(ent);
+                            spell.SetTarget(mouseTile);
+                            spell.Perform(ent, targetEnt);
                             spellBook.selectedSpell = -1;
                         }
                     }
                 }
                 else
                 {
-                    //move
-                    var movement = new TargetMovement(MouseTilePosition);
-                    movement.Perform(ent);
+                    if (ent.GetComponent<BehaviorController>() is BehaviorController behaviorController)
+                    {
+                        foreach (var behavior in behaviorController.Behaviors)
+                        {
+                            if (behavior is ITarget targeter)
+                                targeter.SetTarget(MouseTilePosition);
 
+                            behavior.Perform(ent, null);
+                        }
+                    }
                     //collect
                     var collectables = SceneManager
                         .ComponentsOfType<MapObject>()
@@ -222,14 +225,12 @@ public class MapSystem : BaseSystem
 
                     if (collectables.Any())
                     {
-                        var collect = new Collect(collectables.First(), Game);
-                        collect.Perform(ent);
-                        entitiesToRemove.Add(SceneManager.GetEntityWithComponent(collectables[0]));
-                        for (int i = 1; i < collectables.Length; i++)
+                        var collect = new Collect();
+                        for (int i = 0; i < collectables.Length; i++)
                         {
-                            collect.MapObject = collectables[i];
-                            collect.Perform(ent);
-                            entitiesToRemove.Add(SceneManager.GetEntityWithComponent(collectables[i]));
+                            var collectEnt = SceneManager.GetEntityWithComponent(collectables[i]);
+                            collect.Perform(ent, collectEnt);
+                            entitiesToRemove.Add(collectEnt);
                         }
                     }
                 }
@@ -263,35 +264,44 @@ public class MapSystem : BaseSystem
         {
             var dist = Vector2.Distance(new Vector2(player.MapX, player.MapY), new Vector2(mapObj.MapX, mapObj.MapY));
 
-            var rand = Game.Rand.Next(0, mapObjInfo.Behaviors.Count);
-            var behavior = mapObjInfo.Behaviors[rand];
-
-            if (behavior == "TargetPlayer")
+            if (dist <= stats.SightRange)
             {
-                if (dist <= stats.SightRange)
+                if (ent.GetComponent<BehaviorController>() is BehaviorController behaviorController)
                 {
-                    var targAdj =
-                        map.GetAdjacentEmptyTiles(
-                            player.MapX,
-                            player.MapY,
-                            true,
-                            SceneManager.ComponentsOfType<MapObject>().ToArray());
-
-                    if (targAdj.Any())
+                    foreach (var behavior in behaviorController.Behaviors)
                     {
-                        var (x, y) = targAdj.First();
-                        var movement = new TargetMovement(new Point(x, y));
-                        movement.Perform(ent);
+                        if (behavior is ITarget targeter)
+                            targeter.SetTarget(new Point(player.MapX, player.MapY));
+
+                        behavior.Perform(ent, SceneManager.GetEntityWithComponent(player));
                     }
-                }
-            }
-            else if (behavior == "BasicAttack")
-            {
-                if (dist <= stats.AttackRange)
+                }    
+
+                if (ent.GetComponent<SpellBook>() is SpellBook spellBook)
                 {
-                    var attack = new BasicAttack();
-                    attack.SetTarget(SceneManager.GetEntityWithComponent(player));
-                    attack.Perform(ent);
+                    if (spellBook.Spells.Count > 0)
+                    {
+                        var targAdj =
+                            map.GetAdjacentEmptyTiles(
+                                player.MapX,
+                                player.MapY,
+                                true,
+                                SceneManager.ComponentsOfType<MapObject>().ToArray());
+
+                        if (targAdj.Any())
+                        {
+                            var spellIndex = MainGame.Rand.Next(0, spellBook.Spells.Count);
+                            var spell = spellBook.Spells[spellIndex];
+                            var spellInfo = Settings.SpellAtlas[spell.GetSpellType()];
+                            if (dist <= spellInfo.Range)
+                            {
+                                spell.SetTarget(new Point(player.MapX, player.MapY));
+                                spellBook.Spells[spellIndex].Perform(ent, SceneManager.GetEntityWithComponent(player));
+                            }
+                        }
+
+                    }
+        
                 }
             }
         }

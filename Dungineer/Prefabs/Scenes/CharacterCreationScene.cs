@@ -172,7 +172,6 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
                 MapX = 5,
                 MapY = 16,
                 Tint = Color.White,
-                Type = MapObjectType.Human,
                 Scale = 2,
             })
             .With(new CreatureStats
@@ -188,7 +187,6 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
                 Money = 7,
                 
                 SightRange = 8f,
-                AttackRange = 3f,
 
                 Strength = 3,
             })
@@ -199,9 +197,16 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
             })
             .With(new SpellBook
             {
-                Spells = new List<Behaviors.ISpell>
+                Spells = new List<ISpell>
                 {
-                    new BasicAttack(),
+                    new BasicAttack()
+                }
+            })
+            .With(new BehaviorController
+            {
+                Behaviors = new List<IBehavior>
+                {
+                    new BasicMovement()
                 }
             })
             .WithTag("Player");

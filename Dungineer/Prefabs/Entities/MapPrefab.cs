@@ -40,7 +40,7 @@ public class MapPrefab : IPrefab<Entity>
                 }
                 else
                 {
-                    var rand = game.Rand.NextDouble();
+                    var rand = BaseGame.Rand.NextDouble();
 
                     if (rand <= 0.2f)
                     {

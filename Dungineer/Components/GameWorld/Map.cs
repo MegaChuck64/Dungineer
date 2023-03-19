@@ -18,8 +18,8 @@ public class Map : Component
 
         do
         {
-            randX = game.Rand.Next(0, GroundTiles.GetLength(0));
-            randY = game.Rand.Next(0, GroundTiles.GetLength(1));
+            randX = MainGame.Rand.Next(0, GroundTiles.GetLength(0));
+            randY = MainGame.Rand.Next(0, GroundTiles.GetLength(1));
         } while (!IsEmpty(randX, randY, mapObjects));
 
         return (randX, randY);

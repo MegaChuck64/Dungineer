@@ -14,7 +14,7 @@ namespace Engine
         public Color BackgroundColor { get; set; } = Color.Black;
         public int Width { get; private set; }
         public int Height { get; private set; }
-        public Random Rand { get; set; }
+        public static Random Rand { get; set; }
         public bool Debug { get; set; } = false;
         public List<BaseSystem> Systems { get; private set; }
 

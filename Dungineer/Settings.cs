@@ -15,6 +15,8 @@ public static class Settings
     public static Dictionary<TileType, TileInfo> TileAtlas { get; private set; }
     public static Dictionary<MapObjectType, MapObjectInfo> MapObjectAtlas { get; private set; }
     public static Dictionary<WardrobeType, WardrobeInfo> WardrobeAtlas { get; private set; }
+    public static Dictionary<SpellType, SpellInfo> SpellAtlas { get; private set; }
+    public static Dictionary<EffectType, EffectInfo> EffectAtlas { get; private set; }
 
     public static Dictionary<string, Texture2D> TextureAtlas { get; private set; }
 
@@ -24,6 +26,8 @@ public static class Settings
         LoadMapObjectAtlas(content);
         LoadTileAtlas(content);
         LoadWardrobeAtlas(content);
+        LoadSpellAtlas(content);
+        LoadEffectAtlas(content);
 
         var pixelTexture = new Texture2D(game.GraphicsDevice, 1, 1);
         pixelTexture.SetData(new Color[] { Color.White });
@@ -85,6 +89,40 @@ public static class Settings
                 TextureAtlas.Add(winfo.TextureName, ContentLoader.LoadTexture(winfo.TextureName, content));
 
             WardrobeAtlas.Add(infoType, winfo);
+        }
+    }
+
+    public static void LoadSpellAtlas(ContentManager content)
+    {
+        SpellAtlas = new Dictionary<SpellType, SpellInfo>();
+        TextureAtlas ??= new Dictionary<string, Texture2D>();
+
+        var spellInfo = ContentLoader.LoadObjectFromJson<List<SpellInfo>>("SpellInfo.json", content);
+        foreach (var sinfo in spellInfo)
+        {
+            var keyname = sinfo.Name.Replace(" ", string.Empty);
+            var infoType = Enum.Parse<SpellType>(keyname);
+            if (!TextureAtlas.ContainsKey(sinfo.TextureName))
+                TextureAtlas.Add(sinfo.TextureName, ContentLoader.LoadTexture(sinfo.TextureName, content));
+
+            SpellAtlas.Add(infoType, sinfo);
+        }
+    }
+
+    public static void LoadEffectAtlas(ContentManager content)
+    {
+        EffectAtlas = new Dictionary<EffectType, EffectInfo>();
+        TextureAtlas ??= new Dictionary<string, Texture2D>();
+
+        var effectInfo = ContentLoader.LoadObjectFromJson<List<EffectInfo>>("EffectInfo.json", content);
+        foreach (var einfo in effectInfo)
+        {
+            var keyname = einfo.Name.Replace(" ", string.Empty);
+            var infoType = Enum.Parse<EffectType>(keyname);
+            if (!TextureAtlas.ContainsKey(einfo.TextureName))
+                TextureAtlas.Add(einfo.TextureName, ContentLoader.LoadTexture(einfo.TextureName, content));
+
+            EffectAtlas.Add(infoType, einfo);
         }
     }
 

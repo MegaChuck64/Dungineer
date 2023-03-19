@@ -1,0 +1,15 @@
+﻿[
+  {
+    "Name": "Fire",
+    "Description": "Sets target on fire for 2 turns dealing 1 damage each turn.",
+    "Turns": 2,
+    "Damage": 1,
+    "TextureName": "symbols_32",
+    "Source": {
+      "X": 128,
+      "Y": 0,
+      "Width": 32,
+      "Height": 32
+    }
+  }
+]

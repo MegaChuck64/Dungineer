@@ -5,27 +5,21 @@ namespace Dungineer.Behaviors;
 
 public class Collect : IBehavior
 {
-    public MapObject MapObject { get; set; }    
-    public BaseGame Game { get; set; }
-    public Collect (MapObject mapObject, BaseGame game)
+    public void Perform(Entity performer, Entity inflicted)
     {
-        MapObject = mapObject;
-        Game = game;
-    }
-    public void Perform(Entity ent)
-    {
-        var stats = ent.GetComponent<CreatureStats>();
-
-        if (stats != null)
+        if (performer.GetComponent<CreatureStats>() is CreatureStats stats)
         {
-            var info = Settings.MapObjectAtlas[MapObject.Type];
-            if (info.Collectable)
+            if (inflicted.GetComponent<MapObject>() is MapObject collectable)
             {
-                switch (MapObject.Type)
+                var info = Settings.MapObjectAtlas[collectable.Type];
+                if (info.Collectable)
                 {
-                    case Models.MapObjectType.Arcanium:
-                        stats.Money += Game.Rand.Next(1, 10);
-                        break;
+                    switch (collectable.Type)
+                    {
+                        case Models.MapObjectType.Arcanium:
+                            stats.Money += MainGame.Rand.Next(1, 10);
+                            break;
+                    }
                 }
             }
         }

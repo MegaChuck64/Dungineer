@@ -14,9 +14,24 @@
     "Collectable": false,
 
     "Behaviors": [
-      "BasicAttack",
-      "TargetPlayer"
+      "Basic Attack",
+      "Basic Movement"
     ],
+    "Stats": {
+      "Health": 10,
+      "MaxHealth": 10,
+
+      "Mana": 10,
+      "MaxMana": 10,
+
+      "MoveSpeed": 0.75,
+
+      "Strength": 1,
+
+      "SightRange": 4,
+
+      "Money":  0
+    },
 
     "DropChance": 0.25
   },

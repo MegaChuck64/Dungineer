@@ -189,8 +189,11 @@ public class UISystem : BaseSystem
             {
                 if (entity.HasTag("Player"))
                 {
-                    var stats = entity.GetComponent<CreatureStats>();
-                    DrawPlayerStats(stats);
+                    if (entity.GetComponent<CreatureStats>() is CreatureStats stats)
+                        DrawPlayerStats(stats);
+
+                    if (entity.GetComponent<SpellBook>() is SpellBook spellBook)
+                        DrawPlayerSpellBook(spellBook);
                 }
                 else if (mapObj.MapX == MouseTilePosition.X && mapObj.MapY == MouseTilePosition.Y)
                 {
@@ -339,6 +342,11 @@ public class UISystem : BaseSystem
 
         sb.Draw(moneyTexture, moneyBounds, moneySource, Color.White);
         sb.DrawString(font, moneyStr, new Vector2(moneyBounds.X + 32 + 8, moneyBounds.Y + (moneyStrSize.Y / 2)), Color.White);
+    }
+
+    private void DrawPlayerSpellBook(SpellBook spellBook)
+    {
+
     }
 
     private void DrawItemStats(CreatureStats stats, MapObject mapObj)

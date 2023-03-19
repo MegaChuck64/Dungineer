@@ -1,0 +1,31 @@
+﻿[
+  {
+    "Name": "Basic Attack",
+    "Description": "Low range, low damage attack any competent magi can perform.",
+    "Range": 2,
+    "Damage": 1,
+    "TextureName": "hand_32",
+    "Source": {
+      "X": 0,
+      "Y": 0,
+      "Width": 32,
+      "Height": 32
+    }
+  },
+  {
+    "Name": "Fire Bolt",
+    "Desciprition": "Mid range fire spell that deals 3 damage and sets target on fire",
+    "Range": 3,
+    "Damage": 2,
+    "Effects": [
+      "Fire"
+    ],
+    "TextureName": "symbols_32",
+    "Source": {
+      "X": 96,
+      "Y": 0,
+      "Width": 32,
+      "Height": 32
+    }
+  }
+]

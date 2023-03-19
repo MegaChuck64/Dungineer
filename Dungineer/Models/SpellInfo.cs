@@ -1,34 +1,25 @@
-﻿using Dungineer.Components.GameWorld;
-using Engine;
+﻿using Engine;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Dungineer.Models;
 
-
-public struct MapObjectInfo
+public struct SpellInfo
 {
     public string Name { get; set; }
-
     public string TextureName { get; set; }
 
     [JsonConverter(typeof(ContentLoader.RectangleJsonConverter))]
     public Rectangle Source { get; set; }
     public string Description { get; set; }
-
-    public int LotteryValue { get; set; }
-
-    public bool Collectable { get; set; }
-
-    public List<string> Behaviors { get; set; }
-    public CreatureStats Stats { get; set; }
-
-    public float DropChance { get; set; }
+    public int Range { get; set; }
+    public int Damage { get; set; }
+    public List<string> Effects { get; set; }
 }
-public enum MapObjectType
+
+public enum SpellType
 {
-    Human,
-    Ghost,
-    Arcanium
+    BasicAttack,
+    FireBolt,
 }

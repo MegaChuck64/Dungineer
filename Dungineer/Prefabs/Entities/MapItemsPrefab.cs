@@ -1,4 +1,5 @@
-﻿using Dungineer.Components.GameWorld;
+﻿using Dungineer.Behaviors;
+using Dungineer.Components.GameWorld;
 using Dungineer.Models;
 using Engine;
 using Microsoft.Xna.Framework;
@@ -30,21 +31,21 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
 
         for (int x = 0; x < map.GroundTiles.GetLength(0); x++)
         {
-            for (int y= 0; y < map.GroundTiles.GetLength(1); y++)
+            for (int y = 0; y < map.GroundTiles.GetLength(1); y++)
             {
                 var mapObjs = SceneManager.ComponentsOfType<MapObject>();
 
                 if (map.IsEmpty(x, y, mapObjs.ToArray()))
                 {
-                    if (game.Rand.NextSingle() <= itemSpawnRate)
+                    if (MainGame.Rand.NextSingle() <= itemSpawnRate)
                     {
-                        var itemType = mapItemLottery[game.Rand.Next(mapItemLottery.Count)];
+                        var itemType = mapItemLottery[MainGame.Rand.Next(mapItemLottery.Count)];
                         switch (itemType)
                         {
                             case MapObjectType.Human:
                                 break;
                             case MapObjectType.Ghost:
-                                ents.Add(CreateGhost(x, y));
+                                ents.Add(CreateCreature(x, y, MapObjectType.Ghost, "Ghost"));
                                 break;
                             case MapObjectType.Arcanium:
                                 ents.Add(CreateAracanium(x, y));
@@ -54,47 +55,60 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
                         }
                     }
                 }
-                
+
             }
         }
-        
+
         return ents;
     }
 
-
-    private static Entity CreateGhost(int x, int y)
+    private static Entity CreateCreature(int x, int y, MapObjectType mapObjectType, string tag)
     {
-        var ent = new Entity()
+        var info = Settings.MapObjectAtlas[mapObjectType];
+
+        var behaviorController = new BehaviorController();
+        var spellBook = new SpellBook();
+
+        foreach (var beh in info.Behaviors)
+        {
+            var spellInfos = Settings.SpellAtlas.Where(t => t.Value.Name == beh).ToArray();
+            if (spellInfos.Length > 0)
+            {
+                var spellInfo = spellInfos[0];
+                switch (spellInfo.Value.Name)
+                {
+                    case "Basic Attack":
+                        spellBook.Spells.Add(new BasicAttack());
+                        break;
+                }
+            }
+            else
+            {
+                switch (beh)
+                {
+                    case "Basic Movement":
+                        behaviorController.Behaviors.Add(new BasicMovement());
+                        break;
+                }
+            }
+
+
+        }
+
+
+        return new Entity()
             .With(new MapObject
             {
                 MapX = x,
                 MapY = y,
                 Tint = Color.White,
-                Type = MapObjectType.Ghost
+                Type = mapObjectType
             })
-            .With(new CreatureStats
-            {
-                Health = 10,
-                MaxHealth = 10,
-
-                Mana = 10,
-                MaxMana = 10,
-
-                MoveSpeed = 0.75f,
-
-                Strength = 1,
-
-                SightRange = 4,
-                AttackRange = 1,
-
-                Money = 0,
-
-            })
-            .WithTag("Ghost");
-
-        return ent;
+            .With(info.Stats.Clone() as CreatureStats)
+            .With(behaviorController)
+            .With(spellBook)
+            .WithTag(tag);
     }
-
     public static Entity CreateAracanium(int x, int y)
     {
         var ent = new Entity()

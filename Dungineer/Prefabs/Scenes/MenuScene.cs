@@ -33,7 +33,7 @@ public class MenuScene : IPrefab<List<Entity>>
             {
                 Position = Point.Zero,
                 Size = new Point(1, 1),
-                Source = new Rectangle(512 * game.Rand.Next(0, 8), 0, 512, 512),
+                Source = new Rectangle(512 * MainGame.Rand.Next(0, 8), 0, 512, 512),
                 TextureName = "WizardPortraits_512",
                 Tint = Color.White
             });

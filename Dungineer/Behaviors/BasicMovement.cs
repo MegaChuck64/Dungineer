@@ -1,23 +1,26 @@
 ﻿using Dungineer.Components.GameWorld;
 using Engine;
 using Microsoft.Xna.Framework;
+
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Dungineer.Behaviors;
 
-public class TargetMovement : IBehavior
+public class BasicMovement : ITarget
 {
-    public Point Target { get; set; }
-    public TargetMovement(Point target)
+    public Point Target { get; private set; }
+
+    public void SetTarget(Point target)
     {
         Target = target;
     }
-    public void Perform(Entity ent)
+
+    public void Perform(Entity performer, Entity inflicted)
     {
         var map = SceneManager.ComponentsOfType<Map>().FirstOrDefault();
         var mapObjs = SceneManager.ComponentsOfType<MapObject>().ToArray();
-        var mapObj = ent.GetComponent<MapObject>();
+        var mapObj = performer.GetComponent<MapObject>();
 
         var path = GetPath(
             new Point(mapObj.MapX, mapObj.MapY),
@@ -29,7 +32,7 @@ public class TargetMovement : IBehavior
         {
             var nextStep = path.First();
             mapObj.MapX = nextStep.X;
-            mapObj.MapY = nextStep.Y;            
+            mapObj.MapY = nextStep.Y;
         }
     }
 

@@ -16,11 +16,11 @@ public class DropOnDeath : IBehavior
         random = rand;
     }
 
-    public void Perform(Entity ent)
+    public void Perform(Entity performer, Entity inflicted)
     {
         if (mapObjectLottery.Length == 0) return;
         
-        if (ent.GetComponent<MapObject>() is MapObject mapObj)
+        if (performer.GetComponent<MapObject>() is MapObject mapObj)
         {
             var newType = mapObjectLottery[random.Next(0, mapObjectLottery.Length)];
 
