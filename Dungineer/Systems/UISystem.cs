@@ -222,7 +222,7 @@ public class UISystem : BaseSystem
             sb.DrawString(
                 fonts["consolas_12"],
                 $"Left click to move towards tile \r\n" +
-                $"1 to aim and click to attack",
+                $"Select number of spell to aim and left click to attack",
                 new Vector2(8, Game.Height - 200),
                 Color.Tan,
                 0f,
@@ -346,7 +346,22 @@ public class UISystem : BaseSystem
 
     private void DrawPlayerSpellBook(SpellBook spellBook)
     {
+        var font = fonts["consolas_14"];
 
+        var yOffset = 0;
+        foreach (var spell in spellBook.Spells)
+        {
+            var info = Settings.SpellAtlas[spell.GetSpellType()];
+            var txtr = Settings.TextureAtlas[info.TextureName];
+            var src = info.Source;
+            var bnds = new Rectangle(16, 32 * (7 + yOffset++) + 8, 32, 32);
+
+            var str = (yOffset).ToString() + " - " + info.Name;
+            var sze = font.MeasureString(str);
+
+            sb.Draw(txtr, bnds, src, Color.White);
+            sb.DrawString(font, str, new Vector2(bnds.X + 32 + 8, bnds.Y + (sze.Y / 2)), spellBook.selectedSpell == yOffset - 1 ? Color.LightGreen : Color.White);
+        }
     }
 
     private void DrawItemStats(CreatureStats stats, MapObject mapObj)

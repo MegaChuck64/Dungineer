@@ -236,6 +236,9 @@ public class MapSystem : BaseSystem
                 }
 
                 aimingPath.Clear();
+                if (ent.GetComponent<SpellBook>() is SpellBook sb)
+                    sb.selectedSpell = -1;
+
             }
             else if (ent.GetComponent<SpellBook>() is SpellBook spellBook)
             {
