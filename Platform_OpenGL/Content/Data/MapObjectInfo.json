@@ -61,5 +61,18 @@
     },
     "LotteryValue": 4,
     "Collectable": true
+  },
+  {
+    "Name": "Health Potion",
+    "Description": "Restores health by up to 50%.",
+    "TextureName": "potions_32",
+    "Source": {
+      "X": 128,
+      "Y": 32,
+      "Width": 32,
+      "Height": 32
+    },
+    "LotteryValue": 2,
+    "Collectable": true
   }
 ]

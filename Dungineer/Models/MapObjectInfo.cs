@@ -30,5 +30,6 @@ public enum MapObjectType
 {
     Human,
     Ghost,
-    Arcanium
+    Arcanium,
+    HealthPotion,
 }

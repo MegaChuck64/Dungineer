@@ -46,7 +46,8 @@ public class MapSystem : BaseSystem
 
     private readonly MapObjectType[] dropLottery = new MapObjectType[]
     {
-        MapObjectType.Arcanium
+        MapObjectType.Arcanium,
+        MapObjectType.HealthPotion
     };
 
 

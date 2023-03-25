@@ -50,6 +50,9 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
                             case MapObjectType.Arcanium:
                                 ents.Add(CreateAracanium(x, y));
                                 break;
+                            case MapObjectType.HealthPotion:
+                                ents.Add(CreateHealthPotion(x, y));
+                                break;
                             default:
                                 break;
                         }
@@ -120,6 +123,20 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
                 Type = MapObjectType.Arcanium
             })
             .WithTag("Arcanium");
+
+        return ent;
+    }
+    public static Entity CreateHealthPotion(int x, int y)
+    {
+        var ent = new Entity()
+            .With(new MapObject
+            {
+                MapX = x,
+                MapY = y,
+                Tint = Color.White,
+                Type = MapObjectType.HealthPotion
+            })
+            .WithTag("Health Potion");
 
         return ent;
     }

@@ -30,6 +30,9 @@ public class DropOnDeath : IBehavior
                 case MapObjectType.Arcanium:
                     newEnt = MapItemsPrefab.CreateAracanium(mapObj.MapX, mapObj.MapY);
                     break;
+                case MapObjectType.HealthPotion:
+                    newEnt = MapItemsPrefab.CreateHealthPotion(mapObj.MapX, mapObj.MapY);
+                    break;
                 default:
                     return;
             }

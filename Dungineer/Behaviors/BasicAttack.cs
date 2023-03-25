@@ -28,9 +28,7 @@ public class BasicAttack : ISpell
             {
                 targetStats.Health = 0;
             }
-        }
-        
-
+        }       
     }
 
     public IEnumerable<Point> Aim(Entity ent)

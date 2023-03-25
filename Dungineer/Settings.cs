@@ -11,7 +11,7 @@ namespace Dungineer;
 public static class Settings
 {
     public static int TileSize { get; private set; } = 32;
-    public static int Seed { get; private set; } = 1199172130;//new Random().Next();
+    public static int Seed { get; private set; } = new Random().Next();
     public static Dictionary<TileType, TileInfo> TileAtlas { get; private set; }
     public static Dictionary<MapObjectType, MapObjectInfo> MapObjectAtlas { get; private set; }
     public static Dictionary<WardrobeType, WardrobeInfo> WardrobeAtlas { get; private set; }
