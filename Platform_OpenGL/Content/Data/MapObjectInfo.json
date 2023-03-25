@@ -64,7 +64,7 @@
   },
   {
     "Name": "Health Potion",
-    "Description": "Restores health by up to 50%.",
+    "Description": "Restores health by up to 100% of current health.",
     "TextureName": "potions_32",
     "Source": {
       "X": 128,

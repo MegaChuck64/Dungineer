@@ -20,7 +20,7 @@ public class Collect : IBehavior
                             stats.Money += MainGame.Rand.Next(1, 10);
                             break;
                         case Models.MapObjectType.HealthPotion:
-                            var max = stats.Health / 2;
+                            var max = stats.Health;
                             var val = MainGame.Rand.Next(1, max + 1);
                             stats.Health = 
                                 stats.Health + val > stats.MaxHealth ? 

@@ -1,4 +1,5 @@
 ﻿using Dungineer.Behaviors;
+using Dungineer.Behaviors.Effects;
 using Dungineer.Components.GameWorld;
 using Dungineer.Components.UI;
 using Dungineer.Models;
@@ -108,7 +109,7 @@ public class MapSystem : BaseSystem
                 ent.GetComponent<UIElement>().IsActive = !MapPixelBounds.Contains(mouseState.Position);
             }
         }
-        
+
         foreach (var ent in entitiesToRemove)
         {
             SceneManager.RemoveEntity(SceneManager.CurrentScene, ent);
@@ -218,6 +219,27 @@ public class MapSystem : BaseSystem
                             behavior.Perform(ent, null);
                         }
                     }
+
+                    if (ent.GetComponent<EffectController>() is EffectController effectController)
+                    {
+                        var effectsToRemove = new List<IEffect>();
+                        foreach (var effect in effectController.Effects)
+                        {
+                            if (effect.TurnsLeft <= 0)
+                            {
+                                effectsToRemove.Add(effect);
+                                continue;
+                            }
+
+                            if (effect is IBehavior behavior)
+                                behavior.Perform(null, ent);
+                        }
+                        foreach (var effect in effectsToRemove)
+                        {
+                            effectController.Effects.Remove(effect);
+                        }
+                    }
+
                     //collect
                     var collectables = SceneManager
                         .ComponentsOfType<MapObject>()
@@ -258,8 +280,10 @@ public class MapSystem : BaseSystem
                         }
                     }
                 }
-            }            
+            }
         }
+
+        camera.Position = GetTileBounds(playerObject.MapX, playerObject.MapY).Location.ToVector2();
     }
 
     private void UpdateMapObject(Entity ent, MapObject mapObj, MapObject player, MapObjectInfo mapObjInfo, Map map)
@@ -279,7 +303,28 @@ public class MapSystem : BaseSystem
 
                         behavior.Perform(ent, SceneManager.GetEntityWithComponent(player));
                     }
-                }    
+                }
+
+                if (ent.GetComponent<EffectController>() is EffectController effectController)
+                {
+                    var effectsToRemove = new List<IEffect>();
+                    foreach (var effect in effectController.Effects)
+                    {
+                        if (effect.TurnsLeft <= 0)
+                        {
+                            effectsToRemove.Add(effect);
+                            continue;
+                        }
+
+                        if (effect is IBehavior behavior)
+                            behavior.Perform(null, ent);
+                    }
+                    foreach (var effect in effectsToRemove)
+                    {
+                        effectController.Effects.Remove(effect);
+                    }
+                }
+
 
                 if (ent.GetComponent<SpellBook>() is SpellBook spellBook)
                 {
@@ -305,7 +350,7 @@ public class MapSystem : BaseSystem
                         }
 
                     }
-        
+
                 }
             }
         }
@@ -317,6 +362,8 @@ public class MapSystem : BaseSystem
     public override void Draw(GameTime gameTime, IEnumerable<Entity> entities)
     {
         //DRAWING
+        Matrix? transformMatrix = SceneManager.CurrentScene == "Play" ? camera.Transform(Game.GraphicsDevice) : null;
+        
         sb.Begin(
             sortMode: SpriteSortMode.FrontToBack,
             blendState: BlendState.NonPremultiplied,
@@ -324,7 +371,7 @@ public class MapSystem : BaseSystem
             depthStencilState: DepthStencilState.DepthRead,
             rasterizerState: RasterizerState.CullCounterClockwise,
             effect: null,
-            transformMatrix: camera.Transform(Game.GraphicsDevice)); //camera here todo
+            transformMatrix: transformMatrix); 
 
 
         var viewMap = UpdatePlayerViewMap();
@@ -376,7 +423,7 @@ public class MapSystem : BaseSystem
             return viewMap;
         }
 
-        return new float[0,0];
+        return new float[0, 0];
     }
     private void DrawWardrobe(Wardrobe wardrobe, MapObject mapObj)
     {
@@ -430,7 +477,7 @@ public class MapSystem : BaseSystem
                     var tileBounds = DrawTile(map.GroundTiles[x, y], groundLayer, tintMod / lastSightRange);
 
                     //if aiming
-                    if (aimingPath.Contains(new Point(x,y)))
+                    if (aimingPath.Contains(new Point(x, y)))
                     {
                         //draw highlight on hover
                         if (hoverObj != null && hoverObj.MapX == x && hoverObj.MapY == y)
@@ -445,9 +492,9 @@ public class MapSystem : BaseSystem
                                     var playerObj = playerEnt.GetComponent<MapObject>();
                                     var playerStats = playerEnt.GetComponent<CreatureStats>();
                                     if (hoverEnt.GetComponent<CreatureStats>() is CreatureStats monsterStats)//&&
-                                        //Vector2.Distance(
-                                        //    new Vector2(playerObj.MapX, playerObj.MapY),
-                                        //    new Vector2(hoverObj.MapX, hoverObj.MapY)) <= playerStats.AttackRange)
+                                                                                                             //Vector2.Distance(
+                                                                                                             //    new Vector2(playerObj.MapX, playerObj.MapY),
+                                                                                                             //    new Vector2(hoverObj.MapX, hoverObj.MapY)) <= playerStats.AttackRange)
                                     {
                                         tint = new Color(1f, 0f, 0f, 0.5f);
                                     }
@@ -463,7 +510,7 @@ public class MapSystem : BaseSystem
                             DrawTileHighlight(new Color(0f, 1f, 0f, 0.25f), tileBounds, groundLayer + 0.1f);
                         }
                     }
-                
+
                 }
             }
         }
@@ -500,12 +547,6 @@ public class MapSystem : BaseSystem
             mapObject.Scale == 1f ? Vector2.Zero : new Vector2(bnds.Width / 2, bnds.Height / 2),
             SpriteEffects.None,
             itemLayer);
-
-
-        if (isPlayer)
-        {
-            camera.Position = bnds.Location.ToVector2();
-        }
 
     }
     private Rectangle DrawTile(Tile tile, float layer, float tintMod)
@@ -558,13 +599,13 @@ public class MapSystem : BaseSystem
     private Rectangle GetTileBounds(Point pos) => GetTileBounds(pos.X, pos.Y);
 
     private Rectangle GetTileBounds(int x, int y) =>
-        new (offset.ToPoint() + new Point(x * Settings.TileSize, y * Settings.TileSize),
+        new(offset.ToPoint() + new Point(x * Settings.TileSize, y * Settings.TileSize),
             new Point(Settings.TileSize, Settings.TileSize));
 
 
-    private Point MouseTilePosition => 
-        new ((int)(mouseState.X - offset.ToPoint().X) / Settings.TileSize,
-            (int)(mouseState.Y - offset.ToPoint().Y) / Settings.TileSize);    
+    private Point MouseTilePosition =>
+        new((int)(mouseState.X - offset.ToPoint().X) / Settings.TileSize,
+            (int)(mouseState.Y - offset.ToPoint().Y) / Settings.TileSize);
 
     public static float[,] GetViewMap(Point start, Map map, float viewRadius, params MapObject[] mapObjects)
     {
@@ -596,7 +637,7 @@ public class MapSystem : BaseSystem
         var viewMap = ShadowCaster.GetViewMap(grid, start, viewRadius);
         return viewMap;
     }
-  
-    
+
+
     #endregion
 }

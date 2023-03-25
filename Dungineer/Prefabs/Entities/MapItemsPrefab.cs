@@ -110,6 +110,10 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
             .With(info.Stats.Clone() as CreatureStats)
             .With(behaviorController)
             .With(spellBook)
+            .With(new EffectController()
+            {
+                Effects = new List<Behaviors.Effects.IEffect>()
+            })
             .WithTag(tag);
     }
     public static Entity CreateAracanium(int x, int y)

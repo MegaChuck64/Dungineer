@@ -1,4 +1,5 @@
 ﻿using Dungineer.Behaviors;
+using Dungineer.Behaviors.Effects;
 using Dungineer.Components.GameWorld;
 using Dungineer.Components.UI;
 using Dungineer.Models;
@@ -166,6 +167,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
     
     private static Entity CreatePlayer(BaseGame game)
     {
+        
         var ent = new Entity()
             .With(new MapObject
             {
@@ -199,7 +201,8 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
             {
                 Spells = new List<ISpell>
                 {
-                    new BasicAttack()
+                    new BasicAttack(),
+                    new FireBolt()
                 }
             })
             .With(new BehaviorController
@@ -208,6 +211,10 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
                 {
                     new BasicMovement()
                 }
+            })
+            .With(new EffectController
+            {
+                Effects = new List<IEffect>()
             })
             .WithTag("Player");
 
