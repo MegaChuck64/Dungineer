@@ -18,11 +18,10 @@ public class FireEffect : IEffect, IBehavior
 
     public void Perform(Entity performer, Entity inflicted)
     {
-        TurnsLeft--;
-        if (TurnsLeft > 0)
+        if (TurnsLeft-- > 0)
         {
             if (inflicted.GetComponent<CreatureStats>() is CreatureStats inflicedStats)
-            {
+            { 
                 var effectInfo = Settings.EffectAtlas[GetEffectType()];
                 inflicedStats.Health -= effectInfo.Damage;
                 if (inflicedStats.Health < 0)

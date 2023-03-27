@@ -190,16 +190,25 @@ public class UISystem : BaseSystem
                 if (entity.HasTag("Player"))
                 {
                     if (entity.GetComponent<CreatureStats>() is CreatureStats stats)
-                        DrawPlayerStats(stats);
+                        DrawCreatureStats(stats, new Point(16, 16));//DrawPlayerStats(stats);
 
                     if (entity.GetComponent<SpellBook>() is SpellBook spellBook)
-                        DrawPlayerSpellBook(spellBook);
+                        DrawSpellBook(spellBook, new Point(16, Game.Height / 4));//DrawPlayerSpellBook(spellBook);
+
+                    if (entity.GetComponent<EffectController>() is EffectController effectController)
+                        DrawEffects(effectController, new Point(16, Game.Height / 2));//DrawPlayerEffects(effectController);
                 }
                 else if (mapObj.MapX == MouseTilePosition.X && mapObj.MapY == MouseTilePosition.Y)
                 {
-                    
+                    var info = Settings.MapObjectAtlas[mapObj.Type];
                     if (entity.GetComponent<CreatureStats>() is CreatureStats stats)
-                        DrawItemStats(stats, mapObj);
+                        DrawCreatureStats(stats, new Point(Game.Width - (Game.Width / 5) + 16, 16), false, info.Name);//DrawItemStats(stats, mapObj);
+
+                    if (entity.GetComponent<SpellBook>() is SpellBook spellBook)
+                        DrawSpellBook(spellBook, new Point(Game.Width - (Game.Width / 5) + 16, Game.Height/4));
+
+                    if (entity.GetComponent<EffectController>() is EffectController effectController)
+                        DrawEffects(effectController, new Point(Game.Width - (Game.Width / 5) + 16, Game.Height / 2));
                 }
             }
         }
@@ -306,25 +315,32 @@ public class UISystem : BaseSystem
             image.Layer);
     }
 
-    private void DrawPlayerStats(CreatureStats stats)
+    
+    private void DrawCreatureStats(CreatureStats stats, Point offset, bool showMoney = true, string name = null)
     {
         var font = fonts["consolas_14"];
 
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            sb.DrawString(font, name, new Vector2(offset.X, offset.Y), Color.White);
+            offset.Y += 20;
+        }
+        
         //health
         var healthTexture = textures["symbols_32"];
         var healthSource = new Rectangle(32, 0, 32, 32);
-        var healthBounds = new Rectangle(16, 32 * 3, 32, 32);
+        var healthBounds = new Rectangle(offset.X, offset.Y, 32, 32);
 
         var healthStr = $"{stats.Health}/{stats.MaxHealth}";
         var healthStrSize = font.MeasureString(healthStr);
 
         sb.Draw(healthTexture, healthBounds, healthSource, Color.White);
-        sb.DrawString(font, healthStr, new Vector2(healthBounds.X + 32 + 8, healthBounds.Y + (healthStrSize.Y/2)), Color.White);
+        sb.DrawString(font, healthStr, new Vector2(healthBounds.X + 32 + 8, healthBounds.Y + (healthStrSize.Y / 2)), Color.White);
 
         //mana
         var manaTexture = textures["symbols_32"];
         var manaSource = new Rectangle(64, 0, 32, 32);
-        var manaBounds = new Rectangle(16, 32 * 4 + 8, 32, 32);
+        var manaBounds = new Rectangle(offset.X, offset.Y + 32 + 8, 32, 32);
 
         var manaStr = $"{stats.Mana}/{stats.MaxMana}";
         var manaStrSize = font.MeasureString(manaStr);
@@ -332,19 +348,22 @@ public class UISystem : BaseSystem
         sb.Draw(manaTexture, manaBounds, manaSource, Color.White);
         sb.DrawString(font, manaStr, new Vector2(manaBounds.X + 32 + 8, manaBounds.Y + (manaStrSize.Y / 2)), Color.White);
 
-        //money
-        var moneyTexture = textures["treasure_32"];
-        var moneySource = new Rectangle(0, 0, 32, 32);
-        var moneyBounds = new Rectangle(16, 32 * 5 + 8, 32, 32);
+        if (showMoney)
+        {
+            //money
+            var moneyTexture = textures["treasure_32"];
+            var moneySource = new Rectangle(0, 0, 32, 32);
+            var moneyBounds = new Rectangle(offset.X, offset.Y + 32 * 2 + 8, 32, 32);
 
-        var moneyStr = stats.Money.ToString();
-        var moneyStrSize = font.MeasureString(healthStr);
+            var moneyStr = stats.Money.ToString();
+            var moneyStrSize = font.MeasureString(healthStr);
 
-        sb.Draw(moneyTexture, moneyBounds, moneySource, Color.White);
-        sb.DrawString(font, moneyStr, new Vector2(moneyBounds.X + 32 + 8, moneyBounds.Y + (moneyStrSize.Y / 2)), Color.White);
+            sb.Draw(moneyTexture, moneyBounds, moneySource, Color.White);
+            sb.DrawString(font, moneyStr, new Vector2(moneyBounds.X + 32 + 8, moneyBounds.Y + (moneyStrSize.Y / 2)), Color.White);
+        }
     }
 
-    private void DrawPlayerSpellBook(SpellBook spellBook)
+    private void DrawSpellBook(SpellBook spellBook, Point offset)
     {
         var font = fonts["consolas_14"];
 
@@ -354,47 +373,43 @@ public class UISystem : BaseSystem
             var info = Settings.SpellAtlas[spell.GetSpellType()];
             var txtr = Settings.TextureAtlas[info.TextureName];
             var src = info.Source;
-            var bnds = new Rectangle(16, 32 * (7 + yOffset++) + 8, 32, 32);
+            var bnds = new Rectangle(offset.X, offset.Y + 32 * (yOffset) + 8, 32, 32);
 
-            var str = (yOffset).ToString() + " - " + info.Name;
+            var str = info.Name;
             var sze = font.MeasureString(str);
 
             sb.Draw(txtr, bnds, src, Color.White);
-            sb.DrawString(font, str, new Vector2(bnds.X + 32 + 8, bnds.Y + (sze.Y / 2)), spellBook.selectedSpell == yOffset - 1 ? Color.LightGreen : Color.White);
+            sb.DrawString(
+                font,
+                str,
+                new Vector2(bnds.X + 32 + 8, bnds.Y + (sze.Y / 2)),
+                 spellBook.selectedSpell == yOffset ? Color.Green : Color.White);
+
+            yOffset++;
         }
     }
 
-    private void DrawItemStats(CreatureStats stats, MapObject mapObj)
+    private void DrawEffects(EffectController effectController, Point offset)
     {
         var font = fonts["consolas_14"];
 
-        //health
-        var healthStr = $"{stats.Health}/{stats.MaxHealth}";
-        var healthStrSize = font.MeasureString(healthStr);
+        var yOffset = 0;
+        foreach (var effect in effectController.Effects)
+        {
+            if (effect.TurnsLeft <= 0) continue;
+            
+            var info = Settings.EffectAtlas[effect.GetEffectType()];
+            var txtr = Settings.TextureAtlas[info.TextureName];
+            var src = info.Source;
+            var bnds = new Rectangle(offset.X, offset.Y + 32 * (yOffset++) + 8, 32, 32);
 
-        var healthTexture = textures["symbols_32"];
-        var healthSource = new Rectangle(32, 0, 32, 32);
-        var healthBounds = new Rectangle(Game.Width - 16 - (int)healthStrSize.X - 32 - 16, 32 * 3, 32, 32);
+            var str = $"{info.Name}({effect.TurnsLeft})";
+            var sze = font.MeasureString(str);
 
-        var itemInfo = Settings.MapObjectAtlas[mapObj.Type];
-
-        sb.Draw(healthTexture, healthBounds, healthSource, Color.White);
-        sb.DrawString(font, healthStr, new Vector2(healthBounds.X + 32 + 8, healthBounds.Y + (healthStrSize.Y / 2)), Color.White);
-
-        sb.DrawString(font, itemInfo.Name, new Vector2(healthBounds.X + 32, healthBounds.Y - healthStrSize.Y), Color.White);
-
-        ////money
-        //var moneyTexture = textures["treasure_32"];
-        //var moneySource = new Rectangle(0, 0, 32, 32);
-        //var moneyBounds = new Rectangle(16, 32 * 4 + 8, 32, 32);
-
-        //var moneyStr = stats.Money.ToString();
-        //var moneyStrSize = font.MeasureString(healthStr);
-
-        //sb.Draw(moneyTexture, moneyBounds, moneySource, Color.White);
-        //sb.DrawString(font, moneyStr, new Vector2(moneyBounds.X + 32 + 8, moneyBounds.Y + (moneyStrSize.Y / 2)), Color.White);
+            sb.Draw(txtr, bnds, src, Color.White);
+            sb.DrawString(font, str, new Vector2(bnds.X + 32 + 8, bnds.Y + (sze.Y / 2)), Color.White);
+        }
     }
-
 
     private bool WasPressed(MouseButton mb) => mb switch
     {

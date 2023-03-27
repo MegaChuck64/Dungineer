@@ -215,6 +215,9 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
             .With(new EffectController
             {
                 Effects = new List<IEffect>()
+                {
+                    new FireEffect()
+                }
             })
             .WithTag("Player");
 

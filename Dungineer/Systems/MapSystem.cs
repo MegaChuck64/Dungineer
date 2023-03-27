@@ -274,6 +274,7 @@ public class MapSystem : BaseSystem
                         {
                             if (spellBook.Spells[i - 49] is ISpell spell)
                             {
+                                aimingPath.Clear();
                                 spellBook.selectedSpell = i - 49;
                                 aimingPath.AddRange(spell.Aim(ent));
                             }
