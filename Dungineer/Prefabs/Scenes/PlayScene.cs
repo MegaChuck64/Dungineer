@@ -25,7 +25,23 @@ public class PlayScene : IPrefab<List<Entity>>
 
         ents.Add(CreateExitButton(game));
 
+        ents.Add(CreateTerminal(game));
         return ents;
+    }
+
+    private static Entity CreateTerminal(BaseGame game)
+    {
+        var terminal = new Entity()
+            .With(new UIElement
+            {
+                Position = new Point(game.Width - ((game.Width / 5) + 1), game.Height - ((game.Height / 5) + 1) - 64 - 2 - 2),
+                Size = new Point(game.Width / 5 - 2, game.Height / 5 - 2),
+            })
+            .With(new Terminal
+            {
+                
+            });
+        return terminal;
     }
 
     private static Entity CreateExitButton(BaseGame game)
@@ -34,7 +50,7 @@ public class PlayScene : IPrefab<List<Entity>>
         var btn = new Entity()
             .With(new UIElement
             {
-                Position = new Point(game.Width - 128 - 32, game.Height - 64 - 32),
+                Position = new Point(game.Width - 128 - 2, game.Height - 64 - 2),
                 Size = new Point(128, 64),
                 OnMouseReleased = (mb) =>
                 {

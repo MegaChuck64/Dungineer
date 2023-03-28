@@ -34,6 +34,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
         return ents;
     }
 
+
     private static Entity CreateStartButton(BaseGame game, Entity player)
     {
 

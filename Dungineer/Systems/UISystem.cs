@@ -183,6 +183,11 @@ public class UISystem : BaseSystem
                 {
                     DrawText(txt, ui);
                 }
+
+                if (entity.GetComponent<Terminal>() is Terminal terminal)
+                {
+                    DrawTerminal(terminal, ui);
+                }
             }
 
             if (entity.GetComponent<MapObject>() is MapObject mapObj)
@@ -289,6 +294,14 @@ public class UISystem : BaseSystem
         }
     }
 
+    private void DrawTerminal(Terminal terminal, UIElement ui)
+    {
+        var bounds = ui.Bounds;
+
+
+        sb.Draw(Settings.TextureAtlas["_pixel"], bounds, Color.DarkBlue);
+    }
+
 
     private void DrawText(TextBox text, UIElement ui)
     {
@@ -296,7 +309,7 @@ public class UISystem : BaseSystem
         var bounds = ui.Bounds;
 
         var fontSize = font.MeasureString(text.Text);
-        var pos = new Vector2(bounds.X + (bounds.Width / 2) - (fontSize.X / 2), bounds.Y + (bounds.Height / 2) - (fontSize.Y / 2));
+        var pos = new Vector2(bounds.X + ((bounds.Width / 2) - (fontSize.X / 2)), bounds.Y + ((bounds.Height / 2) - (fontSize.Y / 2)));
         pos += text.Offset;
         sb.DrawString(font, text.Text, pos, text.TextColor, 0f, Vector2.Zero, 1f, SpriteEffects.None, text.Layer);
     }
