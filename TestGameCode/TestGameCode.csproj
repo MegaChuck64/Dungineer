@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Myra.PlatformAgnostic" Version="1.4.5" />
+  </ItemGroup>
+  <Import Project="..\MonogameUI\MonogameUI.projitems" Label="Shared" />
+  <Import Project="..\Engine\Engine.projitems" Label="Shared" />
+</Project>

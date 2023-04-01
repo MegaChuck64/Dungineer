@@ -124,11 +124,11 @@ public class UISystem : BaseSystem
                     ui.OnMouseEnter?.Invoke();
                 }
 
-                if (WasPressed(MouseButton.Left))
+                if (Input.WasPressed(MouseButton.Left, mouseState, lastMouseState))
                 {
                     ui.OnMousePressed?.Invoke(MouseButton.Left);
                 }
-                if (WasReleased(MouseButton.Left))
+                if (Input.WasReleased(MouseButton.Left, mouseState, lastMouseState))
                 {
                     ui.OnMouseReleased?.Invoke(MouseButton.Left);
                 }
@@ -424,30 +424,9 @@ public class UISystem : BaseSystem
         }
     }
 
-    private bool WasPressed(MouseButton mb) => mb switch
-    {
-        MouseButton.Left => mouseState.LeftButton == ButtonState.Pressed && lastMouseState.LeftButton == ButtonState.Released,
-        MouseButton.Middle => mouseState.MiddleButton == ButtonState.Pressed && lastMouseState.MiddleButton == ButtonState.Released,
-        MouseButton.Right => mouseState.RightButton == ButtonState.Pressed && lastMouseState.RightButton == ButtonState.Released,
-        _ => false,
-    };
-
-    private bool WasReleased(MouseButton mb) => mb switch
-    {
-        MouseButton.Left => mouseState.LeftButton == ButtonState.Released && lastMouseState.LeftButton == ButtonState.Pressed,
-        MouseButton.Middle => mouseState.MiddleButton == ButtonState.Released && lastMouseState.MiddleButton == ButtonState.Pressed,
-        MouseButton.Right => mouseState.RightButton == ButtonState.Released && lastMouseState.RightButton == ButtonState.Pressed,
-        _ => false,
-    };
 
 
 }
 
 
 
-public enum MouseButton
-{
-    Left,
-    Middle,
-    Right
-}

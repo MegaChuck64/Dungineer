@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Platform_OpenGL", "Platform
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dungineer", "Dungineer\Dungineer.csproj", "{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MonogameUI", "MonogameUI\MonogameUI.shproj", "{7BBF6594-EF0B-4DD0-A8C5-00D92E50F10B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestGameCode", "TestGameCode\TestGameCode.csproj", "{19C0A06D-9522-4D56-B229-4A3637636897}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +57,22 @@ Global
 		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Release|x64.Build.0 = Release|Any CPU
 		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Release|x86.ActiveCfg = Release|Any CPU
 		{761760DD-5E41-4F49-8F7D-C4B57FA11EFB}.Release|x86.Build.0 = Release|Any CPU
+		{19C0A06D-9522-4D56-B229-4A3637636897}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19C0A06D-9522-4D56-B229-4A3637636897}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19C0A06D-9522-4D56-B229-4A3637636897}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{19C0A06D-9522-4D56-B229-4A3637636897}.Debug|ARM.Build.0 = Debug|Any CPU
+		{19C0A06D-9522-4D56-B229-4A3637636897}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{19C0A06D-9522-4D56-B229-4A3637636897}.Debug|x64.Build.0 = Debug|Any CPU
+		{19C0A06D-9522-4D56-B229-4A3637636897}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{19C0A06D-9522-4D56-B229-4A3637636897}.Debug|x86.Build.0 = Debug|Any CPU
+		{19C0A06D-9522-4D56-B229-4A3637636897}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19C0A06D-9522-4D56-B229-4A3637636897}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19C0A06D-9522-4D56-B229-4A3637636897}.Release|ARM.ActiveCfg = Release|Any CPU
+		{19C0A06D-9522-4D56-B229-4A3637636897}.Release|ARM.Build.0 = Release|Any CPU
+		{19C0A06D-9522-4D56-B229-4A3637636897}.Release|x64.ActiveCfg = Release|Any CPU
+		{19C0A06D-9522-4D56-B229-4A3637636897}.Release|x64.Build.0 = Release|Any CPU
+		{19C0A06D-9522-4D56-B229-4A3637636897}.Release|x86.ActiveCfg = Release|Any CPU
+		{19C0A06D-9522-4D56-B229-4A3637636897}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,7 +81,10 @@ Global
 		SolutionGuid = {E52842CE-3571-427B-8D21-CFE4CE74843A}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Engine\Engine.projitems*{19c0a06d-9522-4d56-b229-4a3637636897}*SharedItemsImports = 5
+		MonogameUI\MonogameUI.projitems*{19c0a06d-9522-4d56-b229-4a3637636897}*SharedItemsImports = 5
 		Engine\Engine.projitems*{761760dd-5e41-4f49-8f7d-c4b57fa11efb}*SharedItemsImports = 5
+		MonogameUI\MonogameUI.projitems*{7bbf6594-ef0b-4dd0-a8c5-00d92e50f10b}*SharedItemsImports = 13
 		Engine\Engine.projitems*{a0cdbd0e-3a41-42b7-9425-a838bc2c7383}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
