@@ -18,12 +18,6 @@ public class MapSystem : BaseSystem
 {
     private Vector2 offset;
 
-    private MouseState mouseState;
-    private MouseState lastMouseState;
-
-    private KeyboardState keyState;
-    private KeyboardState lastKeyState;
-
     private const float groundLayer = 0.5f;
     private const float objectLayer = 0.6f;
     private const float effectLayer = 0.7f;
@@ -69,13 +63,8 @@ public class MapSystem : BaseSystem
         if (SceneManager.CurrentScene != "Play") return;
 
         var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
         UpdateSight(dt);
-
-        lastMouseState = mouseState;
-        mouseState = Mouse.GetState();
-
-        lastKeyState = keyState;
-        keyState = Keyboard.GetState();
 
         var map = entities.FirstOrDefault(t => t.HasTag("Map"))?.GetComponent<Map>();
 
@@ -96,17 +85,17 @@ public class MapSystem : BaseSystem
                 if (player == null)
                     continue;
 
-                if (MouseWasClicked(MouseButton.Left) == false && MouseWasClicked(MouseButton.Right) == false)
+                if (Input.WasPressed(MouseButton.Left) == false && Input.WasPressed(MouseButton.Right) == false)
                     continue;
 
-                if (MapPixelBounds.Contains(mouseState.Position) == false)
+                if (MapPixelBounds.Contains(Input.MouseState.Position) == false)
                     continue;
 
                 UpdateMapObject(ent, mapObj, player, mapObjInfo, map);
             }
             else if (ent.HasTag("Cursor"))
             {
-                ent.GetComponent<UIElement>().IsActive = !MapPixelBounds.Contains(mouseState.Position);
+                ent.GetComponent<UIElement>().IsActive = !MapPixelBounds.Contains(Input.MouseState.Position);
             }
         }
 
@@ -185,9 +174,9 @@ public class MapSystem : BaseSystem
     private void UpdatePlayer(Entity ent)
     {
         var playerObject = ent.GetComponent<MapObject>();
-        if (MapPixelBounds.Contains(mouseState.Position))
+        if (MapPixelBounds.Contains(Input.MouseState.Position))
         {
-            if (MouseWasClicked(MouseButton.Left))
+            if (Input.WasPressed(MouseButton.Left))
             {
                 if (aimingPath.Count > 0)
                 {
@@ -268,7 +257,7 @@ public class MapSystem : BaseSystem
                 //49 = Keys.D1
                 for (int i = 49; i < 49 + 10; i++)
                 {
-                    if (KeyWasClicked((Keys)i))
+                    if (Input.WasPressed((Keys)i))
                     {
                         if (spellBook.Spells.Count > i - 49)
                         {
@@ -454,7 +443,7 @@ public class MapSystem : BaseSystem
         if (map == null) throw new System.Exception("Entity tagged with 'Map' must have map component");
 
         MapObject hoverObj = null;
-        if (MapPixelBounds.Contains(mouseState.Position))
+        if (MapPixelBounds.Contains(Input.MouseState.Position))
         {
             hoverObj = SceneManager.ComponentsOfType<MapObject>()
                 .Where(t => t.MapX == MouseTilePosition.X && t.MapY == MouseTilePosition.Y)
@@ -559,7 +548,7 @@ public class MapSystem : BaseSystem
 
         sb.Draw(texture, bnds, tileInfo.Source, tile.Tint * tintMod, 0f, Vector2.Zero, SpriteEffects.None, layer);
 
-        if (bnds.Contains(mouseState.Position))
+        if (bnds.Contains(Input.MouseState.Position))
         {
             sb.Draw(
                 tileSelectTexture,
@@ -585,16 +574,6 @@ public class MapSystem : BaseSystem
 
     #region Helpers 
 
-    private bool MouseWasClicked(MouseButton mb) => mb switch
-    {
-        MouseButton.Left => lastMouseState.LeftButton == ButtonState.Released && mouseState.LeftButton == ButtonState.Pressed,
-        MouseButton.Right => lastMouseState.RightButton == ButtonState.Released && mouseState.RightButton == ButtonState.Pressed,
-        MouseButton.Middle => lastMouseState.MiddleButton == ButtonState.Released && mouseState.MiddleButton == ButtonState.Pressed,
-        _ => false
-    };
-
-    private bool KeyWasClicked(Keys key) => lastKeyState.IsKeyUp(key) && keyState.IsKeyDown(key);
-
     private Rectangle MapPixelBounds => new(Game.Width / 5, 0, (Game.Width / 5) * 3, Game.Height);
 
     private Rectangle GetTileBounds(Point pos) => GetTileBounds(pos.X, pos.Y);
@@ -605,8 +584,8 @@ public class MapSystem : BaseSystem
 
 
     private Point MouseTilePosition =>
-        new((int)(mouseState.X - offset.ToPoint().X) / Settings.TileSize,
-            (int)(mouseState.Y - offset.ToPoint().Y) / Settings.TileSize);
+        new((int)(Input.MouseState.X - offset.ToPoint().X) / Settings.TileSize,
+            (int)(Input.MouseState.Y - offset.ToPoint().Y) / Settings.TileSize);
 
     public static float[,] GetViewMap(Point start, Map map, float viewRadius, params MapObject[] mapObjects)
     {

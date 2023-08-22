@@ -15,11 +15,6 @@ public class UISystem : BaseSystem
 
     private List<UIElement> entered = new();
     private Dictionary<string, SelectItem> selected = new();
-
-    private MouseState mouseState;
-    private MouseState lastMouseState;
-    private KeyboardState keyState;
-    private KeyboardState lastKeyState;
     
     private SpriteBatch sb;
 
@@ -30,8 +25,8 @@ public class UISystem : BaseSystem
     private int frameCounter = 0;
     private TimeSpan elapsedTime = TimeSpan.Zero;
     private Point MouseTilePosition =>
-    new((mouseState.X - (Game.Width / 5)) / Settings.TileSize,
-        mouseState.Y / Settings.TileSize);
+    new((Input.MouseState.X - (Game.Width / 5)) / Settings.TileSize,
+        Input.MouseState.Y / Settings.TileSize);
 
     public UISystem(BaseGame game) : base(game)
     {
@@ -94,13 +89,6 @@ public class UISystem : BaseSystem
             frameCounter = 0;
         }
 
-        lastMouseState = mouseState;
-        mouseState = Mouse.GetState();
-
-        lastKeyState = keyState;
-        keyState = Keyboard.GetState();
-
-
         foreach (var entity in entities)
         {
             var ui = entity.GetComponent<UIElement>();
@@ -112,11 +100,11 @@ public class UISystem : BaseSystem
 
             if (entity.HasTag("Cursor"))
             {
-                ui.Position = mouseState.Position;
+                ui.Position = Input.MouseState.Position;
             }
 
 
-            if (bounds.Contains(mouseState.Position))
+            if (bounds.Contains(Input.MouseState.Position))
             {
                 if (!entered.Contains(ui))
                 {
@@ -124,11 +112,11 @@ public class UISystem : BaseSystem
                     ui.OnMouseEnter?.Invoke();
                 }
 
-                if (WasPressed(MouseButton.Left))
+                if (Input.WasPressed(MouseButton.Left))
                 {
                     ui.OnMousePressed?.Invoke(MouseButton.Left);
                 }
-                if (WasReleased(MouseButton.Left))
+                if (Input.WasReleased(MouseButton.Left))
                 {
                     ui.OnMouseReleased?.Invoke(MouseButton.Left);
                 }
@@ -280,12 +268,12 @@ public class UISystem : BaseSystem
         }
 
         //hovering
-        if (bounds.Contains(mouseState.Position))
+        if (bounds.Contains(Input.MouseState.Position))
         {
             tint = selectItem.HoverColor;
 
             //select item on pressed
-            if (mouseState.LeftButton == ButtonState.Pressed)
+            if (Input.MouseState.LeftButton == ButtonState.Pressed)
             {
                 tint = selectItem.PressedColor;
                 selected[selectItem.SelectionGroup] = selectItem;
@@ -423,23 +411,6 @@ public class UISystem : BaseSystem
             sb.DrawString(font, str, new Vector2(bnds.X + 32 + 8, bnds.Y + (sze.Y / 2)), Color.White);
         }
     }
-
-    private bool WasPressed(MouseButton mb) => mb switch
-    {
-        MouseButton.Left => mouseState.LeftButton == ButtonState.Pressed && lastMouseState.LeftButton == ButtonState.Released,
-        MouseButton.Middle => mouseState.MiddleButton == ButtonState.Pressed && lastMouseState.MiddleButton == ButtonState.Released,
-        MouseButton.Right => mouseState.RightButton == ButtonState.Pressed && lastMouseState.RightButton == ButtonState.Released,
-        _ => false,
-    };
-
-    private bool WasReleased(MouseButton mb) => mb switch
-    {
-        MouseButton.Left => mouseState.LeftButton == ButtonState.Released && lastMouseState.LeftButton == ButtonState.Pressed,
-        MouseButton.Middle => mouseState.MiddleButton == ButtonState.Released && lastMouseState.MiddleButton == ButtonState.Pressed,
-        MouseButton.Right => mouseState.RightButton == ButtonState.Released && lastMouseState.RightButton == ButtonState.Pressed,
-        _ => false,
-    };
-
 
 }
 

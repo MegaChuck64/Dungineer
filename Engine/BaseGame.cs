@@ -74,6 +74,8 @@ namespace Engine
 
             base.Update(gameTime);
 
+            Input.Update();
+
             foreach (var sys in Systems)
             {
                 sys.Update(gameTime, SceneManager.Entities);
