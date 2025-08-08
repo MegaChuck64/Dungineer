@@ -24,6 +24,7 @@ public class MapSystem : BaseSystem
     private const float itemLayer = 0.8f;
 
     private readonly Texture2D tileSelectTexture;
+    private readonly Texture2D cursorTexture;
     private readonly SpriteBatch sb;
     private readonly List<Entity> entitiesToRemove = new();
     private readonly List<Point> aimingPath = new();
@@ -35,7 +36,7 @@ public class MapSystem : BaseSystem
     private bool sightRangeBreathOut = false;
     private float lastSightRange = 0f;
 
-    private Camera camera;
+    public Camera Cam { get; private set; }
 
     private float[,] lastViewMap;
 
@@ -53,8 +54,9 @@ public class MapSystem : BaseSystem
         sb = new SpriteBatch(game.GraphicsDevice);
 
         tileSelectTexture = ContentLoader.LoadTexture("ui_box_select_32", content);
+        cursorTexture = ContentLoader.LoadTexture("cursor_16", content);
 
-        camera = new Camera();
+        Cam = new Camera();
     }
 
 
@@ -180,7 +182,7 @@ public class MapSystem : BaseSystem
             {
                 if (aimingPath.Count > 0)
                 {
-                    var mouseTile = MouseTilePosition;
+                    var mouseTile = MouseTilePosition(Game.GraphicsDevice, Cam, offset.ToPoint());
                     var mapObj = SceneManager.ComponentsOfType<MapObject>().FirstOrDefault(t => t.MapX == mouseTile.X && t.MapY == mouseTile.Y);
                     var targetEnt = SceneManager.GetEntityWithComponent(mapObj);
                     var stats = ent.GetComponent<CreatureStats>();
@@ -203,7 +205,7 @@ public class MapSystem : BaseSystem
                         foreach (var behavior in behaviorController.Behaviors)
                         {
                             if (behavior is ITarget targeter)
-                                targeter.SetTarget(MouseTilePosition);
+                                targeter.SetTarget(MouseTilePosition(Game.GraphicsDevice, Cam, offset.ToPoint()));
 
                             behavior.Perform(ent, null);
                         }
@@ -273,7 +275,7 @@ public class MapSystem : BaseSystem
             }
         }
 
-        camera.Position = GetTileBounds(playerObject.MapX, playerObject.MapY).Location.ToVector2();
+        Cam.Position = GetTileBounds(playerObject.MapX, playerObject.MapY).Location.ToVector2();
     }
 
     private void UpdateMapObject(Entity ent, MapObject mapObj, MapObject player, MapObjectInfo mapObjInfo, Map map)
@@ -352,7 +354,7 @@ public class MapSystem : BaseSystem
     public override void Draw(GameTime gameTime, IEnumerable<Entity> entities)
     {
         //DRAWING
-        Matrix? transformMatrix = SceneManager.CurrentScene == "Play" ? camera.Transform(Game.GraphicsDevice) : null;
+        Matrix? transformMatrix = SceneManager.CurrentScene == "Play" ? Cam.Transform(Game.GraphicsDevice) : null;
         
         sb.Begin(
             sortMode: SpriteSortMode.FrontToBack,
@@ -441,12 +443,26 @@ public class MapSystem : BaseSystem
 
         var map = ent.GetComponent<Map>();
         if (map == null) throw new System.Exception("Entity tagged with 'Map' must have map component");
-
         MapObject hoverObj = null;
-        if (MapPixelBounds.Contains(Input.MouseState.Position))
+        // Get mouse position in world space
+        var mousePos = Input.MouseState.Position.ToVector2();
+        var invertedMatrix = Matrix.Invert(Cam.Transform(Game.GraphicsDevice));
+        var transformedMousePos = Vector2.Transform(mousePos, invertedMatrix);
+
+        // Check if world-space mouse position is within the bounds of the map
+        var worldBounds = new Rectangle(
+            offset.ToPoint(),
+            new Point(
+                map.GroundTiles.GetLength(0) * Settings.TileSize,
+                map.GroundTiles.GetLength(1) * Settings.TileSize
+            )
+        );
+
+        if (worldBounds.Contains(transformedMousePos.ToPoint()))
         {
+            var mouseTile = MouseTilePosition(Game.GraphicsDevice, Cam, offset.ToPoint());
             hoverObj = SceneManager.ComponentsOfType<MapObject>()
-                .Where(t => t.MapX == MouseTilePosition.X && t.MapY == MouseTilePosition.Y)
+                .Where(t => t.MapX == mouseTile.X && t.MapY == mouseTile.Y)
                 .FirstOrDefault();
         }
 
@@ -502,6 +518,16 @@ public class MapSystem : BaseSystem
                     }
 
                 }
+                else
+                {
+
+                    //var mousePos = Input.MouseState.Position.ToVector2();
+                    //var invertedMatrix = Matrix.Invert(Cam.Transform(Game.GraphicsDevice));
+                    //var transformedMousePos = Vector2.Transform(mousePos, invertedMatrix);
+                    var tileBounds = new Rectangle(transformedMousePos.ToPoint(), new Point(16, 16));
+                    sb.Draw(cursorTexture, tileBounds, Color.White);
+                    
+                }
             }
         }
 
@@ -548,7 +574,13 @@ public class MapSystem : BaseSystem
 
         sb.Draw(texture, bnds, tileInfo.Source, tile.Tint * tintMod, 0f, Vector2.Zero, SpriteEffects.None, layer);
 
-        if (bnds.Contains(Input.MouseState.Position))
+        // Calculate mouse position in world space
+        var mousePos = Input.MouseState.Position.ToVector2();
+        var invertedMatrix = Matrix.Invert(Cam.Transform(Game.GraphicsDevice));
+        var transformedMousePos = Vector2.Transform(mousePos, invertedMatrix);
+
+        // Check if the transformed mouse position is within bounds
+        if (bnds.Contains(transformedMousePos))
         {
             sb.Draw(
                 tileSelectTexture,
@@ -563,6 +595,7 @@ public class MapSystem : BaseSystem
 
         return bnds;
     }
+
 
     private void DrawTileHighlight(Color tint, Rectangle bounds, float layer)
     {
@@ -583,10 +616,20 @@ public class MapSystem : BaseSystem
             new Point(Settings.TileSize, Settings.TileSize));
 
 
-    private Point MouseTilePosition =>
-        new((int)(Input.MouseState.X - offset.ToPoint().X) / Settings.TileSize,
-            (int)(Input.MouseState.Y - offset.ToPoint().Y) / Settings.TileSize);
+    public static Point MouseTilePosition(GraphicsDevice graphicsDevice, Camera camera, Point? offset = null)
+    {
+        var mousePos = Input.MouseState.Position.ToVector2();
+        var invertedMatrix = Matrix.Invert(camera.Transform(graphicsDevice));
+        var worldPos = Vector2.Transform(mousePos, invertedMatrix);
 
+        offset ??= Point.Zero;
+
+        return new Point(
+            (int)((worldPos.X - offset.Value.X) / Settings.TileSize),
+            (int)((worldPos.Y - offset.Value.Y) / Settings.TileSize)
+        );
+        
+    }
     public static float[,] GetViewMap(Point start, Map map, float viewRadius, params MapObject[] mapObjects)
     {
         var grid = new bool[map.GroundTiles.GetLength(0), map.GroundTiles.GetLength(1)];

@@ -24,12 +24,14 @@ public class UISystem : BaseSystem
     private int frameRate = 0;
     private int frameCounter = 0;
     private TimeSpan elapsedTime = TimeSpan.Zero;
-    private Point MouseTilePosition =>
-    new((Input.MouseState.X - (Game.Width / 5)) / Settings.TileSize,
-        Input.MouseState.Y / Settings.TileSize);
 
-    public UISystem(BaseGame game) : base(game)
+    private Camera camera;
+    private Vector2 offset;
+
+    public UISystem(MainGame game) : base(game)
     {
+        offset = new Vector2(game.Width / 5, 0);
+        camera = game.Systems.OfType<MapSystem>().FirstOrDefault().Cam;
         sb = new SpriteBatch(game.GraphicsDevice);
         LoadTextures(game);
         LoadFonts(game);
@@ -180,6 +182,7 @@ public class UISystem : BaseSystem
 
             if (entity.GetComponent<MapObject>() is MapObject mapObj)
             {
+                var mousePos = MapSystem.MouseTilePosition(Game.GraphicsDevice, camera, offset.ToPoint());
                 if (entity.HasTag("Player"))
                 {
                     if (entity.GetComponent<CreatureStats>() is CreatureStats stats)
@@ -191,7 +194,7 @@ public class UISystem : BaseSystem
                     if (entity.GetComponent<EffectController>() is EffectController effectController)
                         DrawEffects(effectController, new Point(16, Game.Height / 2));//DrawPlayerEffects(effectController);
                 }
-                else if (mapObj.MapX == MouseTilePosition.X && mapObj.MapY == MouseTilePosition.Y)
+                else if (mapObj.MapX == mousePos.X && mapObj.MapY == mousePos.Y)
                 {
                     var info = Settings.MapObjectAtlas[mapObj.Type];
                     if (entity.GetComponent<CreatureStats>() is CreatureStats stats)
