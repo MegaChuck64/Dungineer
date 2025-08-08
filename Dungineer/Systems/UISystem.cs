@@ -15,10 +15,10 @@ public class UISystem : BaseSystem
 
     private List<UIElement> entered = new();
     private Dictionary<string, SelectItem> selected = new();
-    
+
     private SpriteBatch sb;
 
-    private Dictionary<string, Texture2D> textures = new ();
+    private Dictionary<string, Texture2D> textures = new();
     private Dictionary<string, SpriteFont> fonts = new();
 
     private int frameRate = 0;
@@ -78,7 +78,7 @@ public class UISystem : BaseSystem
             ContentLoader.LoadTexture("treasure_32", game.Content));
     }
 
-    
+
     public override void Update(GameTime gameTime, IEnumerable<Entity> entities)
     {
 
@@ -131,7 +131,7 @@ public class UISystem : BaseSystem
                     entered.Remove(ui);
                     ui.OnMouseLeave?.Invoke();
                 }
-            }        
+            }
 
         }
     }
@@ -152,7 +152,7 @@ public class UISystem : BaseSystem
             var ui = entity.GetComponent<UIElement>();
 
             if (ui != null && ui.IsActive)
-            { 
+            {
                 var bounds = ui.Bounds;
 
                 foreach (var img in entity.GetComponents<Image>())
@@ -201,7 +201,7 @@ public class UISystem : BaseSystem
                         DrawCreatureStats(stats, new Point(Game.Width - (Game.Width / 5) + 16, 16), false, info.Name);//DrawItemStats(stats, mapObj);
 
                     if (entity.GetComponent<SpellBook>() is SpellBook spellBook)
-                        DrawSpellBook(spellBook, new Point(Game.Width - (Game.Width / 5) + 16, Game.Height/4));
+                        DrawSpellBook(spellBook, new Point(Game.Width - (Game.Width / 5) + 16, Game.Height / 4));
 
                     if (entity.GetComponent<EffectController>() is EffectController effectController)
                         DrawEffects(effectController, new Point(Game.Width - (Game.Width / 5) + 16, Game.Height / 2));
@@ -212,14 +212,14 @@ public class UISystem : BaseSystem
         //fps
         frameCounter++;
         sb.DrawString(
-            fonts["consolas_12"], 
-            $"FPS: {frameRate}", 
-            new Vector2(4, Game.Height - 20), 
-            Color.Yellow, 
-            0f, 
-            Vector2.Zero, 
-            1f, 
-            SpriteEffects.None, 
+            fonts["consolas_12"],
+            $"FPS: {frameRate}",
+            new Vector2(4, Game.Height - 20),
+            Color.Yellow,
+            0f,
+            Vector2.Zero,
+            1f,
+            SpriteEffects.None,
             0.9f);
 
         //instructions
@@ -237,12 +237,12 @@ public class UISystem : BaseSystem
                 0.9f);
 
         //game over
-        if (SceneManager.CurrentScene == "Play" && !SceneManager.Entities.Any(t=>t.HasTag("Player")))
+        if (SceneManager.CurrentScene == "Play" && !SceneManager.Entities.Any(t => t.HasTag("Player")))
         {
             sb.DrawString(
                 fonts["consolas_22"],
                 $"Game Over",
-                new Vector2(Game.Width/2 - 62, Game.Height/2),
+                new Vector2(Game.Width / 2 - 62, Game.Height / 2),
                 Color.Red,
                 0f,
                 Vector2.Zero,
@@ -309,17 +309,17 @@ public class UISystem : BaseSystem
         var txtr = textures[image.TextureName];
         var bounds = new Rectangle(ui.Position + image.Position, ui.Size * image.Size);
         sb.Draw(
-            txtr, 
-            bounds, 
-            image.Source, 
-            tint, 
-            0f, 
-            Vector2.Zero, 
-            SpriteEffects.None, 
+            txtr,
+            bounds,
+            image.Source,
+            tint,
+            0f,
+            Vector2.Zero,
+            SpriteEffects.None,
             image.Layer);
     }
 
-    
+
     private void DrawCreatureStats(CreatureStats stats, Point offset, bool showMoney = true, string name = null)
     {
         var font = fonts["consolas_14"];
@@ -329,7 +329,7 @@ public class UISystem : BaseSystem
             sb.DrawString(font, name, new Vector2(offset.X, offset.Y), Color.White);
             offset.Y += 20;
         }
-        
+
         //health
         var healthTexture = textures["symbols_32"];
         var healthSource = new Rectangle(32, 0, 32, 32);
@@ -401,7 +401,7 @@ public class UISystem : BaseSystem
         foreach (var effect in effectController.Effects)
         {
             if (effect.TurnsLeft <= 0) continue;
-            
+
             var info = Settings.EffectAtlas[effect.GetEffectType()];
             var txtr = Settings.TextureAtlas[info.TextureName];
             var src = info.Source;

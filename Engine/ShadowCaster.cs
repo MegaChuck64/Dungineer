@@ -92,9 +92,9 @@ public static class ShadowCaster
     /// <param name="mapPos"></param>
     /// <param name="viewRadius"></param>
     /// <returns></returns>
-    public static float [,] GetViewMap(bool[,] map, Point mapPos, float viewRadius)
+    public static float[,] GetViewMap(bool[,] map, Point mapPos, float viewRadius)
     {
-        
+
         var grid = new CellGrid(map);
         ComputeVisibility(grid, mapPos, viewRadius);
 
@@ -311,9 +311,9 @@ public static class ShadowCaster
         public float[,] ToDistanceMap()
         {
             var mp = new float[W, H];
-            for (int x= 0; x < W; x++)
+            for (int x = 0; x < W; x++)
             {
-                for (int y= 0; y < H; y++)
+                for (int y = 0; y < H; y++)
                 {
                     mp[x, y] = distMap[x, y].Distance;
                 }

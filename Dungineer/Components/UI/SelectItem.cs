@@ -13,7 +13,7 @@ public class SelectItem : Component
     public string SelectionGroup { get; set; }
     public bool Selected { get; set; }
 
-    public SelectItem(bool isActive = true) : base (isActive)
+    public SelectItem(bool isActive = true) : base(isActive)
     {
         DefaultColor = Color.White;
         HoverColor = Color.White;

@@ -22,10 +22,10 @@ public class Collect : IBehavior
                         case Models.MapObjectType.HealthPotion:
                             var max = stats.Health;
                             var val = MainGame.Rand.Next(1, max + 1);
-                            stats.Health = 
-                                stats.Health + val > stats.MaxHealth ? 
-                                stats.MaxHealth : 
-                                stats.Health + val;                            
+                            stats.Health =
+                                stats.Health + val > stats.MaxHealth ?
+                                stats.MaxHealth :
+                                stats.Health + val;
                             break;
                     }
                 }

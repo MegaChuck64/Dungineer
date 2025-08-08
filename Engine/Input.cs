@@ -66,5 +66,5 @@ public static class Input
             _ => false,
         };
     }
-    
+
 }

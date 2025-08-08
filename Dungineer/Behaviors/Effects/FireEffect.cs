@@ -10,7 +10,7 @@ public class FireEffect : IEffect, IBehavior
     public int TurnsLeft { get; private set; }
 
     public EffectType GetEffectType() => EffectType.Fire;
-    
+
     public FireEffect()
     {
         TurnsLeft = Settings.EffectAtlas[GetEffectType()].Turns;
@@ -21,7 +21,7 @@ public class FireEffect : IEffect, IBehavior
         if (TurnsLeft-- > 0)
         {
             if (inflicted.GetComponent<CreatureStats>() is CreatureStats inflicedStats)
-            { 
+            {
                 var effectInfo = Settings.EffectAtlas[GetEffectType()];
                 inflicedStats.Health -= effectInfo.Damage;
                 if (inflicedStats.Health < 0)
@@ -29,6 +29,6 @@ public class FireEffect : IEffect, IBehavior
                     inflicedStats.Health = 0;
                 }
             }
-        }        
+        }
     }
 }

@@ -355,7 +355,7 @@ public class MapSystem : BaseSystem
     {
         //DRAWING
         Matrix? transformMatrix = SceneManager.CurrentScene == "Play" ? Cam.Transform(Game.GraphicsDevice) : null;
-        
+
         sb.Begin(
             sortMode: SpriteSortMode.FrontToBack,
             blendState: BlendState.NonPremultiplied,
@@ -363,7 +363,7 @@ public class MapSystem : BaseSystem
             depthStencilState: DepthStencilState.DepthRead,
             rasterizerState: RasterizerState.CullCounterClockwise,
             effect: null,
-            transformMatrix: transformMatrix); 
+            transformMatrix: transformMatrix);
 
 
         var viewMap = UpdatePlayerViewMap();
@@ -526,7 +526,7 @@ public class MapSystem : BaseSystem
                     //var transformedMousePos = Vector2.Transform(mousePos, invertedMatrix);
                     var tileBounds = new Rectangle(transformedMousePos.ToPoint(), new Point(16, 16));
                     sb.Draw(cursorTexture, tileBounds, Color.White);
-                    
+
                 }
             }
         }
@@ -628,7 +628,7 @@ public class MapSystem : BaseSystem
             (int)((worldPos.X - offset.Value.X) / Settings.TileSize),
             (int)((worldPos.Y - offset.Value.Y) / Settings.TileSize)
         );
-        
+
     }
     public static float[,] GetViewMap(Point start, Map map, float viewRadius, params MapObject[] mapObjects)
     {

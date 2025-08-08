@@ -1,10 +1,10 @@
-﻿using Engine;
-using Dungineer.Models;
+﻿using Dungineer.Models;
+using Engine;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 
 namespace Dungineer;
 
@@ -14,7 +14,7 @@ public static class Settings
     public static int Seed { get; private set; } = new Random().Next();
     public static int MapWidth { get; set; } = 27;
     public static int MapHeight { get; set; } = 24;
-    
+
     public static Dictionary<TileType, TileInfo> TileAtlas { get; private set; }
     public static Dictionary<MapObjectType, MapObjectInfo> MapObjectAtlas { get; private set; }
     public static Dictionary<WardrobeType, WardrobeInfo> WardrobeAtlas { get; private set; }
@@ -75,7 +75,7 @@ public static class Settings
                 TextureAtlas.Add(tinfo.TextureName, ContentLoader.LoadTexture(tinfo.TextureName, content));
 
             TileAtlas.Add(infoType, tinfo);
-        }       
+        }
     }
 
     public static void LoadWardrobeAtlas(ContentManager content)

@@ -33,7 +33,7 @@ public class MainGame : BaseGame
     }
 
     private void AddSystems()
-    {       
+    {
         Systems.Add(new MapSystem(this, Content));
 
         Systems.Add(new UISystem(this));
@@ -63,6 +63,6 @@ public class MainGame : BaseGame
 
     public override void OnDraw(GameTime gameTime)
     {
-        
+
     }
 }

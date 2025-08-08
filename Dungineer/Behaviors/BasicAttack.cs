@@ -20,7 +20,7 @@ public class BasicAttack : ISpell
     public void Perform(Entity performer, Entity inflicted)
     {
         var performerStats = performer.GetComponent<CreatureStats>();
-        
+
         if (inflicted.GetComponent<CreatureStats>() is CreatureStats targetStats)
         {
             targetStats.Health -= performerStats.Strength;
@@ -28,7 +28,7 @@ public class BasicAttack : ISpell
             {
                 targetStats.Health = 0;
             }
-        }       
+        }
     }
 
     public IEnumerable<Point> Aim(Entity ent)
@@ -41,15 +41,15 @@ public class BasicAttack : ISpell
 
         for (int x = mapObj.MapX - spellInfo.Range; x < mapObj.MapX + spellInfo.Range + 1; x++)
         {
-            for (int y= mapObj.MapY - spellInfo.Range; y < mapObj.MapY + spellInfo.Range + 1; y++)
+            for (int y = mapObj.MapY - spellInfo.Range; y < mapObj.MapY + spellInfo.Range + 1; y++)
             {
                 if (x == mapObj.MapX && y == mapObj.MapY)
                     continue;
 
                 if (Vector2.Distance(new Vector2(x, y), new Vector2(mapObj.MapX, mapObj.MapY)) <= spellInfo.Range)
                 {
-                    points.Add(new Point(x,y));
-                }    
+                    points.Add(new Point(x, y));
+                }
             }
         }
 

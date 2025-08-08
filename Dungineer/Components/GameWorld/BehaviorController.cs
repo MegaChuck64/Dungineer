@@ -6,5 +6,5 @@ namespace Dungineer.Components.GameWorld;
 
 public class BehaviorController : Component
 {
-    public List<IBehavior> Behaviors { get; set; } = new ();
+    public List<IBehavior> Behaviors { get; set; } = new();
 }

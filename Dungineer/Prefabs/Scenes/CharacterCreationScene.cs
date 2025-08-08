@@ -24,7 +24,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
         ents.Add(player);
 
 
-        ents.Add(CreateRobe(game, player, "symbols_32", new Rectangle(0, 0, 32, 32), -100, null));        
+        ents.Add(CreateRobe(game, player, "symbols_32", new Rectangle(0, 0, 32, 32), -100, null));
         ents.Add(CreateRobe(game, player, "robes_32", new Rectangle(0, 0, 32, 32), 0, WardrobeType.BasicRobe));
         ents.Add(CreateRobe(game, player, "robes_32", new Rectangle(32, 0, 32, 32), 100, WardrobeType.ProperRobe));
 
@@ -164,11 +164,11 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
 
         return robe;
     }
-   
-    
+
+
     private static Entity CreatePlayer(BaseGame game)
     {
-        
+
         var ent = new Entity()
             .With(new MapObject
             {
@@ -186,9 +186,9 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
                 MaxMana = 20,
 
                 MoveSpeed = 1,
-                
+
                 Money = 7,
-                
+
                 SightRange = 8f,
 
                 Strength = 3,

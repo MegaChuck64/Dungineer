@@ -39,7 +39,7 @@ public class PlayScene : IPrefab<List<Entity>>
             })
             .With(new Terminal
             {
-                
+
             });
         return terminal;
     }

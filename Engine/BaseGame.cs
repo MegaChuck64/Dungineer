@@ -28,8 +28,8 @@ namespace Engine
             Content.RootDirectory = "Content";
 
             Systems = new List<BaseSystem>();
-            
-            Rand = seed == null ? new Random(1) : new Random(seed.Value);            
+
+            Rand = seed == null ? new Random(1) : new Random(seed.Value);
         }
 
         protected override void Initialize()
@@ -37,7 +37,7 @@ namespace Engine
 
             _graphics.PreferredBackBufferWidth = Width;
             _graphics.PreferredBackBufferHeight = Height;
-            
+
             IsFixedTimeStep = true;
             _graphics.ApplyChanges();
 
@@ -49,7 +49,7 @@ namespace Engine
 
         public void ToggleFullscreen()
         {
-            if (_graphics.PreferredBackBufferHeight == GraphicsDevice.DisplayMode.Height && 
+            if (_graphics.PreferredBackBufferHeight == GraphicsDevice.DisplayMode.Height &&
                 _graphics.PreferredBackBufferWidth == GraphicsDevice.DisplayMode.Width)
             {
                 _graphics.PreferredBackBufferWidth = Width;
@@ -60,7 +60,7 @@ namespace Engine
                 _graphics.PreferredBackBufferWidth = GraphicsDevice.DisplayMode.Width - 100;
                 _graphics.PreferredBackBufferHeight = GraphicsDevice.DisplayMode.Height - 100;
             }
-            
+
             _graphics.ApplyChanges();
         }
 
