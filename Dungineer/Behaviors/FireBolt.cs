@@ -46,23 +46,37 @@ public class FireBolt : ISpell
     public bool TryPerform(Entity performer, Entity inflicted)
     {
         var performerStats = performer.GetComponent<CreatureStats>();
+        var spellInfo = Settings.SpellAtlas[GetSpellType()];
+
+        if (performerStats == null || performerStats.Mana < spellInfo.ManaCost)
+            return false;
 
         if (inflicted.GetComponent<CreatureStats>() is CreatureStats targetStats)
         {
             targetStats.Health -= performerStats.Strength;
+
+            performerStats.Mana -= spellInfo.ManaCost;
+            if (performerStats.Mana < 0)
+            {
+                performerStats.Mana = 0;
+            }
+            if (performerStats.Mana > performerStats.MaxMana)
+            {
+                performerStats.Mana = performerStats.MaxMana;
+            }
+
             if (targetStats.Health <= 0)
             {
                 targetStats.Health = 0;
                 return true;
             }
-            else
+            
+            if (inflicted.GetComponent<EffectController>() is EffectController targetedEffectController)
             {
-                if (inflicted.GetComponent<EffectController>() is EffectController targetedEffectController)
-                {
-                    targetedEffectController.Effects.Add(new FireEffect());
-                    return true;
-                }
+                targetedEffectController.Effects.Add(new FireEffect());
+                return true;
             }
+            
         }
 
         return false;

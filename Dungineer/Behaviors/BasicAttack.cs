@@ -20,9 +20,23 @@ public class BasicAttack : ISpell
     public bool TryPerform(Entity performer, Entity inflicted)
     {
         var performerStats = performer.GetComponent<CreatureStats>();
+        var spellInfo = Settings.SpellAtlas[GetSpellType()];
+
+        if (performerStats == null || performerStats.Mana < spellInfo.ManaCost)
+            return false;
 
         if (inflicted.GetComponent<CreatureStats>() is CreatureStats targetStats)
         {
+            performerStats.Mana -= spellInfo.ManaCost;
+            if (performerStats.Mana < 0)
+            {
+                performerStats.Mana = 0;
+            }
+            if (performerStats.Mana > performerStats.MaxMana)
+            {
+                performerStats.Mana = performerStats.MaxMana;
+            }
+
             targetStats.Health -= performerStats.Strength;
             if (targetStats.Health < 0)
             {

@@ -22,11 +22,15 @@ public class PathFinder
     /// <param name="searchParameters"></param>
     public PathFinder(PathFinderSearchParams searchParameters)
     {
-        this.searchParameters = searchParameters;
-        InitializeNodes(searchParameters.Map);
-        this.startNode = this.nodes[searchParameters.StartLocation.X, searchParameters.StartLocation.Y];
-        this.startNode.State = PathFinderNodeState.Open;
-        this.endNode = this.nodes[searchParameters.EndLocation.X, searchParameters.EndLocation.Y];
+        try
+        {
+            this.searchParameters = searchParameters;
+            InitializeNodes(searchParameters.Map);
+            this.startNode = this.nodes[searchParameters.StartLocation.X, searchParameters.StartLocation.Y];
+            this.startNode.State = PathFinderNodeState.Open;
+            this.endNode = this.nodes[searchParameters.EndLocation.X, searchParameters.EndLocation.Y];
+        }
+        catch { }
     }
 
     /// <summary>
@@ -36,21 +40,26 @@ public class PathFinder
     public List<Point> FindPath()
     {
         // The start node is the first entry in the 'open' list
-        List<Point> path = new List<Point>();
-        bool success = Search(startNode);
-        if (success)
+        List<Point> path = [];
+        try
         {
-            // If a path was found, follow the parents from the end node to build a list of locations
-            PathFinderNode node = this.endNode;
-            while (node.ParentNode != null)
+            bool success = Search(startNode);
+            if (success)
             {
-                path.Add(node.Location);
-                node = node.ParentNode;
+                // If a path was found, follow the parents from the end node to build a list of locations
+                PathFinderNode node = this.endNode;
+                while (node.ParentNode != null)
+                {
+                    path.Add(node.Location);
+                    node = node.ParentNode;
+                }
+
+                // Reverse the list so it's in the correct order when returned
+                path.Reverse();
             }
 
-            // Reverse the list so it's in the correct order when returned
-            path.Reverse();
         }
+        catch { }
 
         return path;
     }

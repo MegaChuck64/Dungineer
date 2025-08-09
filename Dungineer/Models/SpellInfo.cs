@@ -15,6 +15,7 @@ public struct SpellInfo
     public string Description { get; set; }
     public int Range { get; set; }
     public int Damage { get; set; }
+    public int ManaCost { get; set; }
     public List<string> Effects { get; set; }
 }
 

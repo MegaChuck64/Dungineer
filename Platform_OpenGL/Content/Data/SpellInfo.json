@@ -4,6 +4,7 @@
     "Description": "Low range, low damage attack any competent magi can perform.",
     "Range": 2,
     "Damage": 1,
+    "ManaCost": 1,
     "TextureName": "hand_32",
     "Source": {
       "X": 0,
@@ -17,6 +18,7 @@
     "Desciprition": "Mid range fire spell that deals 3 damage and sets target on fire",
     "Range": 3,
     "Damage": 2,
+    "ManaCost": 3,
     "Effects": [
       "Fire"
     ],

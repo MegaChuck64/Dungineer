@@ -21,12 +21,14 @@ public class MapSystem : BaseSystem
     private const float EFFECT_LAYER = 0.7f;
     private const float ITEM_LAYER = 0.8f;
 
-    private readonly Texture2D tileSelectTexture;
-    private readonly Texture2D cursorTexture;
-    private readonly SpriteBatch sb;
-    private readonly List<Entity> entitiesToRemove = new();
-    private readonly List<Point> aimingPath = new();
-    private readonly Vector2 offset;
+
+    private readonly SpriteBatch _sb;
+    private readonly Texture2D _tileSelectTexture;
+    private readonly Texture2D _cursorTexture;
+    private readonly List<Entity> _entitiesToRemove = [];
+    private readonly List<Point> _aimingPath = [];
+    private readonly Vector2 _offset;
+    private readonly Rectangle _tileSource = new(0, 0, Settings.TileSize, Settings.TileSize);
 
 
     public Camera Cam { get; private set; }
@@ -47,12 +49,12 @@ public class MapSystem : BaseSystem
     /// <param name="content">Content manager for loading textures and resources</param>
     public MapSystem(BaseGame game, ContentManager content) : base(game)
     {
-        offset = new Vector2(game.Width / 5, 0);
+        _offset = new Vector2(game.Width / 5, 0);
 
-        sb = new SpriteBatch(game.GraphicsDevice);
+        _sb = new SpriteBatch(game.GraphicsDevice);
 
-        tileSelectTexture = ContentLoader.LoadTexture("ui_box_select_32", content);
-        cursorTexture = ContentLoader.LoadTexture("cursor_16", content);
+        _tileSelectTexture = ContentLoader.LoadTexture("ui_box_select_32", content);
+        _cursorTexture = ContentLoader.LoadTexture("cursor_16", content);
 
         Cam = new Camera();
         PlayerSight = new SightSystem(game);
@@ -73,19 +75,23 @@ public class MapSystem : BaseSystem
 
         var map = entities.FirstOrDefault(t => t.HasTag("Map"))?.GetComponent<Map>();
 
+        var playerEnt = entities.FirstOrDefault(e => e.HasTag("Player"));
+        var playerMapObj = playerEnt?.GetComponent<MapObject>();
+
         foreach (var ent in entities.Reverse()) //todo, reversing for now because we add the player last to the scene, but we want to process it first
         {
-            if (TryKillCreature(ent))
+            var mapObj = ent.GetComponent<MapObject>();
+
+            if (TryKillCreature(ent, mapObj))
                 continue;
 
-            if (ent.HasTag("Player"))
+            if (ent == playerEnt)
             {
-                UpdatePlayer(ent);
+                UpdatePlayer(ent, mapObj);
             }
-            else if (ent.GetComponent<MapObject>() is MapObject mapObj)
+            else if (mapObj is not null)
             {
-                var player = entities.FirstOrDefault(t => t.HasTag("Player"))?.GetComponent<MapObject>();
-                if (player == null)
+                if (playerMapObj == null)
                     continue;
 
                 if (Input.WasPressed(MouseButton.Left) == false && Input.WasPressed(MouseButton.Right) == false)
@@ -94,7 +100,7 @@ public class MapSystem : BaseSystem
                 if (MapPixelBounds.Contains(Input.MouseState.Position) == false) //todo: is this right? 
                     continue;
 
-                UpdateMapObject(ent, mapObj, player, map);
+                UpdateMapObject(ent, mapObj, playerMapObj, map);
             }
             else if (ent.HasTag("Cursor"))
             {
@@ -102,11 +108,11 @@ public class MapSystem : BaseSystem
             }
         }
 
-        foreach (var ent in entitiesToRemove)
+        foreach (var ent in _entitiesToRemove)
         {
             SceneManager.RemoveEntity(SceneManager.CurrentScene, ent);
         }
-        entitiesToRemove.Clear();
+        _entitiesToRemove.Clear();
     }
 
   
@@ -116,16 +122,16 @@ public class MapSystem : BaseSystem
     /// </summary>
     /// <param name="ent">Entity to check for death condition</param>
     /// <returns>True if the creature died and was processed, false otherwise</returns>
-    private bool TryKillCreature(Entity ent)
+    private bool TryKillCreature(Entity ent, MapObject mapObj)
     {
         if (ent.GetComponent<CreatureStats>() is CreatureStats creatureStats)
         {
             if (creatureStats.Health <= 0)
             {
                 creatureStats.Health = 0;
-                entitiesToRemove.Add(ent);
+                _entitiesToRemove.Add(ent);
 
-                if (ent.GetComponent<MapObject>() is MapObject mapObj)
+                if (mapObj is not null)
                 {
                     var info = Settings.MapObjectAtlas[mapObj.Type];
                     var rand = MainGame.Rand.NextDouble();
@@ -148,23 +154,24 @@ public class MapSystem : BaseSystem
     /// Processes left clicks for actions and number keys for spell selection.
     /// </summary>
     /// <param name="ent">The player entity to update</param>
-    private void UpdatePlayer(Entity ent)
+    private void UpdatePlayer(Entity ent, MapObject mapObj)
     {
-        var playerObj = ent.GetComponent<MapObject>();
 
         if (MapPixelBounds.Contains(Input.MouseState.Position))
         {
+            var spellBook = ent.GetComponent<SpellBook>();
             if (Input.WasPressed(MouseButton.Left))
             {
-                if (aimingPath.Count > 0)
+                var mouseTilePos = MouseTilePosition(Game.GraphicsDevice, Cam, _offset.ToPoint());
+                if (_aimingPath.Count > 0)
                 {
-                    HandleTarget(ent);
+                    HandleTarget(ent, spellBook, mouseTilePos);
                 }
                 else
                 {
                     if (ent.GetComponent<BehaviorController>() is BehaviorController behaviorController)
                     {
-                        UpdateBehaviorController(behaviorController, ent, MouseTilePosition(Game.GraphicsDevice, Cam, offset.ToPoint()));
+                        UpdateBehaviorController(behaviorController, ent, mouseTilePos);
                     }
 
                     if (ent.GetComponent<EffectController>() is EffectController effectController)
@@ -172,15 +179,15 @@ public class MapSystem : BaseSystem
                         UpdateEffectController(effectController, ent);
                     }
 
-                    UpdateCollectables(ent, playerObj);
+                    UpdateCollectables(ent, mapObj);
                 }
 
-                aimingPath.Clear();
+                _aimingPath.Clear();
 
                 if (ent.GetComponent<SpellBook>() is SpellBook sb)
                     sb.selectedSpell = -1;
             }
-            else if (ent.GetComponent<SpellBook>() is SpellBook spellBook)
+            else if (spellBook is not null)
             {
                 //49 = Keys.D1
                 for (int i = 49; i < 49 + 10; i++)
@@ -191,16 +198,16 @@ public class MapSystem : BaseSystem
                         {
                             if (spellBook.Spells[i - 49] is ISpell spell)
                             {
-                                aimingPath.Clear();
+                                _aimingPath.Clear();
                                 spellBook.selectedSpell = i - 49;
-                                aimingPath.AddRange(spell.Aim(ent));
+                                _aimingPath.AddRange(spell.Aim(ent));
                             }
                         }
                     }
                 }
             }
         }
-        Cam.Position = GetTileBounds(playerObj.MapX, playerObj.MapY).Location.ToVector2();
+        Cam.Position = GetTileBounds(mapObj.MapX, mapObj.MapY).Location.ToVector2();
     }
 
     /// <summary>
@@ -208,19 +215,18 @@ public class MapSystem : BaseSystem
     /// Validates if the target is within range and performs the selected spell if valid.
     /// </summary>
     /// <param name="ent">The player entity casting the spell</param>
-    private void HandleTarget(Entity ent)
+    private void HandleTarget(Entity ent, SpellBook spellBook, Point mouseTilePos)
     {
-        var mouseTile = MouseTilePosition(Game.GraphicsDevice, Cam, offset.ToPoint());
-        var mapObj = SceneManager.ComponentsOfType<MapObject>().FirstOrDefault(t => t.MapX == mouseTile.X && t.MapY == mouseTile.Y);
+        var mapObj = SceneManager.ComponentsOfType<MapObject>().FirstOrDefault(t => t.MapX == mouseTilePos.X && t.MapY == mouseTilePos.Y);
         var targetEnt = SceneManager.GetEntityWithComponent(mapObj);
-        var stats = ent.GetComponent<CreatureStats>();
-        if (targetEnt != null && aimingPath.Contains(mouseTile))
+        //var stats = ent.GetComponent<CreatureStats>();
+        if (targetEnt != null && _aimingPath.Contains(mouseTilePos))
         //Vector2.Distance(new Vector2(playerObject.MapX, playerObject.MapY), mouseTile.ToVector2()) <= stats.AttackRange)
         {
-            if (ent.GetComponent<SpellBook>() is SpellBook spellBook && spellBook.selectedSpell >= 0)
+            if (spellBook is not null && spellBook.selectedSpell >= 0)
             {
                 var spell = spellBook.Spells[spellBook.selectedSpell];
-                spell.SetTarget(mouseTile);
+                spell.SetTarget(mouseTilePos);
                 spell.TryPerform(ent, targetEnt);
                 spellBook.selectedSpell = -1;
             }
@@ -362,7 +368,7 @@ public class MapSystem : BaseSystem
                 var collectEnt = SceneManager.GetEntityWithComponent(collectables[i]);
 
                 if (collect.TryPerform(ent, collectEnt))
-                    entitiesToRemove.Add(collectEnt);
+                    _entitiesToRemove.Add(collectEnt);
             }
         }
     }
@@ -379,7 +385,7 @@ public class MapSystem : BaseSystem
         //DRAWING
         Matrix? transformMatrix = SceneManager.CurrentScene == "Play" ? Cam.Transform(Game.GraphicsDevice) : null;
 
-        sb.Begin(
+        _sb.Begin(
             sortMode: SpriteSortMode.FrontToBack,
             blendState: BlendState.NonPremultiplied,
             samplerState: SamplerState.PointClamp,
@@ -414,7 +420,7 @@ public class MapSystem : BaseSystem
             }
         }
 
-        sb.End();
+        _sb.End();
 
     }
 
@@ -432,7 +438,7 @@ public class MapSystem : BaseSystem
 
             var bnds = GetTileBounds(mapObj.MapX, mapObj.MapY);
             bnds = new Rectangle(bnds.X, bnds.Y, (int)(bnds.Width * mapObj.Scale), (int)(bnds.Height * mapObj.Scale));
-            sb.Draw(
+            _sb.Draw(
                 wtxt,
                 bnds,
                 winfo.Source,
@@ -462,7 +468,7 @@ public class MapSystem : BaseSystem
 
         // Check if world-space mouse position is within the bounds of the map
         var worldBounds = new Rectangle(
-            offset.ToPoint(),
+            _offset.ToPoint(),
             new Point(
                 map.GroundTiles.GetLength(0) * Settings.TileSize,
                 map.GroundTiles.GetLength(1) * Settings.TileSize
@@ -471,7 +477,7 @@ public class MapSystem : BaseSystem
 
         if (worldBounds.Contains(transformedMousePos.ToPoint()))
         {
-            var mouseTile = MouseTilePosition(Game.GraphicsDevice, Cam, offset.ToPoint());
+            var mouseTile = MouseTilePosition(Game.GraphicsDevice, Cam, _offset.ToPoint());
             hoverObj = SceneManager.ComponentsOfType<MapObject>()
                 .Where(t => t.MapX == mouseTile.X && t.MapY == mouseTile.Y)
                 .FirstOrDefault();
@@ -494,7 +500,7 @@ public class MapSystem : BaseSystem
                     var tileBounds = DrawTile(map.GroundTiles[x, y], GROUND_LAYER, tintMod / PlayerSight.LastSightRange);
 
                     //if aiming
-                    if (aimingPath.Contains(new Point(x, y)))
+                    if (_aimingPath.Contains(new Point(x, y)))
                     {
                         //draw highlight on hover
                         if (hoverObj != null && hoverObj.MapX == x && hoverObj.MapY == y)
@@ -529,16 +535,6 @@ public class MapSystem : BaseSystem
                     }
 
                 }
-                else
-                {
-
-                    //var mousePos = Input.MouseState.Position.ToVector2();
-                    //var invertedMatrix = Matrix.Invert(Cam.Transform(Game.GraphicsDevice));
-                    //var transformedMousePos = Vector2.Transform(mousePos, invertedMatrix);
-                    var tileBounds = new Rectangle(transformedMousePos.ToPoint(), new Point(16, 16));
-                    sb.Draw(cursorTexture, tileBounds, Color.White);
-
-                }
             }
         }
 
@@ -552,6 +548,9 @@ public class MapSystem : BaseSystem
                 DrawTile(map.ObjectTiles[i], OBJECT_LAYER, tintMod / PlayerSight.LastSightRange);
             }
         }
+
+        var cursorBounds = new Rectangle(transformedMousePos.ToPoint(), new Point(16, 16));
+        _sb.Draw(_cursorTexture, cursorBounds, Color.White);
     }
 
 
@@ -572,7 +571,7 @@ public class MapSystem : BaseSystem
         var bnds = GetTileBounds(mapObject.MapX, mapObject.MapY);
         bnds = new Rectangle(bnds.X, bnds.Y, (int)(bnds.Width * mapObject.Scale), (int)(bnds.Height * mapObject.Scale));
 
-        sb.Draw(
+        _sb.Draw(
             texture,
             bnds,
             mapObjectInfo.Source,
@@ -598,7 +597,7 @@ public class MapSystem : BaseSystem
 
         var bnds = GetTileBounds(tile.X, tile.Y);
 
-        sb.Draw(texture, bnds, tileInfo.Source, tile.Tint * tintMod, 0f, Vector2.Zero, SpriteEffects.None, layer);
+        _sb.Draw(texture, bnds, tileInfo.Source, tile.Tint * tintMod, 0f, Vector2.Zero, SpriteEffects.None, layer);
 
         // Calculate mouse position in world space
         var mousePos = Input.MouseState.Position.ToVector2();
@@ -608,10 +607,10 @@ public class MapSystem : BaseSystem
         // Check if the transformed mouse position is within bounds
         if (bnds.Contains(transformedMousePos))
         {
-            sb.Draw(
-                tileSelectTexture,
+            _sb.Draw(
+                _tileSelectTexture,
                 bnds,
-                new Rectangle(0, 0, 32, 32),
+                _tileSource,
                 Color.White,
                 0f,
                 Vector2.Zero,
@@ -631,7 +630,7 @@ public class MapSystem : BaseSystem
     /// <param name="layer">Render depth layer</param>
     private void DrawTileHighlight(Color tint, Rectangle bounds, float layer)
     {
-        sb.Draw(Settings.TextureAtlas["_pixel"], bounds, null, tint, 0f, Vector2.Zero, SpriteEffects.None, layer);
+        _sb.Draw(Settings.TextureAtlas["_pixel"], bounds, null, tint, 0f, Vector2.Zero, SpriteEffects.None, layer);
     }
 
     #endregion
@@ -657,8 +656,8 @@ public class MapSystem : BaseSystem
     /// <param name="y">Grid Y coordinate</param>
     /// <returns>Rectangle representing the tile bounds in world space</returns>
     private Rectangle GetTileBounds(int x, int y) =>
-        new(offset.ToPoint() + new Point(x * Settings.TileSize, y * Settings.TileSize),
-            new Point(Settings.TileSize, Settings.TileSize));
+        new(location:  _offset.ToPoint() + new Point(x * Settings.TileSize, y * Settings.TileSize), 
+            size: _tileSource.Size);
 
 
     /// <summary>
