@@ -32,4 +32,5 @@ public enum MapObjectType
     Ghost,
     Arcanium,
     HealthPotion,
+    ManaPotion
 }

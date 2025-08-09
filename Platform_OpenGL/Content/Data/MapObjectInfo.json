@@ -74,5 +74,18 @@
     },
     "LotteryValue": 2,
     "Collectable": true
+  },
+  {
+    "Name": "Mana Potion",
+    "Description": "Restores mana by up to 100% of current mana.",
+    "TextureName": "potions_32",
+    "Source": {
+      "X": 0,
+      "Y": 32,
+      "Width": 32,
+      "Height": 32
+    },
+    "LotteryValue": 2,
+    "Collectable": true
   }
 ]

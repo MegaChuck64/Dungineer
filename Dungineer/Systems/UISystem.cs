@@ -186,23 +186,25 @@ public class UISystem : BaseSystem
                 if (entity.HasTag("Player"))
                 {
                     if (entity.GetComponent<CreatureStats>() is CreatureStats stats)
-                        DrawCreatureStats(stats, new Point(16, 16));//DrawPlayerStats(stats);
+                    {
+                        DrawCreatureStats(stats, new Point(16, 16));
 
-                    if (entity.GetComponent<SpellBook>() is SpellBook spellBook)
-                        DrawSpellBook(spellBook, new Point(16, Game.Height / 4));//DrawPlayerSpellBook(spellBook);
-
+                        if (entity.GetComponent<SpellBook>() is SpellBook spellBook)
+                            DrawSpellBook(spellBook, stats, new Point(16, Game.Height / 4));
+                    }
                     if (entity.GetComponent<EffectController>() is EffectController effectController)
-                        DrawEffects(effectController, new Point(16, Game.Height / 2));//DrawPlayerEffects(effectController);
+                        DrawEffects(effectController, new Point(16, Game.Height / 2));
                 }
                 else if (mapObj.MapX == mousePos.X && mapObj.MapY == mousePos.Y)
                 {
                     var info = Settings.MapObjectAtlas[mapObj.Type];
                     if (entity.GetComponent<CreatureStats>() is CreatureStats stats)
-                        DrawCreatureStats(stats, new Point(Game.Width - (Game.Width / 5) + 16, 16), false, info.Name);//DrawItemStats(stats, mapObj);
+                    {
+                        DrawCreatureStats(stats, new Point(Game.Width - (Game.Width / 5) + 16, 16), false, info.Name);
 
-                    if (entity.GetComponent<SpellBook>() is SpellBook spellBook)
-                        DrawSpellBook(spellBook, new Point(Game.Width - (Game.Width / 5) + 16, Game.Height / 4));
-
+                        if (entity.GetComponent<SpellBook>() is SpellBook spellBook)
+                            DrawSpellBook(spellBook, stats, new Point(Game.Width - (Game.Width / 5) + 16, Game.Height / 4));
+                    }
                     if (entity.GetComponent<EffectController>() is EffectController effectController)
                         DrawEffects(effectController, new Point(Game.Width - (Game.Width / 5) + 16, Game.Height / 2));
                 }
@@ -260,7 +262,7 @@ public class UISystem : BaseSystem
         tint = selectItem.DefaultColor;
 
         //handle selected item
-        if (selected.ContainsKey(selectItem.SelectionGroup) && selected[selectItem.SelectionGroup] == selectItem)
+        if (selected.TryGetValue(selectItem.SelectionGroup, out SelectItem value) && value == selectItem)
         {
             tint = selectItem.SelectedColor;
             selectItem.Selected = true;
@@ -291,6 +293,16 @@ public class UISystem : BaseSystem
 
 
         sb.Draw(Settings.TextureAtlas["_pixel"], bounds, Color.DarkBlue);
+
+        var font = fonts["consolas_12"];
+
+        var pos = new Vector2(bounds.X + 8, bounds.Y + 8);
+        foreach (var line in terminal.Lines)
+        {
+            sb.DrawString(font, line, pos, Color.White);
+            pos.Y += font.LineSpacing;
+        }
+
     }
 
 
@@ -367,7 +379,7 @@ public class UISystem : BaseSystem
         }
     }
 
-    private void DrawSpellBook(SpellBook spellBook, Point offset)
+    private void DrawSpellBook(SpellBook spellBook, CreatureStats creatureStats, Point offset)
     {
         var font = fonts["consolas_14"];
 
@@ -379,15 +391,17 @@ public class UISystem : BaseSystem
             var src = info.Source;
             var bnds = new Rectangle(offset.X, offset.Y + 32 * (yOffset) + 8, 32, 32);
 
-            var str = info.Name;
+            var str = $"{info.Name} ({info.ManaCost}:m)";
             var sze = font.MeasureString(str);
 
-            sb.Draw(txtr, bnds, src, Color.White);
+            var canUse = info.ManaCost <= creatureStats.Mana;
+
+            sb.Draw(txtr, bnds, src, canUse ? Color.White : Color.LightGray);
             sb.DrawString(
                 font,
                 str,
                 new Vector2(bnds.X + 32 + 8, bnds.Y + (sze.Y / 2)),
-                 spellBook.selectedSpell == yOffset ? Color.Green : Color.White);
+                 canUse ? (spellBook.selectedSpell == yOffset ? Color.Green : Color.White) : Color.LightGray);
 
             yOffset++;
         }

@@ -26,6 +26,7 @@ public class DropOnDeath : IBehavior
             {
                 MapObjectType.Arcanium => MapItemsPrefab.CreateAracanium(mapObj.MapX, mapObj.MapY),
                 MapObjectType.HealthPotion => MapItemsPrefab.CreateHealthPotion(mapObj.MapX, mapObj.MapY),
+                MapObjectType.ManaPotion => MapItemsPrefab.CreateManaPotion(mapObj.MapX, mapObj.MapY),
                 _ => throw new NotImplementedException($"DropOnDeath behavior not implemented for {newType}."),
             };
             SceneManager.AddEntity(SceneManager.CurrentScene, newEnt);

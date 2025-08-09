@@ -32,6 +32,18 @@ public class Collect : IBehavior
                                 stats.MaxHealth :
                                 stats.Health + val;
                             return true;
+                        case Models.MapObjectType.ManaPotion:
+                            if (stats.Mana >= stats.MaxMana)
+                            {
+                                return false; // No need to collect if already at max mana
+                            }
+                            var maxMana = stats.Mana;
+                            var manaVal = MainGame.Rand.Next(1, maxMana + 1);
+                            stats.Mana =
+                                stats.Mana + manaVal > stats.MaxMana ?
+                                stats.MaxMana :
+                                stats.Mana + manaVal;
+                            return true;
                         default:
                             throw new NotImplementedException($"Collecting behavior not implemented for {collectable.Type}.");
                     }

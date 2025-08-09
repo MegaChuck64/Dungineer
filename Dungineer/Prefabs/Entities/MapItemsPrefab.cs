@@ -53,6 +53,9 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
                             case MapObjectType.HealthPotion:
                                 ents.Add(CreateHealthPotion(x, y));
                                 break;
+                            case MapObjectType.ManaPotion:
+                                ents.Add(CreateManaPotion(x, y));
+                                break;
                             default:
                                 break;
                         }
@@ -144,5 +147,18 @@ public class MapItemsPrefab : IPrefab<List<Entity>>
 
         return ent;
     }
+    public static Entity CreateManaPotion(int x, int y)
+    {
+        var ent = new Entity()
+            .With(new MapObject
+            {
+                MapX = x,
+                MapY = y,
+                Tint = Color.White,
+                Type = MapObjectType.ManaPotion
+            })
+            .WithTag("Mana Potion");
 
+        return ent;
+    }
 }
