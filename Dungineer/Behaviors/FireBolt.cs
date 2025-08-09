@@ -53,7 +53,7 @@ public class FireBolt : ISpell
             if (targetStats.Health <= 0)
             {
                 targetStats.Health = 0;
-                return true; 
+                return true;
             }
             else
             {

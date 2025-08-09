@@ -16,7 +16,7 @@ public class DropOnDeath : IBehavior
 
     public bool TryPerform(Entity performer, Entity inflicted)
     {
-        if (mapObjectLottery.Length == 0) 
+        if (mapObjectLottery.Length == 0)
             return false;
 
         if (performer.GetComponent<MapObject>() is MapObject mapObj)
