@@ -16,8 +16,6 @@ namespace Dungineer.Systems;
 
 public class MapSystem : BaseSystem
 {
-    private Vector2 offset;
-
     private const float GROUND_LAYER = 0.5f;
     private const float OBJECT_LAYER = 0.6f;
     private const float EFFECT_LAYER = 0.7f;
@@ -28,17 +26,12 @@ public class MapSystem : BaseSystem
     private readonly SpriteBatch sb;
     private readonly List<Entity> entitiesToRemove = new();
     private readonly List<Point> aimingPath = new();
+    private readonly Vector2 offset;
 
-    private float sightRangeBreathSpeed = 2f;
-    private float sightRangeBreathTimer = 0f;
-    private float sightRangeBreath;
-    private float sightBreathOffset = 3f;
-    private bool sightRangeBreathOut = false;
-    private float lastSightRange = 0f;
 
     public Camera Cam { get; private set; }
+    public SightSystem PlayerSight { get; private set; }
 
-    private float[,] lastViewMap;
 
     private readonly MapObjectType[] dropLottery = new MapObjectType[]
     {
@@ -62,6 +55,7 @@ public class MapSystem : BaseSystem
         cursorTexture = ContentLoader.LoadTexture("cursor_16", content);
 
         Cam = new Camera();
+        PlayerSight = new SightSystem(game);
     }
 
     /// <summary>
@@ -75,7 +69,7 @@ public class MapSystem : BaseSystem
 
         var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        UpdateSight(dt);
+        PlayerSight.Update(gameTime, entities);
 
         var map = entities.FirstOrDefault(t => t.HasTag("Map"))?.GetComponent<Map>();
 
@@ -115,50 +109,7 @@ public class MapSystem : BaseSystem
         entitiesToRemove.Clear();
     }
 
-    /// <summary>
-    /// Updates the sight range of the player, creating a "breathing" effect by dynamically 
-    /// adjusting the sight radius for a more immersive feel.
-    /// </summary>
-    /// <param name="dt">Delta time between frames in seconds</param>
-    private void UpdateSight(float dt)
-    {
-        sightRangeBreathTimer += dt;
-        const float BREATH_STEP = 1f;
-
-        if (sightRangeBreathTimer >= 1f / sightRangeBreathSpeed)
-        {
-            sightRangeBreathTimer = 0f;
-
-            if (sightRangeBreath == 0)
-            {
-                if (sightRangeBreathOut)
-                    sightRangeBreath += BREATH_STEP;
-                else
-                    sightRangeBreath -= BREATH_STEP;
-            }
-            else if (sightRangeBreath > 0)
-            {
-                if (sightRangeBreath < sightBreathOffset && !sightRangeBreathOut)
-                    sightRangeBreath += BREATH_STEP;
-                else
-                {
-                    sightRangeBreathOut = false;
-                    sightRangeBreath -= BREATH_STEP;
-                }
-            }
-            else if (sightRangeBreath < 0)
-            {
-                if (sightRangeBreath > -sightBreathOffset && !sightRangeBreathOut)
-                    sightRangeBreath -= BREATH_STEP;
-                else
-                {
-                    sightRangeBreathOut = true;
-                    sightRangeBreath += BREATH_STEP;
-                }
-            }
-        }
-    }
-
+  
     /// <summary>
     /// Checks if a creature's health is zero or negative and handles its death.
     /// Dead creatures are marked for removal and may drop items based on their drop chance.
@@ -438,24 +389,23 @@ public class MapSystem : BaseSystem
             transformMatrix: transformMatrix);
 
 
-        var viewMap = UpdatePlayerViewMap();
-
+        PlayerSight.Draw(gameTime, entities);
 
         foreach (var ent in entities)
         {
             if (ent.HasTag("Map"))
             {
-                DrawMap(ent, viewMap);
+                DrawMap(ent, PlayerSight.ViewMap);
             }
             else if (ent.GetComponent<MapObject>() is MapObject mapObj)
             {
                 float tintMod = 1f;
-                if (viewMap.GetLength(0) > 0 && viewMap.GetLength(1) > 0)
+                if (PlayerSight.ViewMap.GetLength(0) > 0 && PlayerSight.ViewMap.GetLength(1) > 0)
                 {
-                    var distSqr = (float)Math.Sqrt(viewMap[mapObj.MapX, mapObj.MapY]) / lastSightRange;
-                    tintMod = MathHelper.Lerp(lastSightRange, 0f, distSqr);
+                    var distSqr = (float)Math.Sqrt(PlayerSight.ViewMap[mapObj.MapX, mapObj.MapY]) / PlayerSight. LastSightRange;
+                    tintMod = MathHelper.Lerp(PlayerSight.LastSightRange, 0f, distSqr);
                 }
-                DrawMapObject(mapObj, viewMap, tintMod, ent.HasTag("Player"));
+                DrawMapObject(mapObj, PlayerSight.ViewMap, tintMod, ent.HasTag("Player"));
 
                 if (ent.GetComponent<Wardrobe>() is Wardrobe wardrobe)
                 {
@@ -466,34 +416,6 @@ public class MapSystem : BaseSystem
 
         sb.End();
 
-    }
-
-    /// <summary>
-    /// Updates the visibility map based on the player's position and sight range.
-    /// Calculates which tiles are visible to the player with the breathing effect applied.
-    /// </summary>
-    /// <returns>A 2D array of float values representing visibility, with float.MaxValue for tiles not visible</returns>
-    /// <remarks>TODO: This should probably be moved to the Draw method for better separation of concerns</remarks>
-    private float[,] UpdatePlayerViewMap()
-    {
-        var mapEnt = SceneManager.Entities.FirstOrDefault(t => t.HasTag("Map"));
-        if (mapEnt == null)
-            return new float[0, 0];
-
-        var map = mapEnt.GetComponent<Map>();
-
-        var playerEnt = SceneManager.Entities.FirstOrDefault(t => t.HasTag("Player"));
-        if (playerEnt != null)
-        {
-            var player = playerEnt.GetComponent<MapObject>();
-            var playerStats = playerEnt.GetComponent<CreatureStats>();
-            lastSightRange = playerStats.SightRange;
-            var viewMap = GetViewMap(new Point(player.MapX, player.MapY), map, playerStats.SightRange + sightRangeBreath);
-            lastViewMap = viewMap;
-            return viewMap;
-        }
-
-        return new float[0, 0];
     }
 
     /// <summary>
@@ -561,15 +483,15 @@ public class MapSystem : BaseSystem
             for (int y = 0; y < map.GroundTiles.GetLength(1); y++)
             {
                 if (viewMap.GetLength(0) == 0)
-                    viewMap = lastViewMap;
+                    viewMap = PlayerSight.LastViewMap;
 
                 //draw tile if visible
                 if (viewMap.GetLength(0) > 0 && viewMap[x, y] != float.MaxValue)
                 {
-                    var distSqr = (float)Math.Sqrt(viewMap[x, y]) / lastSightRange;
-                    var tintMod = MathHelper.Lerp(lastSightRange, 0f, distSqr);
+                    var distSqr = (float)Math.Sqrt(viewMap[x, y]) / PlayerSight.LastSightRange;
+                    var tintMod = MathHelper.Lerp(PlayerSight.LastSightRange, 0f, distSqr);
 
-                    var tileBounds = DrawTile(map.GroundTiles[x, y], GROUND_LAYER, tintMod / lastSightRange);
+                    var tileBounds = DrawTile(map.GroundTiles[x, y], GROUND_LAYER, tintMod / PlayerSight.LastSightRange);
 
                     //if aiming
                     if (aimingPath.Contains(new Point(x, y)))
@@ -625,9 +547,9 @@ public class MapSystem : BaseSystem
         {
             if (viewMap[map.ObjectTiles[i].X, map.ObjectTiles[i].Y] != float.MaxValue)
             {
-                var distSqr = (float)Math.Sqrt(viewMap[map.ObjectTiles[i].X, map.ObjectTiles[i].Y]) / lastSightRange;
-                var tintMod = MathHelper.Lerp(lastSightRange, 0f, distSqr);
-                DrawTile(map.ObjectTiles[i], OBJECT_LAYER, tintMod / lastSightRange);
+                var distSqr = (float)Math.Sqrt(viewMap[map.ObjectTiles[i].X, map.ObjectTiles[i].Y]) / PlayerSight.LastSightRange;
+                var tintMod = MathHelper.Lerp(PlayerSight.LastSightRange, 0f, distSqr);
+                DrawTile(map.ObjectTiles[i], OBJECT_LAYER, tintMod / PlayerSight.LastSightRange);
             }
         }
     }
@@ -760,51 +682,6 @@ public class MapSystem : BaseSystem
         );
 
     }
-
-    /// <summary>
-    /// Calculates which tiles are visible from a given position with line-of-sight checks.
-    /// Creates a visibility map that accounts for obstacles and sight radius.
-    /// </summary>
-    /// <param name="start">Starting position for the line-of-sight checks</param>
-    /// <param name="map">Map to check visibility on</param>
-    /// <param name="viewRadius">Maximum visibility radius</param>
-    /// <param name="mapObjects">Map objects that might block visibility</param>
-    /// <returns>2D array of float values representing visibility, with float.MaxValue for tiles not visible</returns>
-    /// <remarks>
-    /// TODO: Implement proper handling for decals vs. solid objects. Currently floor holes are treated as object tiles
-    /// which might not be correct from a visibility standpoint.
-    /// </remarks>
-    public static float[,] GetViewMap(Point start, Map map, float viewRadius, params MapObject[] mapObjects)
-    {
-        var grid = new bool[map.GroundTiles.GetLength(0), map.GroundTiles.GetLength(1)];
-
-        for (int x = 0; x < map.GroundTiles.GetLength(0); x++)
-        {
-            for (int y = 0; y < map.GroundTiles.GetLength(1); y++)
-            {
-                //var groundTile = Settings.TileAtlas[map.GroundTiles[x, y].Type];
-                var objectTiles = map.ObjectTiles.Where(t => t.X == x && t.Y == y).Select(v => Settings.TileAtlas[v.Type]);
-
-
-                //not checking ground collisions. Because solid ground tiles should be like impassible obstacles at ground level
-                //like water, or a hole in the floor. Walls and things on top of the ground that would block light belong
-                //as a mapobject or an object tile
-
-                //todo: the above comment should be the standard. But right now we are using holes in the floor as an object tile,
-                //because it relys on the background of the tile underneath it. Might need to consider a new list of decals, or a height property
-
-                //var hasGroundCollision = groundTile.Solid;
-                var hasObjectCollision = objectTiles.Any(y => y.Solid);
-                var hasItemCollision = mapObjects.Any(g => g.MapX == x && g.MapY == y && !Settings.MapObjectAtlas[g.Type].Collectable);
-
-                grid[x, y] = hasObjectCollision || hasItemCollision;
-            }
-        }
-
-        var viewMap = ShadowCaster.GetViewMap(grid, start, viewRadius);
-        return viewMap;
-    }
-
 
     #endregion
 }
