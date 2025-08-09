@@ -148,68 +148,127 @@ public class MapSystem : BaseSystem
         }
 
         return false;
-    }
+    }
+
 
     /// <summary>
     /// Updates the player entity based on input, handling movement, spells, and item collection.
-    /// Processes left clicks for actions and number keys for spell selection.
+    /// Processes keyboard (WASD) input for movement, left clicks for actions and number keys for spell selection.
     /// </summary>
     /// <param name="ent">The player entity to update</param>
+    /// <param name="mapObj">The map object component of the player entity</param>
     private void UpdatePlayer(Entity ent, MapObject mapObj)
     {
+        // Cache controllers at the beginning for reuse
+        var behaviorController = ent.GetComponent<BehaviorController>();
+        var effectController = ent.GetComponent<EffectController>();
+        var spellBook = ent.GetComponent<SpellBook>();
 
-        if (MapPixelBounds.Contains(Input.MouseState.Position))
+        if (behaviorController is null || effectController is null || spellBook is null)
+            return;
+
+        bool movementHandled = false;
+        Point targetPosition = new Point(mapObj.MapX, mapObj.MapY);
+
+        // Handle WASD keyboard movement
+        if (Input.WasPressed(Keys.W))
         {
-            var spellBook = ent.GetComponent<SpellBook>();
+            targetPosition.Y--;
+            movementHandled = true;
+        }
+        else if (Input.WasPressed(Keys.S))
+        {
+            targetPosition.Y++;
+            movementHandled = true;
+        }
+        else if (Input.WasPressed(Keys.A))
+        {
+            targetPosition.X--;
+            movementHandled = true;
+        }
+        else if (Input.WasPressed(Keys.D))
+        {
+            targetPosition.X++;
+            movementHandled = true;
+        }
+
+        // Process player actions based on input
+        if (movementHandled)
+        {
+            // Apply movement and update effects
+            UpdateBehaviorController(behaviorController, ent, targetPosition);
+            UpdateEffectController(effectController, ent);
+            UpdateCollectables(ent, mapObj);
+            HandleSpellSelection(ent, spellBook, true);
+        }
+        // Handle mouse-based interactions when in map bounds
+        else if (MapPixelBounds.Contains(Input.MouseState.Position))
+        {
+            // Handle spell targeting and casting
             if (Input.WasPressed(MouseButton.Left))
             {
                 var mouseTilePos = MouseTilePosition(Game.GraphicsDevice, Cam, _offset.ToPoint());
+
                 if (_aimingPath.Count > 0)
                 {
+                    // We're targeting a spell
                     HandleTarget(ent, spellBook, mouseTilePos);
                 }
                 else
                 {
-                    if (ent.GetComponent<BehaviorController>() is BehaviorController behaviorController)
-                    {
-                        UpdateBehaviorController(behaviorController, ent, mouseTilePos);
-                    }
-
-                    if (ent.GetComponent<EffectController>() is EffectController effectController)
-                    {
-                        UpdateEffectController(effectController, ent);
-                    }
-
+                    // We're moving or performing a basic action
+                    UpdateBehaviorController(behaviorController, ent, mouseTilePos);
+                    UpdateEffectController(effectController, ent);
                     UpdateCollectables(ent, mapObj);
                 }
 
                 _aimingPath.Clear();
-
-                if (ent.GetComponent<SpellBook>() is SpellBook sb)
-                    sb.selectedSpell = -1;
+                spellBook.selectedSpell = -1;
             }
-            else if (spellBook is not null)
+        }
+
+        HandleSpellSelection(ent, spellBook);
+
+        // Update camera to follow player
+        Cam.Position = GetTileBounds(mapObj.MapX, mapObj.MapY).Location.ToVector2();
+    }
+
+    /// <summary>
+    /// Handles spell selection via number keys (1-9)
+    /// </summary>
+    /// <param name="ent">The player entity</param>
+    /// <param name="spellBook">The player's spell book</param>
+    private void HandleSpellSelection(Entity ent, SpellBook spellBook, bool move = false)
+    {
+        if (move && spellBook.selectedSpell >= 0)
+            updatePath(spellBook.Spells[spellBook.selectedSpell]);
+        else
+        {
+            // 49 = Keys.D1, check keys 1-9
+            for (int i = 49; i < 49 + 9; i++)
             {
-                //49 = Keys.D1
-                for (int i = 49; i < 49 + 10; i++)
+                if (Input.WasPressed((Keys)i))
                 {
-                    if (Input.WasPressed((Keys)i))
+                    int spellIndex = i - 49;
+                    if (spellBook.Spells.Count > spellIndex)
                     {
-                        if (spellBook.Spells.Count > i - 49)
+                        if (spellBook.Spells[spellIndex] is ISpell spell)
                         {
-                            if (spellBook.Spells[i - 49] is ISpell spell)
-                            {
-                                _aimingPath.Clear();
-                                spellBook.selectedSpell = i - 49;
-                                _aimingPath.AddRange(spell.Aim(ent));
-                            }
+                            spellBook.selectedSpell = spellIndex;
+
+                            updatePath(spell);
                         }
                     }
                 }
             }
         }
-        Cam.Position = GetTileBounds(mapObj.MapX, mapObj.MapY).Location.ToVector2();
-    }
+
+        void updatePath(ISpell spell)
+        {
+            _aimingPath.Clear();
+            _aimingPath.AddRange(spell.Aim(ent));
+        }
+    }
 
     /// <summary>
     /// Handles targeting for spells and actions when the player has selected a target.
