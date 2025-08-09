@@ -15,7 +15,7 @@ public class BasicMovement : ITarget
         Target = target;
     }
 
-    public void Perform(Entity performer, Entity inflicted)
+    public bool TryPerform(Entity performer, Entity inflicted)
     {
         var map = SceneManager.ComponentsOfType<Map>().FirstOrDefault();
         var mapObjs = SceneManager.ComponentsOfType<MapObject>().ToArray();
@@ -32,7 +32,11 @@ public class BasicMovement : ITarget
             var nextStep = path.First();
             mapObj.MapX = nextStep.X;
             mapObj.MapY = nextStep.Y;
+
+            return true;
         }
+
+        return false;
     }
 
     public static List<Point> GetPath(Point start, Point end, Map map, params MapObject[] mapObjects)

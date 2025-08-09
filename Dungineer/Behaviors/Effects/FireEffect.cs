@@ -16,7 +16,7 @@ public class FireEffect : IEffect, IBehavior
         TurnsLeft = Settings.EffectAtlas[GetEffectType()].Turns;
     }
 
-    public void Perform(Entity performer, Entity inflicted)
+    public bool TryPerform(Entity performer, Entity inflicted)
     {
         if (TurnsLeft-- > 0)
         {
@@ -28,7 +28,11 @@ public class FireEffect : IEffect, IBehavior
                 {
                     inflicedStats.Health = 0;
                 }
+
+                return true;
             }
         }
+
+        return false;
     }
 }

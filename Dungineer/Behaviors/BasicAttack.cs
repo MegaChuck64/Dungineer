@@ -17,7 +17,7 @@ public class BasicAttack : ISpell
         Target = target;
     }
 
-    public void Perform(Entity performer, Entity inflicted)
+    public bool TryPerform(Entity performer, Entity inflicted)
     {
         var performerStats = performer.GetComponent<CreatureStats>();
 
@@ -28,7 +28,11 @@ public class BasicAttack : ISpell
             {
                 targetStats.Health = 0;
             }
+
+            return true;
         }
+
+        return false;
     }
 
     public IEnumerable<Point> Aim(Entity ent)

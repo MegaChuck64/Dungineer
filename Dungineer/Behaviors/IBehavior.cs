@@ -4,6 +4,6 @@ namespace Dungineer.Behaviors;
 
 public interface IBehavior
 {
-    public void Perform(Entity performer, Entity inflicted);
+    public bool TryPerform(Entity performer, Entity inflicted);
 
 }

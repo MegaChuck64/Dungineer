@@ -90,7 +90,7 @@ public class MapSystem : BaseSystem
                 if (Input.WasPressed(MouseButton.Left) == false && Input.WasPressed(MouseButton.Right) == false)
                     continue;
 
-                if (MapPixelBounds.Contains(Input.MouseState.Position) == false)
+                if (MapPixelBounds.Contains(Input.MouseState.Position) == false) //todo: is this right? 
                     continue;
 
                 UpdateMapObject(ent, mapObj, player, mapObjInfo, map);
@@ -111,6 +111,7 @@ public class MapSystem : BaseSystem
     private void UpdateSight(float dt)
     {
         sightRangeBreathTimer += dt;
+        const float BREATH_STEP = 1f;
 
         if (sightRangeBreathTimer >= 1f / sightRangeBreathSpeed)
         {
@@ -119,28 +120,28 @@ public class MapSystem : BaseSystem
             if (sightRangeBreath == 0)
             {
                 if (sightRangeBreathOut)
-                    sightRangeBreath++;
+                    sightRangeBreath += BREATH_STEP;
                 else
-                    sightRangeBreath--;
+                    sightRangeBreath -= BREATH_STEP;
             }
             else if (sightRangeBreath > 0)
             {
                 if (sightRangeBreath < sightBreathOffset && !sightRangeBreathOut)
-                    sightRangeBreath++;
+                    sightRangeBreath += BREATH_STEP;
                 else
                 {
                     sightRangeBreathOut = false;
-                    sightRangeBreath--;
+                    sightRangeBreath -= BREATH_STEP;
                 }
             }
             else if (sightRangeBreath < 0)
             {
                 if (sightRangeBreath > -sightBreathOffset && !sightRangeBreathOut)
-                    sightRangeBreath--;
+                    sightRangeBreath -= BREATH_STEP;
                 else
                 {
                     sightRangeBreathOut = true;
-                    sightRangeBreath++;
+                    sightRangeBreath += BREATH_STEP;
                 }
             }
         }
@@ -161,8 +162,8 @@ public class MapSystem : BaseSystem
                     var rand = MainGame.Rand.NextDouble();
                     if (rand <= info.DropChance)
                     {
-                        var drop = new DropOnDeath(MainGame.Rand, dropLottery);
-                        drop.Perform(ent, null);
+                        var drop = new DropOnDeath(dropLottery);
+                        drop.TryPerform(ent, null);
                     }
                 }
 
@@ -175,78 +176,28 @@ public class MapSystem : BaseSystem
 
     private void UpdatePlayer(Entity ent)
     {
-        var playerObject = ent.GetComponent<MapObject>();
+        var playerObj = ent.GetComponent<MapObject>();
         if (MapPixelBounds.Contains(Input.MouseState.Position))
         {
             if (Input.WasPressed(MouseButton.Left))
             {
                 if (aimingPath.Count > 0)
                 {
-                    var mouseTile = MouseTilePosition(Game.GraphicsDevice, Cam, offset.ToPoint());
-                    var mapObj = SceneManager.ComponentsOfType<MapObject>().FirstOrDefault(t => t.MapX == mouseTile.X && t.MapY == mouseTile.Y);
-                    var targetEnt = SceneManager.GetEntityWithComponent(mapObj);
-                    var stats = ent.GetComponent<CreatureStats>();
-                    if (targetEnt != null && aimingPath.Contains(mouseTile))
-                    //Vector2.Distance(new Vector2(playerObject.MapX, playerObject.MapY), mouseTile.ToVector2()) <= stats.AttackRange)
-                    {
-                        if (ent.GetComponent<SpellBook>() is SpellBook spellBook && spellBook.selectedSpell >= 0)
-                        {
-                            var spell = spellBook.Spells[spellBook.selectedSpell];
-                            spell.SetTarget(mouseTile);
-                            spell.Perform(ent, targetEnt);
-                            spellBook.selectedSpell = -1;
-                        }
-                    }
+                    HandleTarget(ent);
                 }
                 else
                 {
                     if (ent.GetComponent<BehaviorController>() is BehaviorController behaviorController)
                     {
-                        foreach (var behavior in behaviorController.Behaviors)
-                        {
-                            if (behavior is ITarget targeter)
-                                targeter.SetTarget(MouseTilePosition(Game.GraphicsDevice, Cam, offset.ToPoint()));
-
-                            behavior.Perform(ent, null);
-                        }
+                        UpdateBehaviorController(behaviorController, ent, MouseTilePosition(Game.GraphicsDevice, Cam, offset.ToPoint()));
                     }
 
                     if (ent.GetComponent<EffectController>() is EffectController effectController)
                     {
-                        var effectsToRemove = new List<IEffect>();
-                        foreach (var effect in effectController.Effects)
-                        {
-                            if (effect.TurnsLeft <= 0)
-                            {
-                                effectsToRemove.Add(effect);
-                                continue;
-                            }
-
-                            if (effect is IBehavior behavior)
-                                behavior.Perform(null, ent);
-                        }
-                        foreach (var effect in effectsToRemove)
-                        {
-                            effectController.Effects.Remove(effect);
-                        }
+                        UpdateEffectController(effectController, ent);
                     }
 
-                    //collect
-                    var collectables = SceneManager
-                        .ComponentsOfType<MapObject>()
-                        .Where(t => t.MapX == playerObject.MapX && t.MapY == playerObject.MapY && Settings.MapObjectAtlas[t.Type].Collectable)
-                        .ToArray();
-
-                    if (collectables.Any())
-                    {
-                        var collect = new Collect();
-                        for (int i = 0; i < collectables.Length; i++)
-                        {
-                            var collectEnt = SceneManager.GetEntityWithComponent(collectables[i]);
-                            collect.Perform(ent, collectEnt);
-                            entitiesToRemove.Add(collectEnt);
-                        }
-                    }
+                    UpdateCollectables(ent, playerObj);
                 }
 
                 aimingPath.Clear();
@@ -275,75 +226,130 @@ public class MapSystem : BaseSystem
             }
         }
 
-        Cam.Position = GetTileBounds(playerObject.MapX, playerObject.MapY).Location.ToVector2();
+        Cam.Position = GetTileBounds(playerObj.MapX, playerObj.MapY).Location.ToVector2();
+    }
+
+    private void HandleTarget(Entity ent)
+    {
+        var mouseTile = MouseTilePosition(Game.GraphicsDevice, Cam, offset.ToPoint());
+        var mapObj = SceneManager.ComponentsOfType<MapObject>().FirstOrDefault(t => t.MapX == mouseTile.X && t.MapY == mouseTile.Y);
+        var targetEnt = SceneManager.GetEntityWithComponent(mapObj);
+        var stats = ent.GetComponent<CreatureStats>();
+        if (targetEnt != null && aimingPath.Contains(mouseTile))
+        //Vector2.Distance(new Vector2(playerObject.MapX, playerObject.MapY), mouseTile.ToVector2()) <= stats.AttackRange)
+        {
+            if (ent.GetComponent<SpellBook>() is SpellBook spellBook && spellBook.selectedSpell >= 0)
+            {
+                var spell = spellBook.Spells[spellBook.selectedSpell];
+                spell.SetTarget(mouseTile);
+                spell.TryPerform(ent, targetEnt);
+                spellBook.selectedSpell = -1;
+            }
+        }
     }
 
     private void UpdateMapObject(Entity ent, MapObject mapObj, MapObject player, MapObjectInfo mapObjInfo, Map map)
     {
-        if (ent.GetComponent<CreatureStats>() is CreatureStats stats)
+        if (ent.GetComponent<CreatureStats>() is not CreatureStats stats)
+            return;
+
+        var dist = Vector2.Distance(new Vector2(player.MapX, player.MapY), new Vector2(mapObj.MapX, mapObj.MapY));
+
+        if (dist > stats.SightRange)
+            return;
+
+        if (ent.GetComponent<BehaviorController>() is BehaviorController behaviorController)
         {
-            var dist = Vector2.Distance(new Vector2(player.MapX, player.MapY), new Vector2(mapObj.MapX, mapObj.MapY));
+            UpdateBehaviorController(behaviorController, ent, new Point(player.MapX, player.MapY), SceneManager.GetEntityWithComponent(player));
+        }
 
-            if (dist <= stats.SightRange)
+        if (ent.GetComponent<EffectController>() is EffectController effectController)
+        {
+            UpdateEffectController(effectController, ent);
+        }
+
+
+        if (ent.GetComponent<SpellBook>() is SpellBook spellBook)
+        {
+            UpdateSpellBook(spellBook, ent, map, player, dist);
+        }
+
+    }
+
+    private void UpdateBehaviorController(BehaviorController behaviorController, Entity ent, Point target, Entity inflicted = null)//MapObject player)
+    {
+        foreach (var behavior in behaviorController.Behaviors)
+        {
+            if (behavior is ITarget targeter)
+                targeter.SetTarget(target);
+
+            behavior.TryPerform(ent, inflicted);//SceneManager.GetEntityWithComponent(player));
+        }
+    }
+
+    private void UpdateEffectController(EffectController effectController, Entity ent)
+    {
+        var effectsToRemove = new List<IEffect>();
+        foreach (var effect in effectController.Effects)
+        {
+            if (effect.TurnsLeft <= 0)
             {
-                if (ent.GetComponent<BehaviorController>() is BehaviorController behaviorController)
+                effectsToRemove.Add(effect);
+                continue;
+            }
+
+            if (effect is IBehavior behavior)
+                behavior.TryPerform(null, ent);
+        }
+        foreach (var effect in effectsToRemove)
+        {
+            effectController.Effects.Remove(effect);
+        }
+    }
+
+    private void UpdateSpellBook(SpellBook spellBook, Entity ent, Map map, MapObject player, float distToPlayer)
+    {
+        if (spellBook.Spells.Count > 0)
+        {
+            var targAdj =
+                map.GetAdjacentEmptyTiles(
+                    player.MapX,
+                    player.MapY,
+                    true,
+                    SceneManager.ComponentsOfType<MapObject>().ToArray());
+
+            if (targAdj.Any())
+            {
+                var spellIndex = MainGame.Rand.Next(0, spellBook.Spells.Count);
+                var spell = spellBook.Spells[spellIndex];
+                var spellInfo = Settings.SpellAtlas[spell.GetSpellType()];
+                if (distToPlayer <= spellInfo.Range)
                 {
-                    foreach (var behavior in behaviorController.Behaviors)
-                    {
-                        if (behavior is ITarget targeter)
-                            targeter.SetTarget(new Point(player.MapX, player.MapY));
-
-                        behavior.Perform(ent, SceneManager.GetEntityWithComponent(player));
-                    }
+                    spell.SetTarget(new Point(player.MapX, player.MapY));
+                    spellBook.Spells[spellIndex].TryPerform(ent, SceneManager.GetEntityWithComponent(player));
                 }
+            }
 
-                if (ent.GetComponent<EffectController>() is EffectController effectController)
-                {
-                    var effectsToRemove = new List<IEffect>();
-                    foreach (var effect in effectController.Effects)
-                    {
-                        if (effect.TurnsLeft <= 0)
-                        {
-                            effectsToRemove.Add(effect);
-                            continue;
-                        }
+        }
+    }
 
-                        if (effect is IBehavior behavior)
-                            behavior.Perform(null, ent);
-                    }
-                    foreach (var effect in effectsToRemove)
-                    {
-                        effectController.Effects.Remove(effect);
-                    }
-                }
+    private void UpdateCollectables(Entity ent, MapObject mapObj)
+    {
+        //collect
+        var collectables = SceneManager
+            .ComponentsOfType<MapObject>()
+            .Where(t => t.MapX == mapObj.MapX && t.MapY == mapObj.MapY && Settings.MapObjectAtlas[t.Type].Collectable)
+            .ToArray();
 
-
-                if (ent.GetComponent<SpellBook>() is SpellBook spellBook)
-                {
-                    if (spellBook.Spells.Count > 0)
-                    {
-                        var targAdj =
-                            map.GetAdjacentEmptyTiles(
-                                player.MapX,
-                                player.MapY,
-                                true,
-                                SceneManager.ComponentsOfType<MapObject>().ToArray());
-
-                        if (targAdj.Any())
-                        {
-                            var spellIndex = MainGame.Rand.Next(0, spellBook.Spells.Count);
-                            var spell = spellBook.Spells[spellIndex];
-                            var spellInfo = Settings.SpellAtlas[spell.GetSpellType()];
-                            if (dist <= spellInfo.Range)
-                            {
-                                spell.SetTarget(new Point(player.MapX, player.MapY));
-                                spellBook.Spells[spellIndex].Perform(ent, SceneManager.GetEntityWithComponent(player));
-                            }
-                        }
-
-                    }
-
-                }
+        if (collectables.Any())
+        {
+            var collect = new Collect();
+            for (int i = 0; i < collectables.Length; i++)
+            {
+                var collectEnt = SceneManager.GetEntityWithComponent(collectables[i]);
+                
+                if (collect.TryPerform(ent, collectEnt))
+                    entitiesToRemove.Add(collectEnt);
             }
         }
     }
@@ -396,6 +402,7 @@ public class MapSystem : BaseSystem
 
     }
 
+    //todo: should be doing this in draw?
     private float[,] UpdatePlayerViewMap()
     {
         var mapEnt = SceneManager.Entities.FirstOrDefault(t => t.HasTag("Map"));

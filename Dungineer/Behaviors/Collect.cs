@@ -1,11 +1,12 @@
 ﻿using Dungineer.Components.GameWorld;
 using Engine;
+using System;
 
 namespace Dungineer.Behaviors;
 
 public class Collect : IBehavior
 {
-    public void Perform(Entity performer, Entity inflicted)
+    public bool TryPerform(Entity performer, Entity inflicted)
     {
         if (performer.GetComponent<CreatureStats>() is CreatureStats stats)
         {
@@ -18,18 +19,26 @@ public class Collect : IBehavior
                     {
                         case Models.MapObjectType.Arcanium:
                             stats.Money += MainGame.Rand.Next(1, 10);
-                            break;
+                            return true;
                         case Models.MapObjectType.HealthPotion:
+                            if (stats.Health >= stats.MaxHealth)
+                            {
+                                return false; // No need to collect if already at max health
+                            }
                             var max = stats.Health;
                             var val = MainGame.Rand.Next(1, max + 1);
                             stats.Health =
                                 stats.Health + val > stats.MaxHealth ?
                                 stats.MaxHealth :
                                 stats.Health + val;
-                            break;
+                            return true;
+                        default:
+                            throw new NotImplementedException($"Collecting behavior not implemented for {collectable.Type}.");
                     }
                 }
             }
         }
+
+        return false;
     }
 }

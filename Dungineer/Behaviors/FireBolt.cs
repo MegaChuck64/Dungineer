@@ -43,7 +43,7 @@ public class FireBolt : ISpell
     }
 
 
-    public void Perform(Entity performer, Entity inflicted)
+    public bool TryPerform(Entity performer, Entity inflicted)
     {
         var performerStats = performer.GetComponent<CreatureStats>();
 
@@ -53,16 +53,19 @@ public class FireBolt : ISpell
             if (targetStats.Health <= 0)
             {
                 targetStats.Health = 0;
+                return true; 
             }
             else
             {
                 if (inflicted.GetComponent<EffectController>() is EffectController targetedEffectController)
                 {
                     targetedEffectController.Effects.Add(new FireEffect());
+                    return true;
                 }
             }
-
         }
+
+        return false;
     }
 
 }
