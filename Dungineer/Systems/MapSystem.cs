@@ -3,11 +3,14 @@ using Dungineer.Behaviors.Effects;
 using Dungineer.Components.GameWorld;
 using Dungineer.Components.UI;
 using Dungineer.Models;
+
 using Engine;
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,23 +19,15 @@ namespace Dungineer.Systems;
 
 public class MapSystem : BaseSystem
 {
-    private const float GROUND_LAYER = 0.5f;
-    private const float OBJECT_LAYER = 0.6f;
-    private const float EFFECT_LAYER = 0.7f;
-    private const float ITEM_LAYER = 0.8f;
 
-
-    private readonly SpriteBatch _sb;
-    private readonly Texture2D _tileSelectTexture;
-    private readonly Texture2D _cursorTexture;
     private readonly List<Entity> _entitiesToRemove = [];
     private readonly List<Point> _aimingPath = [];
     private readonly Vector2 _offset;
+
     private readonly Rectangle _tileSource = new(0, 0, Settings.TileSize, Settings.TileSize);
 
-
+    public IReadOnlyList<Point> AimingPath => _aimingPath.AsReadOnly();
     public Camera Cam { get; private set; }
-    public SightSystem PlayerSight { get; private set; }
 
 
     private readonly MapObjectType[] dropLottery = new MapObjectType[]
@@ -52,13 +47,7 @@ public class MapSystem : BaseSystem
     {
         _offset = new Vector2(game.Width / 5, 0);
 
-        _sb = new SpriteBatch(game.GraphicsDevice);
-
-        _tileSelectTexture = ContentLoader.LoadTexture("ui_box_select_32", content);
-        _cursorTexture = ContentLoader.LoadTexture("cursor_16", content);
-
         Cam = new Camera();
-        PlayerSight = new SightSystem(game);
     }
 
     /// <summary>
@@ -72,12 +61,11 @@ public class MapSystem : BaseSystem
 
         var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-        PlayerSight.Update(gameTime, entities);
-
         var map = entities.FirstOrDefault(t => t.HasTag("Map"))?.GetComponent<Map>();
 
         var playerEnt = entities.FirstOrDefault(e => e.HasTag("Player"));
         var playerMapObj = playerEnt?.GetComponent<MapObject>();
+        var playerMoved = false;
 
         foreach (var ent in entities.Reverse()) //todo, reversing for now because we add the player last to the scene, but we want to process it first
         {
@@ -85,17 +73,16 @@ public class MapSystem : BaseSystem
 
             if (TryKillCreature(ent, mapObj))
                 continue;
-
             if (ent == playerEnt)
             {
-                UpdatePlayer(ent, mapObj);
+                playerMoved = UpdatePlayer(ent, mapObj);
             }
             else if (mapObj is not null)
             {
                 if (playerMapObj == null)
                     continue;
 
-                if (Input.WasPressed(MouseButton.Left) == false && Input.WasPressed(MouseButton.Right) == false)
+                if (!playerMoved)
                     continue;
 
                 if (MapPixelBounds.Contains(Input.MouseState.Position) == false) //todo: is this right? 
@@ -157,7 +144,7 @@ public class MapSystem : BaseSystem
     /// </summary>
     /// <param name="ent">The player entity to update</param>
     /// <param name="mapObj">The map object component of the player entity</param>
-    private void UpdatePlayer(Entity ent, MapObject mapObj)
+    private bool UpdatePlayer(Entity ent, MapObject mapObj)
     {
         // Cache controllers at the beginning for reuse
         var behaviorController = ent.GetComponent<BehaviorController>();
@@ -165,8 +152,9 @@ public class MapSystem : BaseSystem
         var spellBook = ent.GetComponent<SpellBook>();
 
         if (behaviorController is null || effectController is null || spellBook is null)
-            return;
+            return false;
 
+        bool result = false;
         bool movementHandled = false;
         Point targetPosition = new Point(mapObj.MapX, mapObj.MapY);
 
@@ -200,6 +188,7 @@ public class MapSystem : BaseSystem
             UpdateEffectController(effectController, ent);
             UpdateCollectables(ent, mapObj);
             HandleSpellSelection(ent, spellBook, true);
+            result = true;
         }
         // Handle mouse-based interactions when in map bounds
         else if (MapPixelBounds.Contains(Input.MouseState.Position))
@@ -224,6 +213,7 @@ public class MapSystem : BaseSystem
 
                 _aimingPath.Clear();
                 spellBook.selectedSpell = -1;
+                result = true;
             }
         }
 
@@ -231,6 +221,8 @@ public class MapSystem : BaseSystem
 
         // Update camera to follow player
         Cam.Position = GetTileBounds(mapObj.MapX, mapObj.MapY).Location.ToVector2();
+
+        return result;
     }
 
     /// <summary>
@@ -291,7 +283,8 @@ public class MapSystem : BaseSystem
                 spellBook.selectedSpell = -1;
             }
         }
-    }
+    }
+
 
     /// <summary>
     /// Updates non-player map objects such as enemies or NPCs.
@@ -442,257 +435,18 @@ public class MapSystem : BaseSystem
     /// <param name="entities">All entities to render</param>
     public override void Draw(GameTime gameTime, IEnumerable<Entity> entities)
     {
-        //DRAWING
-        Matrix? transformMatrix = SceneManager.CurrentScene == "Play" ? Cam.Transform(Game.GraphicsDevice) : null;
-
-        _sb.Begin(
-            sortMode: SpriteSortMode.FrontToBack,
-            blendState: BlendState.NonPremultiplied,
-            samplerState: SamplerState.PointClamp,
-            depthStencilState: DepthStencilState.DepthRead,
-            rasterizerState: RasterizerState.CullCounterClockwise,
-            effect: null,
-            transformMatrix: transformMatrix);
-
-
-        PlayerSight.Draw(gameTime, entities);
-
-        foreach (var ent in entities)
-        {
-            if (ent.HasTag("Map"))
-            {
-                DrawMap(ent, PlayerSight.ViewMap);
-            }
-            else if (ent.GetComponent<MapObject>() is MapObject mapObj)
-            {
-                float tintMod = 1f;
-                if (PlayerSight.ViewMap.GetLength(0) > 0 && PlayerSight.ViewMap.GetLength(1) > 0)
-                {
-                    var distSqr = (float)Math.Sqrt(PlayerSight.ViewMap[mapObj.MapX, mapObj.MapY]) / PlayerSight. LastSightRange;
-                    tintMod = MathHelper.Lerp(PlayerSight.LastSightRange, 0f, distSqr);
-                }
-                DrawMapObject(mapObj, PlayerSight.ViewMap, tintMod, ent.HasTag("Player"));
-
-                if (ent.GetComponent<Wardrobe>() is Wardrobe wardrobe)
-                {
-                    DrawWardrobe(wardrobe, mapObj);
-                }
-            }
-        }
-
-        _sb.End();
-
-    }
-
-    /// <summary>
-    /// Draws a character's wardrobe items on top of their base sprite.
-    /// </summary>
-    /// <param name="wardrobe">The wardrobe component containing equipped items</param>
-    /// <param name="mapObj">The map object to position the wardrobe items on</param>
-    private void DrawWardrobe(Wardrobe wardrobe, MapObject mapObj)
-    {
-        if (wardrobe.BodySlot.HasValue)
-        {
-            var winfo = Settings.WardrobeAtlas[wardrobe.BodySlot.Value];
-            var wtxt = Settings.TextureAtlas[winfo.TextureName];
-
-            var bnds = GetTileBounds(mapObj.MapX, mapObj.MapY);
-            bnds = new Rectangle(bnds.X, bnds.Y, (int)(bnds.Width * mapObj.Scale), (int)(bnds.Height * mapObj.Scale));
-            _sb.Draw(
-                wtxt,
-                bnds,
-                winfo.Source,
-                mapObj.Tint,
-                0f,
-                mapObj.Scale == 1f ? Vector2.Zero : new Vector2(bnds.Width / 2, bnds.Height / 2),
-                SpriteEffects.None,
-                ITEM_LAYER + 0.1f);
-        }
-    }
-
-    /// <summary>
-    /// Renders the map tiles and handles mouse hover effects and spell targeting highlights.
-    /// </summary>
-    /// <param name="ent">The map entity</param>
-    /// <param name="viewMap">Current visibility map from player's perspective</param>
-    private void DrawMap(Entity ent, float[,] viewMap)
-    {
-
-        var map = ent.GetComponent<Map>();
-        if (map == null) throw new System.Exception("Entity tagged with 'Map' must have map component");
-        MapObject hoverObj = null;
-        // Get mouse position in world space
-        var mousePos = Input.MouseState.Position.ToVector2();
-        var invertedMatrix = Matrix.Invert(Cam.Transform(Game.GraphicsDevice));
-        var transformedMousePos = Vector2.Transform(mousePos, invertedMatrix);
-
-        // Check if world-space mouse position is within the bounds of the map
-        var worldBounds = new Rectangle(
-            _offset.ToPoint(),
-            new Point(
-                map.GroundTiles.GetLength(0) * Settings.TileSize,
-                map.GroundTiles.GetLength(1) * Settings.TileSize
-            )
-        );
-
-        if (worldBounds.Contains(transformedMousePos.ToPoint()))
-        {
-            var mouseTile = MouseTilePosition(Game.GraphicsDevice, Cam, _offset.ToPoint());
-            hoverObj = SceneManager.ComponentsOfType<MapObject>()
-                .Where(t => t.MapX == mouseTile.X && t.MapY == mouseTile.Y)
-                .FirstOrDefault();
-        }
-
-        //ground tiles
-        for (int x = 0; x < map.GroundTiles.GetLength(0); x++)
-        {
-            for (int y = 0; y < map.GroundTiles.GetLength(1); y++)
-            {
-                if (viewMap.GetLength(0) == 0)
-                    viewMap = PlayerSight.LastViewMap;
-
-                //draw tile if visible
-                if (viewMap.GetLength(0) > 0 && viewMap[x, y] != float.MaxValue)
-                {
-                    var distSqr = (float)Math.Sqrt(viewMap[x, y]) / PlayerSight.LastSightRange;
-                    var tintMod = MathHelper.Lerp(PlayerSight.LastSightRange, 0f, distSqr);
-
-                    var tileBounds = DrawTile(map.GroundTiles[x, y], GROUND_LAYER, tintMod / PlayerSight.LastSightRange);
-
-                    //if aiming
-                    if (_aimingPath.Contains(new Point(x, y)))
-                    {
-                        //draw highlight on hover
-                        if (hoverObj != null && hoverObj.MapX == x && hoverObj.MapY == y)
-                        {
-                            Color? tint = null;
-                            //new Color(255, 200, 0, 100)
-                            var hoverEnt = SceneManager.GetEntityWithComponent(hoverObj);
-                            if (hoverEnt.HasTag("Player") == false)
-                            {
-                                if (SceneManager.Entities.FirstOrDefault(t => t.HasTag("Player")) is Entity playerEnt)
-                                {
-                                    var playerObj = playerEnt.GetComponent<MapObject>();
-                                    var playerStats = playerEnt.GetComponent<CreatureStats>();
-                                    if (hoverEnt.GetComponent<CreatureStats>() is CreatureStats monsterStats)//&&
-                                                                                                             //Vector2.Distance(
-                                                                                                             //    new Vector2(playerObj.MapX, playerObj.MapY),
-                                                                                                             //    new Vector2(hoverObj.MapX, hoverObj.MapY)) <= playerStats.AttackRange)
-                                    {
-                                        tint = new Color(1f, 0f, 0f, 0.5f);
-                                    }
-                                }
-
-                            }
-
-                            if (tint.HasValue)
-                                DrawTileHighlight(tint.Value, tileBounds, GROUND_LAYER + 0.1f);
-                        }
-                        else
-                        {
-                            DrawTileHighlight(new Color(0f, 1f, 0f, 0.25f), tileBounds, GROUND_LAYER + 0.1f);
-                        }
-                    }
-
-                }
-            }
-        }
-
-        //object tiles
-        for (int i = 0; i < map.ObjectTiles.Count; i++)
-        {
-            if (viewMap[map.ObjectTiles[i].X, map.ObjectTiles[i].Y] != float.MaxValue)
-            {
-                var distSqr = (float)Math.Sqrt(viewMap[map.ObjectTiles[i].X, map.ObjectTiles[i].Y]) / PlayerSight.LastSightRange;
-                var tintMod = MathHelper.Lerp(PlayerSight.LastSightRange, 0f, distSqr);
-                DrawTile(map.ObjectTiles[i], OBJECT_LAYER, tintMod / PlayerSight.LastSightRange);
-            }
-        }
-
-        var cursorBounds = new Rectangle(transformedMousePos.ToPoint(), new Point(16, 16));
-        _sb.Draw(_cursorTexture, cursorBounds, Color.White);
+       
     }
 
 
-    /// <summary>
-    /// Draws a map object like a character or item with proper scaling and visibility.
-    /// </summary>
-    /// <param name="mapObject">The map object to draw</param>
-    /// <param name="viewMap">Current visibility map from player's perspective</param>
-    /// <param name="tint">Visibility tint factor based on distance from player</param>
-    /// <param name="isPlayer">Whether this object is the player</param>
-    private void DrawMapObject(MapObject mapObject, float[,] viewMap, float tint, bool isPlayer)
-    {
-        if (viewMap.GetLength(0) != 0 && viewMap[mapObject.MapX, mapObject.MapY] == float.MaxValue) return;
-
-        var mapObjectInfo = Settings.MapObjectAtlas[mapObject.Type];
-        var texture = Settings.TextureAtlas[mapObjectInfo.TextureName];
-
-        var bnds = GetTileBounds(mapObject.MapX, mapObject.MapY);
-        bnds = new Rectangle(bnds.X, bnds.Y, (int)(bnds.Width * mapObject.Scale), (int)(bnds.Height * mapObject.Scale));
-
-        _sb.Draw(
-            texture,
-            bnds,
-            mapObjectInfo.Source,
-            mapObject.Tint * tint,
-            0f,
-            mapObject.Scale == 1f ? Vector2.Zero : new Vector2(bnds.Width / 2, bnds.Height / 2),
-            SpriteEffects.None,
-            ITEM_LAYER);
-
-    }
-
-    /// <summary>
-    /// Draws a tile with proper tinting based on visibility and handles mouse hover highlighting.
-    /// </summary>
-    /// <param name="tile">The tile to draw</param>
-    /// <param name="layer">Render depth layer</param>
-    /// <param name="tintMod">Tint modifier for visibility effects</param>
-    /// <returns>The rendered bounds of the tile</returns>
-    private Rectangle DrawTile(Tile tile, float layer, float tintMod)
-    {
-        var tileInfo = Settings.TileAtlas[tile.Type];
-        var texture = Settings.TextureAtlas[tileInfo.TextureName];
-
-        var bnds = GetTileBounds(tile.X, tile.Y);
-
-        _sb.Draw(texture, bnds, tileInfo.Source, tile.Tint * tintMod, 0f, Vector2.Zero, SpriteEffects.None, layer);
-
-        // Calculate mouse position in world space
-        var mousePos = Input.MouseState.Position.ToVector2();
-        var invertedMatrix = Matrix.Invert(Cam.Transform(Game.GraphicsDevice));
-        var transformedMousePos = Vector2.Transform(mousePos, invertedMatrix);
-
-        // Check if the transformed mouse position is within bounds
-        if (bnds.Contains(transformedMousePos))
-        {
-            _sb.Draw(
-                _tileSelectTexture,
-                bnds,
-                _tileSource,
-                Color.White,
-                0f,
-                Vector2.Zero,
-                SpriteEffects.None,
-                layer + 0.1f);
-        }
-
-        return bnds;
-    }
+   
 
 
-    /// <summary>
-    /// Draws a highlight overlay on a tile, used for targeting and hover effects.
-    /// </summary>
-    /// <param name="tint">Color of the highlight</param>
-    /// <param name="bounds">Area to highlight</param>
-    /// <param name="layer">Render depth layer</param>
-    private void DrawTileHighlight(Color tint, Rectangle bounds, float layer)
-    {
-        _sb.Draw(Settings.TextureAtlas["_pixel"], bounds, null, tint, 0f, Vector2.Zero, SpriteEffects.None, layer);
-    }
+  
 
+  
+
+   
     #endregion
 
 
@@ -701,13 +455,6 @@ public class MapSystem : BaseSystem
     /// Gets the pixel bounds of the map area on screen.
     /// </summary>
     private Rectangle MapPixelBounds => new(Game.Width / 5, 0, (Game.Width / 5) * 3, Game.Height);
-
-    /// <summary>
-    /// Converts a grid position to world-space rectangle bounds.
-    /// </summary>
-    /// <param name="pos">Grid position</param>
-    /// <returns>Rectangle representing the tile bounds in world space</returns>
-    private Rectangle GetTileBounds(Point pos) => GetTileBounds(pos.X, pos.Y);
 
     /// <summary>
     /// Converts grid coordinates to world-space rectangle bounds.

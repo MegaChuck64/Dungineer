@@ -34,7 +34,13 @@ public class MainGame : BaseGame
 
     private void AddSystems()
     {
-        Systems.Add(new MapSystem(this, Content));
+        var mapSystem = new MapSystem(this, Content);
+        Systems.Add(mapSystem);
+        
+        var sightSystem = new SightSystem(this);
+        Systems.Add(sightSystem);
+
+        Systems.Add(new MapDrawSystem(this, Content, mapSystem, sightSystem));
 
         Systems.Add(new UISystem(this));
     }
