@@ -69,7 +69,7 @@ public class MenuScene : IPrefab<List<Entity>>
             })
             .With(new TextBox
             {
-                FontName = "consolas_22",
+                FontName = "ocra_22",
                 Text = "Play",
                 TextColor = new Color(202, 62, 71),
                 Layer = 0.8f,

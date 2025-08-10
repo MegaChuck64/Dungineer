@@ -13,26 +13,29 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Fonts/consolas_12.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
-/processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Fonts/consolas_12.spritefont
+#begin Fonts/ocra.ttf
+/copy:Fonts/ocra.ttf
 
-#begin Fonts/consolas_14.spritefont
+#begin Fonts/ocra_12.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
-/build:Fonts/consolas_14.spritefont
+/build:Fonts/ocra_12.spritefont
 
-#begin Fonts/consolas_22.spritefont
+#begin Fonts/ocra_14.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
-/build:Fonts/consolas_22.spritefont
+/build:Fonts/ocra_14.spritefont
+
+#begin Fonts/ocra_22.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/ocra_22.spritefont
 
 #begin Tiles/cursor_16.png
 /importer:TextureImporter

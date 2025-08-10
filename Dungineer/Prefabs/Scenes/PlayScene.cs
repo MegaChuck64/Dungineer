@@ -75,7 +75,7 @@ public class PlayScene : IPrefab<List<Entity>>
             })
             .With(new TextBox
             {
-                FontName = "consolas_22",
+                FontName = "ocra_22",
                 Text = "Exit",
                 TextColor = new Color(202, 62, 71),
                 Layer = 0.9f,

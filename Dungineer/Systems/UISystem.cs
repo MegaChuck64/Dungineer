@@ -12,7 +12,6 @@ namespace Dungineer.Systems;
 
 public class UISystem : BaseSystem
 {
-
     private List<UIElement> entered = new();
     private Dictionary<string, SelectItem> selected = new();
 
@@ -39,14 +38,14 @@ public class UISystem : BaseSystem
     }
     private void LoadFonts(BaseGame game)
     {
-        fonts.Add("consolas_12",
-            ContentLoader.LoadFont("consolas_12", game.Content));
+        fonts.Add("ocra_12",
+            ContentLoader.LoadFont("ocra_12", game.Content));
 
-        fonts.Add("consolas_14",
-            ContentLoader.LoadFont("consolas_14", game.Content));
+        fonts.Add("ocra_14",
+            ContentLoader.LoadFont("ocra_14", game.Content));
 
-        fonts.Add("consolas_22",
-            ContentLoader.LoadFont("consolas_22", game.Content));
+        fonts.Add("ocra_22",
+            ContentLoader.LoadFont("ocra_22", game.Content));
     }
 
     private void LoadTextures(BaseGame game)
@@ -214,7 +213,7 @@ public class UISystem : BaseSystem
         //fps
         frameCounter++;
         sb.DrawString(
-            fonts["consolas_12"],
+            fonts["ocra_12"],
             $"FPS: {frameRate}",
             new Vector2(4, Game.Height - 20),
             Color.Yellow,
@@ -227,7 +226,7 @@ public class UISystem : BaseSystem
         //instructions
         if (SceneManager.CurrentScene == "Play")
             sb.DrawString(
-                fonts["consolas_12"],
+                fonts["ocra_12"],
                 $"Left click to move towards tile \r\n" +
                 $"Select number of spell to aim and left click to attack",
                 new Vector2(8, Game.Height - 200),
@@ -242,7 +241,7 @@ public class UISystem : BaseSystem
         if (SceneManager.CurrentScene == "Play" && !SceneManager.Entities.Any(t => t.HasTag("Player")))
         {
             sb.DrawString(
-                fonts["consolas_22"],
+                fonts["ocra_22"],
                 $"Game Over",
                 new Vector2(Game.Width / 2 - 62, Game.Height / 2),
                 Color.Red,
@@ -294,7 +293,7 @@ public class UISystem : BaseSystem
 
         sb.Draw(Settings.TextureAtlas["_pixel"], bounds, Color.DarkBlue);
 
-        var font = fonts["consolas_12"];
+        var font = fonts["ocra_12"];
 
         var pos = new Vector2(bounds.X + 8, bounds.Y + 8);
         foreach (var line in terminal.Lines)
@@ -334,7 +333,7 @@ public class UISystem : BaseSystem
 
     private void DrawCreatureStats(CreatureStats stats, Point offset, bool showMoney = true, string name = null)
     {
-        var font = fonts["consolas_14"];
+        var font = fonts["ocra_14"];
 
         if (!string.IsNullOrWhiteSpace(name))
         {
@@ -381,7 +380,7 @@ public class UISystem : BaseSystem
 
     private void DrawSpellBook(SpellBook spellBook, CreatureStats creatureStats, Point offset)
     {
-        var font = fonts["consolas_14"];
+        var font = fonts["ocra_12"];
 
         var yOffset = 0;
         foreach (var spell in spellBook.Spells)
@@ -409,7 +408,7 @@ public class UISystem : BaseSystem
 
     private void DrawEffects(EffectController effectController, Point offset)
     {
-        var font = fonts["consolas_14"];
+        var font = fonts["ocra_14"];
 
         var yOffset = 0;
         foreach (var effect in effectController.Effects)

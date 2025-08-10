@@ -75,7 +75,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
             })
             .With(new TextBox
             {
-                FontName = "consolas_22",
+                FontName = "ocra_22",
                 Text = "Start",
                 TextColor = new Color(202, 62, 71),
                 Layer = 0.9f,
@@ -89,7 +89,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
         var robe = new Entity()
             .With(new UIElement
             {
-                Position = new Point(game.Width / 2 + 100, game.Height / 2 + yOffset),
+                Position = new Point(game.Width / 2 + 32, game.Height / 2 + yOffset),
                 Size = new Point(64, 64),
                 OnMousePressed = (mb) =>
                 {
@@ -144,7 +144,7 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
             robe = robe
                 .With(new TextBox
                 {
-                    FontName = "consolas_22",
+                    FontName = "ocra_14",
                     Text = Settings.WardrobeAtlas[wardrobeType.Value].Cost.ToString(),
                     TextColor = Color.Green,
                     Layer = 0.8f,
@@ -152,11 +152,11 @@ public class CharacterCreationScene : IPrefab<List<Entity>>
                 })
                 .With(new TextBox
                 {
-                    FontName = "consolas_14",
+                    FontName = "ocra_12",
                     Text = Settings.WardrobeAtlas[wardrobeType.Value].Description,
                     TextColor = Color.White,
                     Layer = 0.8f,
-                    Offset = new Vector2(Settings.TileSize * 10, 0)
+                    Offset = new Vector2(Settings.TileSize * 11, 0),
                 });
         }
 
